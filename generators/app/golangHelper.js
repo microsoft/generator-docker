@@ -75,9 +75,11 @@ GolangHelper.prototype.getProjectName = function() {
  */
 GolangHelper.prototype.getOpenWebSiteCommand = function() {
     var command = '';
-
-    if (this._isGoWeb) {
+    
+    if (this._isWeb) {
+        console.log('goweb returning website cmd');
         command = 'open \"http://$(docker-machine ip $dockerHostName):' + this._portNumber + '\"';
+        
         if (util.isWindows()) {
             command = 'FOR /F %%i IN (\' "docker-machine ip %dockerHostName:"=%" \') do set tmpValue=%%i\r\n\t\tset ipValue=%tmpValue: =%\r\n\t\tstart http://%ipValue%:' + this._portNumber;
         }

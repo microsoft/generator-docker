@@ -57,7 +57,7 @@ NodejsHelper.prototype.getDockerfileRunCommand = function() {
  * @returns {string}
  */
 NodejsHelper.prototype.getNodemonCommand = function() {
-    return 'RUN npm install nodemon -g';
+    return this._useNodemon ? 'RUN npm install nodemon -g' : '';
 }
 
 /**

@@ -168,7 +168,7 @@ function handleGolang(yo) {
             imageName: golang.getDockerImageName(),
             projectName: golang.getProjectName()
         });
-
+        
     yo.fs.copyTpl(
         yo.templatePath(golang.getTemplateScriptName()),
         yo.destinationPath(util.getDestinationScriptName()), {
