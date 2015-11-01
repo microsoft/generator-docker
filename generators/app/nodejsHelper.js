@@ -100,7 +100,7 @@ NodejsHelper.prototype._getPortParameter = function() {
  * @returns {boolean} 
  */
 NodejsHelper.prototype.canShareVolume = function() {
-    if (util.isWindows && this._useNodemon) {
+    if (util.isWindows() && this._useNodemon) {
         var splitFolders = process.cwd().split(path.sep);
         var rootFolder = splitFolders[0] + path.sep + splitFolders[1];
 
