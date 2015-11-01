@@ -161,13 +161,7 @@ function handleNodeJs(yo) {
  */
 function handleGolang(yo) {
     var golang = new GolangHelper(isGoWeb, portNumber, imageName);
-
-    if (!golang.validate()) {
-        error = true;
-        yo.log.error('Something went wrong :(');
-        return;
-    }
-
+    
     yo.fs.copyTpl(
         yo.templatePath(golang.getTemplateDockerfileName()),
         yo.destinationPath(DOCKERFILE_NAME), {
@@ -190,12 +184,6 @@ function handleGolang(yo) {
  */
 function handleAspnet(yo) {
     var aspnet = new AspnetHelper(aspnetVersion, portNumber, imageName);
-
-    if (!aspnet.validate()) {
-        error = true;
-        yo.log.error('Something went wrong :(');
-        return;
-    }
 
     if (shouldAddKestrelCommand) {
         aspnet.addKestrelCommand();
