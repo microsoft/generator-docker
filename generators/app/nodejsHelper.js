@@ -96,15 +96,15 @@ NodejsHelper.prototype._getPortParameter = function() {
 
 /**
  * Gets the value indicating whether -v parameter can be used in the docker run command.
- * For volume sharing on Windows, project has to be under %HOMEDRIVE%:\Users\ folder.
+ * For volume sharing on Windows, project has to be under %HOMEDRIVE%\Users\ folder.
  * @returns {boolean}
  */
 NodejsHelper.prototype.canShareVolume = function() {
     if (util.isWindows() && this._useNodemon) {
         var splitFolders = process.cwd().split(path.sep);
         var rootFolder = splitFolders[0] + path.sep + splitFolders[1];
-
-        if (rootFolder.toLowerCase() != splitFolders[0].toLowerCase() + path.sep + 'users') {
+        
+        if (rootFolder.toLowerCase() != process.env.HOMEDRIVE.toLowerCase() + path.sep + 'users') {
             return false;
         }
     }
