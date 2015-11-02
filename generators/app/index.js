@@ -220,7 +220,7 @@ function end() {
     }
 
     if (kestrelCommandAdded) {
-        this.log('We added a command to your project.json file that runs the kestrel web server.');
+        this.log('We noticed your project.json file didn\'t know how to start the kestrel web server. We\'ve fixed that for you.');
     }
 
     this.log('Your project is now ready to run in a Docker container!');
