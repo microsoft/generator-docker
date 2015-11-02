@@ -103,8 +103,8 @@ NodejsHelper.prototype.canShareVolume = function() {
     if (util.isWindows() && this._useNodemon) {
         var splitFolders = process.cwd().split(path.sep);
         var rootFolder = splitFolders[0] + path.sep + splitFolders[1];
-
-        if (rootFolder.toLowerCase() != splitFolders[0].toLowerCase() + path.sep + 'users') {
+        
+        if (rootFolder.toLowerCase() != process.env.HOMEDRIVE.toLowerCase() + path.sep + 'users') {
             return false;
         }
     }
