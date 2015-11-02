@@ -34,15 +34,4 @@ module.exports = {
     scriptify: function(variableName) {
         return this.isWindows() ? '%' + variableName + '%' : '$' + variableName;
     },
-
-    /**
-     * Checks if project.json file contains 'kestrel' command.
-     * @returns {boolean}
-     */
-    kestrelCommandExists: function() {
-        var fileName = process.cwd() + path.sep + 'project.json';
-        var data = JSON.parse(fs.readFileSync(fileName, 'utf8'));
-
-        return !(data.commands.kestrel === undefined);
-    }
 };

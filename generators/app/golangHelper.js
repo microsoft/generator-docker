@@ -11,8 +11,8 @@ var process = require('process');
  * Represents a helper for Golang projects.
  * @constructor
  * @param {boolean} isWeb - True if Go project is a web project, false otherwise.
- * @param {int} portNumber - Port number. 
- * @param {string} imageName - App image name. 
+ * @param {int} portNumber - Port number.
+ * @param {string} imageName - App image name.
  */
 var GolangHelper = function(isWeb, portNumber, imageName) {
     this._isWeb = isWeb;
@@ -21,7 +21,7 @@ var GolangHelper = function(isWeb, portNumber, imageName) {
 }
 
 /**
- * Gets the Docker image name. 
+ * Gets the Docker image name.
  * @returns {string}
  */
 GolangHelper.prototype.getDockerImageName = function() {
@@ -38,14 +38,14 @@ GolangHelper.prototype.getPortNumber = function() {
 
 /**
  * Gets the app image name.
- * @returns {string} 
+ * @returns {string}
  */
 GolangHelper.prototype.getImageName = function() {
     return this._imageName;
 }
 
 /**
- * Gets the template script name. 
+ * Gets the template script name.
  * @returns {string}
  */
 GolangHelper.prototype.getTemplateScriptName = function() {
@@ -53,7 +53,7 @@ GolangHelper.prototype.getTemplateScriptName = function() {
 }
 
 /**
- * Gets the template Dockerfile name. 
+ * Gets the template Dockerfile name.
  * @returns {string}
  */
 GolangHelper.prototype.getTemplateDockerfileName = function() {
@@ -75,12 +75,14 @@ GolangHelper.prototype.getProjectName = function() {
  */
 GolangHelper.prototype.getOpenWebSiteCommand = function() {
     var command = '';
-    
+
     if (this._isWeb) {
-        command = 'open \"http://$(docker-machine ip $dockerHostName):' + this._portNumber + '\"';
-        
         if (util.isWindows()) {
-            command = 'FOR /F %%i IN (\' "docker-machine ip %dockerHostName:"=%" \') do set tmpValue=%%i\r\n\t\tset ipValue=%tmpValue: =%\r\n\t\tstart http://%ipValue%:' + this._portNumber;
+            command = 'FOR /F %%i IN (\' "docker-machine ip %dockerHostName:"=%" \') do set tmpValue=%%i\
+                       \r\n\t\tset ipValue=%tmpValue: =%\
+                       \r\n\t\tstart http://%ipValue%:' + this._portNumber;
+        } else {
+            command = 'open \"http://$(docker-machine ip $dockerHostName):' + this._portNumber + '\"';
         }
     }
 

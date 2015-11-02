@@ -11,8 +11,8 @@ var process = require('process');
  * Represents a helper for Node.js projects.
  * @constructor
  * @param {boolean} useNodemon - True if Nodemon should be used, false otherwise.
- * @param {int} portNumber - Port number. 
- * @param {string} imageName - App image name. 
+ * @param {int} portNumber - Port number.
+ * @param {string} imageName - App image name.
  */
 var NodejsHelper = function(useNodemon, portNumber, imageName) {
     this._useNodemon = useNodemon;
@@ -21,7 +21,7 @@ var NodejsHelper = function(useNodemon, portNumber, imageName) {
 }
 
 /**
- * Gets the Docker image name. 
+ * Gets the Docker image name.
  * @returns {string}
  */
 NodejsHelper.prototype.getDockerImageName = function() {
@@ -38,14 +38,14 @@ NodejsHelper.prototype.getPortNumber = function() {
 
 /**
  * Gets the app image name.
- * @returns {string} 
+ * @returns {string}
  */
 NodejsHelper.prototype.getImageName = function() {
     return this._imageName;
 }
 
 /**
- * Gets run command to be used in the Dockerfile. 
+ * Gets run command to be used in the Dockerfile.
  * @returns {string}
  */
 NodejsHelper.prototype.getDockerfileRunCommand = function() {
@@ -61,18 +61,18 @@ NodejsHelper.prototype.getNodemonCommand = function() {
 }
 
 /**
- * Gets the template script name. 
+ * Gets the template script name.
  * @returns {string}
  */
 NodejsHelper.prototype.getTemplateScriptName = function() {
-    return util.isWindows() ? '_dockerTaskNodejs.cmd' : '_dockerTaskNodejs.sh';
+    return util.isWindows() ? '_dockerTaskGeneric.cmd' : '_dockerTaskGeneric.sh';
 }
 
 /**
- * Gets the template Dockerfile name. 
+ * Gets the template Dockerfile name.
  * @returns {string}
  */
-NodejsHelper.prototype.getTemplateDockerfileName = function () { 
+NodejsHelper.prototype.getTemplateDockerfileName = function() {
     return '_Dockerfile.nodejs';
 }
 
@@ -96,8 +96,8 @@ NodejsHelper.prototype._getPortParameter = function() {
 
 /**
  * Gets the value indicating whether -v parameter can be used in the docker run command.
- * For volume sharing on Windows, project has to be under X:\Users\ folder. 
- * @returns {boolean} 
+ * For volume sharing on Windows, project has to be under %HOMEDRIVE%:\Users\ folder.
+ * @returns {boolean}
  */
 NodejsHelper.prototype.canShareVolume = function() {
     if (util.isWindows() && this._useNodemon) {

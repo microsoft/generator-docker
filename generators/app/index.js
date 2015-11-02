@@ -1,4 +1,4 @@
-/*---------------------------------------------------------
+*---------------------------------------------------------
  * Copyright (C) Microsoft Corporation. All rights reserved.
  *--------------------------------------------------------*/
 
@@ -12,7 +12,7 @@ var exec = require('child_process').exec;
 var util = require('./utils.js');
 var NodejsHelper = require('./nodejsHelper.js');
 var GolangHelper = require('./golangHelper.js');
-var AspnetHelper = require('./aspnetHelper.js');
+var AspNetHelper = require('./aspNetHelper.js');
 
 // General
 var projectType = '';
@@ -25,14 +25,14 @@ var dockerHostName = 'default';
 var DOCKERFILE_NAME = 'Dockerfile';
 
 // Node.js variables
-var addnodemon = false;
+var addNodemon = false;
 
 // Golang variables
 var isGoWeb = false;
 
 // ASP.NET variables
-var aspnetVersion = '';
-var shouldAddKestrelCommand = false;
+var aspNetVersion = '';
+var kestrelCommandAdded = false;
 
 /**
  * Show prompts to the user.
@@ -55,21 +55,14 @@ function showPrompts() {
         }]
     }, {
         type: 'confirm',
-        name: 'addnodemon',
+        name: 'addNodemon',
         message: 'Do you want to use Nodemon?',
         when: function(answers) {
             return answers.projectType === 'nodejs';
         }
     }, {
-        type: 'confirm',
-        name: 'shouldAddKestrelCommand',
-        message: 'Kestrel command is missing from your project.json file. Do you want to add it?',
-        when: function(answers) {
-            return answers.projectType === 'aspnet' && !util.kestrelCommandExists();
-        }
-    }, {
         type: 'list',
-        name: 'aspnetVersion',
+        name: 'aspNetVersion',
         message: 'Which version of ASP.NET 5 is your project using?',
         choices: [{
             name: 'beta8',
@@ -113,13 +106,12 @@ function showPrompts() {
 
     this.prompt(prompts, function(props) {
         projectType = props.projectType;
-        addnodemon = props.addnodemon;
+        addNodemon = props.addNodemon;
         portNumber = props.portNumber;
         imageName = props.imageName;
         dockerHostName = props.dockerHostName;
         isGoWeb = props.isGoWeb;
-        aspnetVersion = props.aspnetVersion;
-        shouldAddKestrelCommand = props.shouldAddKestrelCommand;
+        aspNetVersion = props.aspNetVersion;
 
         done();
     }.bind(this));
@@ -129,30 +121,30 @@ function showPrompts() {
  * Handles Node.js option.
  */
 function handleNodeJs(yo) {
-    var nodejs = new NodejsHelper(addnodemon, portNumber, imageName);
+    var nodeJs = new NodejsHelper(addNodemon, portNumber, imageName);
 
-    if (!nodejs.canShareVolume()) {
+    if (!nodeJs.canShareVolume()) {
         error = true;
         yo.log.error('Your project has to be under [drive]:\Users folder in order to use Nodemon on Windows.');
         return;
     }
 
     yo.fs.copyTpl(
-        yo.templatePath(nodejs.getTemplateDockerfileName()),
+        yo.templatePath(nodeJs.getTemplateDockerfileName()),
         yo.destinationPath(DOCKERFILE_NAME), {
-            imageName: nodejs.getDockerImageName(),
-            nodemonCommand: nodejs.getNodemonCommand(),
-            portNumber: nodejs.getPortNumber(),
-            runCommand: nodejs.getDockerfileRunCommand()
+            imageName: nodeJs.getDockerImageName(),
+            nodemonCommand: nodeJs.getNodemonCommand(),
+            portNumber: nodeJs.getPortNumber(),
+            runCommand: nodeJs.getDockerfileRunCommand()
         });
 
     yo.fs.copyTpl(
-        yo.templatePath(nodejs.getTemplateScriptName()),
+        yo.templatePath(nodeJs.getTemplateScriptName()),
         yo.destinationPath(util.getDestinationScriptName()), {
-            imageName: nodejs.getImageName(),
-            portNumber: nodejs.getPortNumber(),
+            imageName: nodeJs.getImageName(),
+            portNumber: nodeJs.getPortNumber(),
             dockerHostName: dockerHostName,
-            containerRunCommand: nodejs.getContainerRunCommand()
+            containerRunCommand: nodeJs.getContainerRunCommand()
         });
 }
 
@@ -161,14 +153,14 @@ function handleNodeJs(yo) {
  */
 function handleGolang(yo) {
     var golang = new GolangHelper(isGoWeb, portNumber, imageName);
-    
+
     yo.fs.copyTpl(
         yo.templatePath(golang.getTemplateDockerfileName()),
         yo.destinationPath(DOCKERFILE_NAME), {
             imageName: golang.getDockerImageName(),
             projectName: golang.getProjectName()
         });
-        
+
     yo.fs.copyTpl(
         yo.templatePath(golang.getTemplateScriptName()),
         yo.destinationPath(util.getDestinationScriptName()), {
@@ -182,28 +174,28 @@ function handleGolang(yo) {
 /**
  * Handles ASP.NET option.
  */
-function handleAspnet(yo) {
-    var aspnet = new AspnetHelper(aspnetVersion, portNumber, imageName);
+function handleAspNet(yo) {
+    var aspNet = new AspNetHelper(aspNetVersion, portNumber, imageName);
 
-    if (shouldAddKestrelCommand) {
-        aspnet.addKestrelCommand();
-    }
+    aspNet.addKestrelCommand(function(commandAdded) {
+        kestrelCommandAdded = commandAdded;
+    });
 
     yo.fs.copyTpl(
-        yo.templatePath(aspnet.getTemplateDockerfileName()),
+        yo.templatePath(aspNet.getTemplateDockerfileName()),
         yo.destinationPath(DOCKERFILE_NAME), {
-            imageName: aspnet.getDockerImageName(),
-            portNumber: aspnet.getPortNumber(),
-            aspnetCommandName: aspnet.getAspnetCommandName()
+            imageName: aspNet.getDockerImageName(),
+            portNumber: aspNet.getPortNumber(),
+            aspNetCommandName: aspNet.getAspNetCommandName()
         });
 
     yo.fs.copyTpl(
-        yo.templatePath(aspnet.getTemplateScriptName()),
+        yo.templatePath(aspNet.getTemplateScriptName()),
         yo.destinationPath(util.getDestinationScriptName()), {
-            imageName: aspnet.getImageName(),
-            portNumber: aspnet.getPortNumber(),
+            imageName: aspNet.getImageName(),
+            portNumber: aspNet.getPortNumber(),
             dockerHostName: dockerHostName,
-            containerRunCommand: aspnet.getContainerRunCommand()
+            containerRunCommand: aspNet.getContainerRunCommand()
         });
 }
 
@@ -226,6 +218,11 @@ function end() {
             done();
         }.bind(this));
     }
+
+    if (kestrelCommandAdded) {
+        this.log('We added a command to your project.json file that runs the kestrel web server.');
+    }
+
     this.log('Your project is now ready to run in a Docker container!');
     this.log('Run ' + chalk.green(util.getDestinationScriptName()) + ' to build a Docker image and run your app in a container.');
 }
@@ -258,7 +255,7 @@ var DockerGenerator = yeoman.generators.Base.extend({
                 }
             case 'aspnet':
                 {
-                    handleAspnet(this);
+                    handleAspNet(this);
                     break;
                 }
             default:
