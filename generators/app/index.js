@@ -12,7 +12,7 @@ var exec = require('child_process').exec;
 var util = require('./utils.js');
 var NodejsHelper = require('./nodejsHelper.js');
 var GolangHelper = require('./golangHelper.js');
-var AspNetHelper = require('./aspNetHelper.js');
+var AspNetHelper = require('./aspnetHelper.js');
 
 // General
 var projectType = '';
