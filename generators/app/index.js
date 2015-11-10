@@ -13,6 +13,9 @@ var util = require('./utils.js');
 var NodejsHelper = require('./nodejsHelper.js');
 var GolangHelper = require('./golangHelper.js');
 var AspNetHelper = require('./aspnetHelper.js');
+var Configstore = require('configstore');
+var appInsights = require('applicationinsights');
+var os = require('os');
 
 // General
 var projectType = '';
@@ -32,6 +35,12 @@ var isGoWeb = false;
 // ASP.NET variables
 var aspNetVersion = '';
 var kestrelCommandAdded = false;
+
+// Application insights variables.
+var pkg = require(__dirname +'/../../package.json');
+var AppInsightsOptInName = 'appInsightsOptIn';
+var AppInsightsKey = '21098969-0721-47bc-87cb-e346d186a9f5';
+var trackData = false;
 
 /**
  * Show prompts to the user.
@@ -105,7 +114,6 @@ function showPrompts() {
         imageName = props.imageName;
         isGoWeb = props.isGoWeb;
         aspNetVersion = props.aspNetVersion;
-
         done();
     }.bind(this));
 }
@@ -221,8 +229,62 @@ function end() {
         this.log('We noticed your project.json file didn\'t know how to start the kestrel web server. We\'ve fixed that for you.');
     }
 
+    logData();
     this.log('Your project is now ready to run in a Docker container!');
     this.log('Run ' + chalk.green(util.getDestinationScriptName()) + ' to build a Docker image and run your app in a container.');
+}
+
+/**
+ * Sends the data to application insights.
+*/
+function logData() {
+      if (!trackData) {
+            return;
+        }
+
+        var client = appInsights.getClient(AppInsightsKey)
+        client.config.maxBatchIntervalMs = 1000;
+        appInsights.setup(AppInsightsKey).start();
+
+        client.trackEvent('YoDockerLaunch',
+                { 'version': pkg.version,
+                'osPlatform': os.platform(),
+                'projectType': projectType,
+                'usingNodemon': addNodemon === undefined ? 'undefined' : addNodemon,
+                'portNumber': portNumber,
+                'imageName': imageName,
+                'isGoWebProject': isGoWeb === undefined ? 'undefined' : isGoWeb,
+                'aspNetVersion': aspNetVersion === undefined ? 'undefined' : aspNetVersion });
+
+        // Workaround for https://github.com/Microsoft/ApplicationInsights-node.js/issues/54
+        appInsights.setAutoCollectPerformance(false);
+}
+
+/**
+ * Prompts for data tracking permission and sets up the global opt-in.
+ */
+function handleAppInsights(yo) {
+    // Config is stored at: ~/.config/configstore/generator-docker.json
+      var config = new Configstore(pkg.name);
+
+      if (config.get(AppInsightsOptInName) === undefined) {
+        var done = yo.async();
+        var q =  {
+            type: 'confirm',
+            name: 'optIn',
+            message: 'Generator-docker would like to collect anonymized data on the options you selected to understand and improve your experience.' +
+            'To opt out later, you can delete ' + chalk.red('~/.config/configstore/' + pkg.name + '.json. ') + 'Will you help us help you and your fellow developers?',
+            default: true
+        };
+
+        yo.prompt(q, function(props) {
+                trackData = props.optIn;
+                config.set(AppInsightsOptInName, trackData);
+                done();
+        }.bind(yo));
+    } else {
+        trackData = config.get(AppInsightsOptInName);
+    }
 }
 
 /**
@@ -235,8 +297,8 @@ var DockerGenerator = yeoman.generators.Base.extend({
 
     init: function() {
         this.log(yosay('Welcome to the ' + chalk.red('Docker') + ' generator!' + chalk.green('\nLet\'s add Docker container magic to your app!')));
+        handleAppInsights(this);
     },
-
     askFor: showPrompts,
     writing: function() {
         this.sourceRoot(path.join(__dirname, './templates'));
