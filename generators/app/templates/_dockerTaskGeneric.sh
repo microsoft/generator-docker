@@ -47,8 +47,7 @@ showUsage () {
 }
 
 if [ $# -eq 0 ]; then
-  buildImage
-  runContainer
+  showUsage
 else
   case "$1" in
       "build")
