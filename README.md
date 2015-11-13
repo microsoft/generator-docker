@@ -29,7 +29,20 @@ yo docker
 ```
 
 ## Contributing
-See [CONTRIBUTING][contributingLink] for more guidelines.
+See [Contributing][contributingLink] for guidelines.
+
+## Multi-Environment and Multi-Container Compose Support - Prototype
+We are working on adding docker-compose support that will support multiple containers and multiple environments.
+`dockerTask compose dev` will issue a docker-compose up with the merged docker-compose files
+`dockerTask compose staging` will remove the volume mapping and other debug settings
+
+To see and provide feedback, please take a look at: [yo docker compose prototype][yodockerprototype]
+
+## Q&A
+- **Q: Are you building an abstraction layer over docker apis?**
+  - **A:** No. These are your scripts. We're simply providing a starting point that docker developers would write themselves. These scripts are based on customers we've been working with
+- **Q: Are you taking feedback?**
+  - **A:** Of course. Please open an issue at [yodockerissues] or choose to [contribute][contributingLink]
 
 ## License
 See [LICENSE][licenseLink] for full license text.
@@ -45,3 +58,5 @@ See [LICENSE][licenseLink] for full license text.
 [yovideoScreenshot]: http://img.youtube.com/vi/p1F-398z1_4/0.jpg
 [nodejsSite]: https://nodejs.org/en/
 [yoSite]: http://yeoman.io/
+[yodockerprototype]: https://github.com/SteveLasker/YoDockerComposePrototype
+[yodockerissues]: https://github.com/SteveLasker/YoDockerComposePrototype/issues
