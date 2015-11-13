@@ -1,6 +1,5 @@
 imageName="<%= imageName %>"
 containerPort=<%= portNumber %>
-dockerHostName="<%= dockerHostName %>"
 publicPort=<%= portNumber %>
 
 # Kills all running containers of an image and then removes them.
@@ -25,7 +24,7 @@ runContainer () {
     <%= containerRunCommand %>
 
     # Open the site.
-    open "http://$(docker-machine ip $dockerHostName):$publicPort"
+    open "http://$(docker-machine ip $(docker-machine active)):$publicPort"
 }
 
 # Shows the usage for the script.

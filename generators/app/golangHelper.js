@@ -78,11 +78,12 @@ GolangHelper.prototype.getOpenWebSiteCommand = function() {
 
     if (this._isWeb) {
         if (util.isWindows()) {
-            command = 'FOR /F %%i IN (\' "docker-machine ip %dockerHostName:"=%" \') do set tmpValue=%%i\
+            command = 'FOR /F %%i IN (\' "docker-machine active" \') do set dockerHostName=%%i\
+                      FOR /F %%i IN (\' "docker-machine ip %dockerHostName:"=%" \') do set tmpValue=%%i\
                        \r\n\t\tset ipValue=%tmpValue: =%\
                        \r\n\t\tstart http://%ipValue%:' + this._portNumber;
         } else {
-            command = 'open \"http://$(docker-machine ip $dockerHostName):' + this._portNumber + '\"';
+            command = 'open \"http://$(docker-machine ip $(docker-machine active)):' + this._portNumber + '\"';
         }
     }
 

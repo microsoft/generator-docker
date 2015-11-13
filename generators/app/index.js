@@ -21,7 +21,6 @@ var error = false;
 // Docker variables
 var portNumber = 3000;
 var imageName = '';
-var dockerHostName = 'default';
 var DOCKERFILE_NAME = 'Dockerfile';
 
 // Node.js variables
@@ -97,11 +96,6 @@ function showPrompts() {
         name: 'imageName',
         message: 'What do you want to name your image?',
         default: process.cwd().split(path.sep).pop().toLowerCase() + '_image',
-    }, {
-        type: 'input',
-        name: 'dockerHostName',
-        message: 'What\'s the name of your docker host machine?',
-        default: 'default',
     }];
 
     this.prompt(prompts, function(props) {
@@ -109,7 +103,6 @@ function showPrompts() {
         addNodemon = props.addNodemon;
         portNumber = props.portNumber;
         imageName = props.imageName;
-        dockerHostName = props.dockerHostName;
         isGoWeb = props.isGoWeb;
         aspNetVersion = props.aspNetVersion;
 
@@ -143,7 +136,6 @@ function handleNodeJs(yo) {
         yo.destinationPath(util.getDestinationScriptName()), {
             imageName: nodeJs.getImageName(),
             portNumber: nodeJs.getPortNumber(),
-            dockerHostName: dockerHostName,
             containerRunCommand: nodeJs.getContainerRunCommand()
         });
 }
@@ -167,7 +159,6 @@ function handleGolang(yo) {
             imageName: golang.getImageName(),
             runImageCommand: golang.getContainerRunCommand(),
             openWebSiteCommand: golang.getOpenWebSiteCommand(),
-            dockerHostName: dockerHostName
         });
 }
 
@@ -201,7 +192,6 @@ function handleAspNet(yo) {
             yo.destinationPath(util.getDestinationScriptName()), {
                 imageName: aspNet.getImageName(),
                 portNumber: aspNet.getPortNumber(),
-                dockerHostName: dockerHostName,
                 containerRunCommand: aspNet.getContainerRunCommand()
             });
 }
