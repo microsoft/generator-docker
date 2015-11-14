@@ -83,7 +83,12 @@ GolangHelper.prototype.getOpenWebSiteCommand = function() {
                        \r\n\t\tset ipValue=%tmpValue: =%\
                        \r\n\t\tstart http://%ipValue%:' + this._portNumber;
         } else {
-            command = 'open \"http://$(docker-machine ip $(docker-machine active)):' + this._portNumber + '\"';
+            
+             command = 'until $(curl --output /dev/null --silent --head --fail http://$(docker-machine ip $(docker-machine active)):' + this._portNumber + '); do\
+                        \nprintf \'.\'\
+                        \nsleep 1\
+                        \ndone\
+                        \nopen \"http://$(docker-machine ip $(docker-machine active)):' + this._portNumber + '\"';
         }
     }
 

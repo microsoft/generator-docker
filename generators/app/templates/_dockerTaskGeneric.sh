@@ -23,6 +23,12 @@ runContainer () {
     # Create a container from the image.
     <%= containerRunCommand %>
 
+    printf 'Opening site'
+    until $(curl --output /dev/null --silent --head --fail http://$(docker-machine ip $(docker-machine active)):$publicPort); do
+      printf '.'
+      sleep 1
+    done
+
     # Open the site.
     open "http://$(docker-machine ip $(docker-machine active)):$publicPort"
 }
