@@ -1,5 +1,4 @@
 imageName="<%= imageName %>"
-dockerHostName="<%= dockerHostName %>"
 
 # Kills all running containers of an image and then removes them.
 cleanAll () {

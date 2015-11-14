@@ -1,7 +1,6 @@
 @echo off 
 set imageName="<%= imageName %>"
 set containerPort=<%= portNumber %>
-set dockerHostName="<%= dockerHostName %>"
 set publicPort=<%= portNumber %>
 
 if /I "%1" == "build" (
@@ -57,7 +56,12 @@ REM Runs the container.
     REM Create a container from the image.
     <%= containerRunCommand %>
 
-    REM Open the site.    
+    REM Get the active machine name. 
+    FOR /F %%i IN (' "docker-machine active" ') do (
+        set dockerHostName=%%i
+    )
+
+    REM Open the site.
     FOR /F %%i IN (' "docker-machine ip %dockerHostName%" ') do (
        set ipValue=%%i
     )
