@@ -8,13 +8,12 @@ var path = require('path');
 var assert = require('yeoman-generator').assert;
 var helpers = require('yeoman-generator').test;
 
-function createGolangPrompts(isWebProject, portNumber, imageName, dockerHostName) {
+function createGolangPrompts(isWebProject, portNumber, imageName) {
     return {
         projectType: 'golang',
         isGoWeb: isWebProject,
         portNumber: portNumber,
         imageName: imageName,
-        dockerHostName: dockerHostName
     }
 }
 
@@ -23,6 +22,12 @@ describe('golang generator', function() {
             helpers.run(path.join(__dirname, '../generators/app'))
                 .withPrompts({
                     projectType: 'golang'
+                })
+                .withLocalConfig(function() {
+                    return {
+                        "appInsightsOptIn": false,
+                        "runningTests": true
+                    };
                 })
                 .on('end', function() {
                     assert.file([
@@ -35,9 +40,14 @@ describe('golang generator', function() {
         it('creates Dockerfile with correct contents (Web project)', function(done) {
             var portNumber = 1234;
             var imageName = 'golangimagename';
-            var dockerHostName = 'default';
             helpers.run(path.join(__dirname, '../generators/app'))
-                .withPrompts(createGolangPrompts(true, portNumber, imageName, dockerHostName))
+                .withLocalConfig(function() {
+                    return {
+                        "appInsightsOptIn": false,
+                        "runningTests": true
+                    };
+                })
+                .withPrompts(createGolangPrompts(true, portNumber, imageName))
                 .on('end', function() {
                     var currentFolder = process.cwd().split(path.sep).pop();
                     assert.fileContent(
@@ -54,9 +64,14 @@ describe('golang generator', function() {
         it('creates Dockerfile with correct contents (non-Web project)', function(done) {
             var portNumber = 1234;
             var imageName = 'golangimagename';
-            var dockerHostName = 'default';
             helpers.run(path.join(__dirname, '../generators/app'))
-                .withPrompts(createGolangPrompts(false, portNumber, imageName, dockerHostName))
+                .withLocalConfig(function() {
+                    return {
+                        "appInsightsOptIn": false,
+                        "runningTests": true
+                    };
+                })
+                .withPrompts(createGolangPrompts(false, portNumber, imageName))
                 .on('end', function() {
                     var currentFolder = process.cwd().split(path.sep).pop();
                     assert.fileContent(
@@ -73,18 +88,19 @@ describe('golang generator', function() {
         it('creates dockerTask.sh with correct contents (Web project)', function(done) {
             var portNumber = 1234;
             var imageName = 'golangimagename';
-            var dockerHostName = 'default';
             helpers.run(path.join(__dirname, '../generators/app'))
-                .withPrompts(createGolangPrompts(true, portNumber, imageName, dockerHostName))
+                .withLocalConfig(function() {
+                    return {
+                        "appInsightsOptIn": false,
+                        "runningTests": true
+                    };
+                })
+                .withPrompts(createGolangPrompts(true, portNumber, imageName))
                 .on('end', function() {
                     assert.fileContent(
                         'dockerTask.sh', 'imageName="' + imageName + '"');
                     assert.fileContent(
-                        'dockerTask.sh', 'dockerHostName="' + dockerHostName + '"');
-                    assert.fileContent(
-                        'dockerTask.sh', 'dockerHostName="default"');
-                    assert.fileContent(
-                        'dockerTask.sh', 'open \"http://$(docker-machine ip $dockerHostName):' + portNumber + '"');
+                        'dockerTask.sh', 'open \"http://$(docker-machine ip $(docker-machine active)):' + portNumber + '"');
                     assert.fileContent(
                         'dockerTask.sh', 'docker run -di -p ' + portNumber + ':' + portNumber + ' ' + imageName);
                 });
@@ -93,18 +109,19 @@ describe('golang generator', function() {
     it('creates dockerTask.sh with correct contents (non-Web project)', function(done) {
         var portNumber = 1234;
         var imageName = 'golangimagename';
-        var dockerHostName = 'default';
         helpers.run(path.join(__dirname, '../generators/app'))
-            .withPrompts(createGolangPrompts(false, portNumber, imageName, dockerHostName))
+            .withLocalConfig(function() {
+                return {
+                    "appInsightsOptIn": false,
+                    "runningTests": true
+                };
+            })
+            .withPrompts(createGolangPrompts(false, portNumber, imageName))
             .on('end', function() {
                 assert.fileContent(
                     'dockerTask.sh', 'imageName="' + imageName + '"');
-                assert.fileContent(
-                    'dockerTask.sh', 'dockerHostName="' + dockerHostName + '"');
-                assert.fileContent(
-                    'dockerTask.sh', 'dockerHostName="default"');
                 assert.noFileContent(
-                    'dockerTask.sh', 'open \"http://$(docker-machine ip $dockerHostName):' + portNumber + '"');
+                    'dockerTask.sh', 'open \"http://$(docker-machine ip $(docker-machine active)):' + portNumber + '"');
                 assert.fileContent(
                     'dockerTask.sh', 'docker run -di ' + imageName);
             });

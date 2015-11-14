@@ -37,7 +37,7 @@ var aspNetVersion = '';
 var kestrelCommandAdded = false;
 
 // Application insights variables.
-var pkg = require(__dirname +'/../../package.json');
+var pkg = require(__dirname + '/../../package.json');
 var AppInsightsOptInName = 'appInsightsOptIn';
 var AppInsightsKey = '21098969-0721-47bc-87cb-e346d186a9f5';
 var trackData = false;
@@ -186,22 +186,22 @@ function handleAspNet(yo) {
         kestrelCommandAdded = commandAdded;
         done();
     }.bind(yo));
-    
-        yo.fs.copyTpl(
-            yo.templatePath(aspNet.getTemplateDockerfileName()),
-            yo.destinationPath(DOCKERFILE_NAME), {
-                imageName: aspNet.getDockerImageName(),
-                portNumber: aspNet.getPortNumber(),
-                aspNetCommandName: aspNet.getAspNetCommandName()
-            });
 
-        yo.fs.copyTpl(
-            yo.templatePath(aspNet.getTemplateScriptName()),
-            yo.destinationPath(util.getDestinationScriptName()), {
-                imageName: aspNet.getImageName(),
-                portNumber: aspNet.getPortNumber(),
-                containerRunCommand: aspNet.getContainerRunCommand()
-            });
+    yo.fs.copyTpl(
+        yo.templatePath(aspNet.getTemplateDockerfileName()),
+        yo.destinationPath(DOCKERFILE_NAME), {
+            imageName: aspNet.getDockerImageName(),
+            portNumber: aspNet.getPortNumber(),
+            aspNetCommandName: aspNet.getAspNetCommandName()
+        });
+
+    yo.fs.copyTpl(
+        yo.templatePath(aspNet.getTemplateScriptName()),
+        yo.destinationPath(util.getDestinationScriptName()), {
+            imageName: aspNet.getImageName(),
+            portNumber: aspNet.getPortNumber(),
+            containerRunCommand: aspNet.getContainerRunCommand()
+        });
 }
 
 /**
@@ -223,7 +223,7 @@ function end() {
             }
             done();
         }.bind(this));
-    } 
+    }
 
     if (kestrelCommandAdded) {
         this.log('We noticed your project.json file didn\'t know how to start the kestrel web server. We\'ve fixed that for you.');
@@ -236,28 +236,33 @@ function end() {
 
 /**
  * Sends the data to application insights.
-*/
+ */
 function logData() {
-      if (!trackData) {
-            return;
-        }
+    if (!trackData) {
+        return;
+    }
 
-        var client = appInsights.getClient(AppInsightsKey)
-        client.config.maxBatchIntervalMs = 1000;
-        appInsights.setup(AppInsightsKey).start();
+    if (DockerGenerator.config.get('runningTests') !== undefined) {
+        return;
+    }
 
-        client.trackEvent('YoDockerLaunch',
-                { 'version': pkg.version,
-                'osPlatform': os.platform(),
-                'projectType': projectType,
-                'usingNodemon': addNodemon === undefined ? 'undefined' : addNodemon,
-                'portNumber': portNumber,
-                'imageName': imageName,
-                'isGoWebProject': isGoWeb === undefined ? 'undefined' : isGoWeb,
-                'aspNetVersion': aspNetVersion === undefined ? 'undefined' : aspNetVersion });
+    var client = appInsights.getClient(AppInsightsKey)
+    client.config.maxBatchIntervalMs = 1000;
+    appInsights.setup(AppInsightsKey).start();
 
-        // Workaround for https://github.com/Microsoft/ApplicationInsights-node.js/issues/54
-        appInsights.setAutoCollectPerformance(false);
+    client.trackEvent('YoDockerLaunch', {
+        'version': pkg.version,
+        'osPlatform': os.platform(),
+        'projectType': projectType,
+        'usingNodemon': addNodemon === undefined ? 'undefined' : addNodemon,
+        'portNumber': portNumber,
+        'imageName': imageName,
+        'isGoWebProject': isGoWeb === undefined ? 'undefined' : isGoWeb,
+        'aspNetVersion': aspNetVersion === undefined ? 'undefined' : aspNetVersion
+    });
+
+    // Workaround for https://github.com/Microsoft/ApplicationInsights-node.js/issues/54
+    appInsights.setAutoCollectPerformance(false);
 }
 
 /**
@@ -265,22 +270,26 @@ function logData() {
  */
 function handleAppInsights(yo) {
     // Config is stored at: ~/.config/configstore/generator-docker.json
-      var config = new Configstore(pkg.name);
+    var config = new Configstore(pkg.name);
 
-      if (config.get(AppInsightsOptInName) === undefined) {
+    if (config.get('runningTests') !== undefined) {
+        return;
+    }
+
+    if (config.get(AppInsightsOptInName) === undefined) {
         var done = yo.async();
-        var q =  {
+        var q = {
             type: 'confirm',
             name: 'optIn',
             message: 'Generator-docker would like to collect anonymized data on the options you selected to understand and improve your experience.' +
-            'To opt out later, you can delete ' + chalk.red('~/.config/configstore/' + pkg.name + '.json. ') + 'Will you help us help you and your fellow developers?',
+                'To opt out later, you can delete ' + chalk.red('~/.config/configstore/' + pkg.name + '.json. ') + 'Will you help us help you and your fellow developers?',
             default: true
         };
 
         yo.prompt(q, function(props) {
-                trackData = props.optIn;
-                config.set(AppInsightsOptInName, trackData);
-                done();
+            trackData = props.optIn;
+            config.set(AppInsightsOptInName, trackData);
+            done();
         }.bind(yo));
     } else {
         trackData = config.get(AppInsightsOptInName);
