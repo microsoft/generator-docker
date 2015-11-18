@@ -44,6 +44,10 @@ To see and provide feedback, please take a look at: [yo docker compose prototype
 - **Q: Are you taking feedback?**
   - **A:** Of course. Please open an issue at [yodockerissues] or choose to [contribute][contributingLink]
 
+## Collecting usage data
+Generator-docker collects anonymized data on the options you selected in the tool to understand and improve the experience. You are given a choice to 
+opt-in or opt-out first time you run the tool. If you opt-in and decide to opt-out later, simply delete the `~/.config/configstore/generator-docker.json` file from your machine. 
+
 ## License
 See [LICENSE][licenseLink] for full license text.
 
