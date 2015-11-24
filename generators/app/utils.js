@@ -4,9 +4,6 @@
 
 'use strict';
 var os = require('os');
-var path = require('path');
-var process = require('process');
-var fs = require('fs');
 
 module.exports = {
     /**

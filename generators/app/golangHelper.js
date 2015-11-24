@@ -6,6 +6,7 @@
 var util = require('./utils.js');
 var path = require('path');
 var process = require('process');
+var DockerfileHelper = require('./dockerfileHelper.js');
 
 /**
  * Represents a helper for Golang projects.
@@ -18,6 +19,21 @@ var GolangHelper = function(isWeb, portNumber, imageName) {
     this._isWeb = isWeb;
     this._portNumber = portNumber;
     this._imageName = imageName;
+}
+
+/**
+ * Creates dockerfile contents.
+ * @returns {string}
+ */
+GolangHelper.prototype.createDockerfile = function() {
+    var projectName = this.getProjectName();
+    var _dockerfileHelper = new DockerfileHelper();
+    _dockerfileHelper.addFromCommand(this.getDockerImageName());
+    _dockerfileHelper.addAddCommand('. /go/src/github.com/' + projectName);
+    _dockerfileHelper.addRunCommand('go install github.com/' + projectName);
+    _dockerfileHelper.addEntrypointCommand('/go/bin/' + projectName);
+
+    return _dockerfileHelper.createDockerfileContents();
 }
 
 /**
@@ -50,14 +66,6 @@ GolangHelper.prototype.getImageName = function() {
  */
 GolangHelper.prototype.getTemplateScriptName = function() {
     return util.isWindows() ? '_dockerTaskGolang.cmd' : '_dockerTaskGolang.sh';
-}
-
-/**
- * Gets the template Dockerfile name.
- * @returns {string}
- */
-GolangHelper.prototype.getTemplateDockerfileName = function() {
-    return '_Dockerfile.golang';
 }
 
 /**

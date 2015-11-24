@@ -130,20 +130,14 @@ function handleNodeJs(yo) {
         return;
     }
 
-    yo.fs.copyTpl(
-        yo.templatePath(nodeJs.getTemplateDockerfileName()),
-        yo.destinationPath(DOCKERFILE_NAME), {
-            imageName: nodeJs.getDockerImageName(),
-            nodemonCommand: nodeJs.getNodemonCommand(),
-            portNumber: nodeJs.getPortNumber(),
-            runCommand: nodeJs.getDockerfileRunCommand()
-        });
+    var contents = nodeJs.createDockerfile();
+    yo.fs.write(yo.destinationPath(DOCKERFILE_NAME), new Buffer(contents));
 
     yo.fs.copyTpl(
         yo.templatePath(nodeJs.getTemplateScriptName()),
         yo.destinationPath(util.getDestinationScriptName()), {
-            imageName: nodeJs.getImageName(),
-            portNumber: nodeJs.getPortNumber(),
+            imageName: imageName,
+            portNumber: portNumber,
             containerRunCommand: nodeJs.getContainerRunCommand()
         });
 }
@@ -153,13 +147,9 @@ function handleNodeJs(yo) {
  */
 function handleGolang(yo) {
     var golang = new GolangHelper(isGoWeb, portNumber, imageName);
+    var contents = golang.createDockerfile();
 
-    yo.fs.copyTpl(
-        yo.templatePath(golang.getTemplateDockerfileName()),
-        yo.destinationPath(DOCKERFILE_NAME), {
-            imageName: golang.getDockerImageName(),
-            projectName: golang.getProjectName()
-        });
+    yo.fs.write(yo.destinationPath(DOCKERFILE_NAME), new Buffer(contents));
 
     yo.fs.copyTpl(
         yo.templatePath(golang.getTemplateScriptName()),
@@ -187,13 +177,8 @@ function handleAspNet(yo) {
         done();
     }.bind(yo));
 
-    yo.fs.copyTpl(
-        yo.templatePath(aspNet.getTemplateDockerfileName()),
-        yo.destinationPath(DOCKERFILE_NAME), {
-            imageName: aspNet.getDockerImageName(),
-            portNumber: aspNet.getPortNumber(),
-            aspNetCommandName: aspNet.getAspNetCommandName()
-        });
+    var contents = aspNet.createDockerfile();
+    yo.fs.write(yo.destinationPath(DOCKERFILE_NAME), new Buffer(contents));
 
     yo.fs.copyTpl(
         yo.templatePath(aspNet.getTemplateScriptName()),
