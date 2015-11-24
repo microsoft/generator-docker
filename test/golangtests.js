@@ -33,6 +33,7 @@ describe('golang generator', function() {
                     assert.file([
                         'Dockerfile',
                         'dockerTask.sh',
+                        'docker-compose.yml'
                     ]);
                 });
             done();
@@ -124,6 +125,50 @@ describe('golang generator', function() {
                     'dockerTask.sh', 'open \"http://$(docker-machine ip $(docker-machine active)):' + portNumber + '"');
                 assert.fileContent(
                     'dockerTask.sh', 'docker run -di ' + imageName);
+            });
+        done();
+    }),
+      it('creates docker-compose with correct contents (non-Web project)', function(done) {
+        var portNumber = 1234;
+        var imageName = 'golangimagename';
+        helpers.run(path.join(__dirname, '../generators/app'))
+            .withLocalConfig(function() {
+                return {
+                    "appInsightsOptIn": false,
+                    "runningTests": true
+                };
+            })
+            .withPrompts(createGolangPrompts(false, portNumber, imageName))
+            .on('end', function() {
+                assert.fileContent(
+                    'docker-compose.yml', imageName + ':');
+                assert.fileContent(
+                    'docker-compose.yml', 'dockerfile: Dockerfile');
+                assert.fileContent(
+                    'docker-compose.yml', 'build: .');
+            });
+        done();
+    }),
+          it('creates docker-compose with correct contents (Web project)', function(done) {
+        var portNumber = 1234;
+        var imageName = 'golangimagename';
+        helpers.run(path.join(__dirname, '../generators/app'))
+            .withLocalConfig(function() {
+                return {
+                    "appInsightsOptIn": false,
+                    "runningTests": true
+                };
+            })
+            .withPrompts(createGolangPrompts(false, portNumber, imageName))
+            .on('end', function() {
+                assert.fileContent(
+                    'docker-compose.yml', imageName + ':');
+                assert.fileContent(
+                    'docker-compose.yml', 'dockerfile: Dockerfile');
+                assert.fileContent(
+                    'docker-compose.yml', 'build: .');
+                assert.fileContent(
+                    'docker-compose.yml', '- "' + portNumber + ':' + portNumber +'"');
             });
         done();
     })

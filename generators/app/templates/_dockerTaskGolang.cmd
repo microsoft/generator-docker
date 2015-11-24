@@ -2,6 +2,11 @@
 set imageName="<%= imageName %>"
 set dockerHostName="<%= dockerHostName %>"
 
+if /I "%1" == "compose" (
+    call :compose
+    goto :eof
+)
+
 if /I "%1" == "build" (
       call :buildImage
     goto :eof
@@ -44,6 +49,12 @@ REM Builds the Docker image.
     docker build -t %imageName% .
 goto :eof
 
+REM Runs docker-compose.
+:compose
+    echo Composing.
+    docker-compose up -d
+goto :eof
+
 REM Runs the container.
 :runContainer
     REM Check if container is already running, stop it and run a new one.
@@ -67,6 +78,7 @@ REM Shows the usage for the script.
     echo     build: Builds a Docker image (%imageName%).
     echo     run: Runs a container based on an existing Docker image (%imageName%).
     echo     buildrun: Builds a Docker image and runs the container.
+    echo     compose: Runs docker-compose.
     echo     clean: Removes the image %imageName% and kills all containers based on that image.
     echo Example:
     echo     dockerTask.cmd build

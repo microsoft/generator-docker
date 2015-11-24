@@ -7,6 +7,7 @@ var util = require('./utils.js');
 var path = require('path');
 var process = require('process');
 var DockerfileHelper = require('./dockerfileHelper.js');
+var DockerComposeHelper = require('./dockerComposeHelper.js');
 
 /**
  * Represents a helper for Golang projects.
@@ -34,6 +35,23 @@ GolangHelper.prototype.createDockerfile = function() {
     _dockerfileHelper.addEntrypointCommand('/go/bin/' + projectName);
 
     return _dockerfileHelper.createDockerfileContents();
+}
+
+/**
+ * Creates docker-compose file contents.
+ * @returns {string}
+*/
+GolangHelper.prototype.createDockerComposeFile = function() {
+    var _dockerComposeHelper = new DockerComposeHelper();
+    _dockerComposeHelper.addAppName(this._imageName);
+    _dockerComposeHelper.addDockerfile('Dockerfile');
+    _dockerComposeHelper.addBuildContext('.');
+
+    if (this._isWeb) {
+        _dockerComposeHelper.addPort(this._portNumber + ':' + this._portNumber);
+    }
+
+    return _dockerComposeHelper.createContents();
 }
 
 /**

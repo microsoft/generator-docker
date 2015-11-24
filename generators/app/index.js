@@ -25,6 +25,7 @@ var error = false;
 var portNumber = 3000;
 var imageName = '';
 var DOCKERFILE_NAME = 'Dockerfile';
+var DOCKERCOMPOSE_NAME = 'docker-compose.yml';
 
 // Node.js variables
 var addNodemon = false;
@@ -130,8 +131,11 @@ function handleNodeJs(yo) {
         return;
     }
 
-    var contents = nodeJs.createDockerfile();
-    yo.fs.write(yo.destinationPath(DOCKERFILE_NAME), new Buffer(contents));
+    var dockerfileContents = nodeJs.createDockerfile();
+    yo.fs.write(yo.destinationPath(DOCKERFILE_NAME), new Buffer(dockerfileContents));
+    
+    var dockerComposeContents = nodeJs.createDockerComposeFile();
+    yo.fs.write(yo.destinationPath('docker-compose.yml'), new Buffer(dockerComposeContents));
 
     yo.fs.copyTpl(
         yo.templatePath(nodeJs.getTemplateScriptName()),
@@ -147,9 +151,12 @@ function handleNodeJs(yo) {
  */
 function handleGolang(yo) {
     var golang = new GolangHelper(isGoWeb, portNumber, imageName);
-    var contents = golang.createDockerfile();
 
-    yo.fs.write(yo.destinationPath(DOCKERFILE_NAME), new Buffer(contents));
+    var dockerfileContents = golang.createDockerfile();
+    yo.fs.write(yo.destinationPath(DOCKERFILE_NAME), new Buffer(dockerfileContents));
+    
+    var dockerComposeContents = golang.createDockerComposeFile();
+    yo.fs.write(yo.destinationPath(DOCKERCOMPOSE_NAME), new Buffer(dockerComposeContents));
 
     yo.fs.copyTpl(
         yo.templatePath(golang.getTemplateScriptName()),
@@ -177,8 +184,11 @@ function handleAspNet(yo) {
         done();
     }.bind(yo));
 
-    var contents = aspNet.createDockerfile();
-    yo.fs.write(yo.destinationPath(DOCKERFILE_NAME), new Buffer(contents));
+    var dockerfileContents = aspNet.createDockerfile();
+    yo.fs.write(yo.destinationPath(DOCKERFILE_NAME), new Buffer(dockerfileContents));
+
+    var dockerComposeContents = aspNet.createDockerComposeFile();
+    yo.fs.write(yo.destinationPath(DOCKERCOMPOSE_NAME), new Buffer(dockerComposeContents));
 
     yo.fs.copyTpl(
         yo.templatePath(aspNet.getTemplateScriptName()),

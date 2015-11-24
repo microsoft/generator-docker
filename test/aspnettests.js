@@ -54,6 +54,7 @@ describe('aspnet generator', function() {
                     assert.file([
                         'Dockerfile',
                         'dockerTask.sh',
+                        'docker-compose.yml'
                     ]);
                 });
             done();
@@ -200,6 +201,34 @@ describe('aspnet generator', function() {
                         'dockerTask.sh', 'publicPort=' + portNumber);
                     assert.fileContent(
                         'dockerTask.sh', 'docker run -di -p $publicPort:$containerPort $imageName');
+                });
+            done();
+        }),
+          it('creates docker-compose with correct contents ', function(done) {
+            var portNumber = 1234;
+            var imageName = 'aspnetimagename';
+            var aspNetVersion = '1.0.0-beta8';
+
+            helpers.run(path.join(__dirname, '../generators/app'))
+                .inTmpDir(function(dir) {
+                    createTestProjectJson(dir);
+                })
+                .withLocalConfig(function() {
+                    return {
+                        "appInsightsOptIn": false,
+                        "runningTests": true
+                    };
+                })
+                .withPrompts(createAspNetPrompts(aspNetVersion, portNumber, imageName))
+                .on('end', function() {
+                assert.fileContent(
+                    'docker-compose.yml', imageName + ':');
+                assert.fileContent(
+                    'docker-compose.yml', 'dockerfile: Dockerfile');
+                assert.fileContent(
+                    'docker-compose.yml', 'build: .');
+                assert.fileContent(
+                    'docker-compose.yml', '- "' + portNumber + ':' + portNumber +'"');
                 });
             done();
         })

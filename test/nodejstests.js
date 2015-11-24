@@ -33,6 +33,7 @@ describe('node.js generator', function() {
                     assert.file([
                         'Dockerfile',
                         'dockerTask.sh',
+                        'docker-compose.yml'
                     ]);
                 });
             done();
@@ -122,6 +123,54 @@ describe('node.js generator', function() {
                         'dockerTask.sh', 'publicPort=' + portNumber);
                     assert.fileContent(
                         'dockerTask.sh', 'docker run -di -p $publicPort:$containerPort $imageName');
+                });
+            done();
+        }),
+        it ('create docker-compose file with correct contents (with Nodemon)', function (done) {
+            var portNumber = 1234;
+            var imageName = 'nodejsimagename';
+            helpers.run(path.join(__dirname, '../generators/app'))
+                .withLocalConfig(function() {
+                    return {
+                        "appInsightsOptIn": false,
+                        "runningTests": true
+                    };
+                })
+                .withPrompts(createNodeJsPrompts(true, portNumber, imageName))
+                .on('end', function() {
+                    assert.fileContent(
+                        'docker-compose.yml', imageName + ':');
+                    assert.fileContent(
+                        'docker-compose.yml', 'dockerfile: Dockerfile');
+                    assert.fileContent(
+                        'docker-compose.yml', 'build: .');
+                    assert.fileContent(
+                        'docker-compose.yml', '- .:/src');
+                    assert.fileContent(
+                        'docker-compose.yml', '- "' + portNumber + ':' + portNumber + '"');
+                });
+            done();
+        }),
+         it ('create docker-compose file with correct contents (without Nodemon)', function (done) {
+            var portNumber = 1234;
+            var imageName = 'nodejsimagename';
+            helpers.run(path.join(__dirname, '../generators/app'))
+                .withLocalConfig(function() {
+                    return {
+                        "appInsightsOptIn": false,
+                        "runningTests": true
+                    };
+                })
+                .withPrompts(createNodeJsPrompts(false, portNumber, imageName))
+                .on('end', function() {
+                    assert.fileContent(
+                        'docker-compose.yml', imageName + ':');
+                    assert.fileContent(
+                        'docker-compose.yml', 'dockerfile: Dockerfile');
+                    assert.fileContent(
+                        'docker-compose.yml', 'build: .');
+                    assert.fileContent(
+                        'docker-compose.yml', '- "' + portNumber + ':' + portNumber + '"');
                 });
             done();
         })
