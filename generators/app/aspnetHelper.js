@@ -7,6 +7,7 @@ var util = require('./utils.js');
 var path = require('path');
 var process = require('process');
 var fs = require('fs');
+var DockerfileHelper = require('./dockerfileHelper.js');
 
 /**
  * Represents a helper for ASP.NET projects.
@@ -19,6 +20,23 @@ var AspNetHelper = function(aspNetVersion, portNumber, imageName) {
     this._aspNetVersion = aspNetVersion;
     this._portNumber = portNumber;
     this._imageName = imageName;
+}
+
+/**
+ * Creates dockerfile contents.
+ * @returns {string}
+ */
+AspNetHelper.prototype.createDockerfile = function() {
+    var _dockerfileHelper = new DockerfileHelper();
+    _dockerfileHelper.addFromCommand(this.getDockerImageName());
+    _dockerfileHelper.addCopyCommand('project.json /app/');
+    _dockerfileHelper.addWorkdirCommand('/app');
+    _dockerfileHelper.addRunCommand('["dnu", "restore"]');
+    _dockerfileHelper.addCopyCommand('. /app');
+    _dockerfileHelper.addExposeCommand(this.getPortNumber());
+    _dockerfileHelper.addEntrypointCommand('["dnx", "-p", "project.json", "' + this.getAspNetCommandName() + '"]');
+
+    return _dockerfileHelper.createDockerfileContents();
 }
 
 /**
@@ -106,14 +124,6 @@ AspNetHelper.prototype.addKestrelCommand = function(cb) {
  */
 AspNetHelper.prototype.getTemplateScriptName = function() {
     return util.isWindows() ? '_dockerTaskGeneric.cmd' : '_dockerTaskGeneric.sh';
-}
-
-/**
- * Gets the template Dockerfile name.
- * @returns {string}
- */
-AspNetHelper.prototype.getTemplateDockerfileName = function() {
-    return '_Dockerfile.aspnet';
 }
 
 /**

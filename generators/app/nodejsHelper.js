@@ -6,6 +6,7 @@
 var util = require('./utils.js');
 var path = require('path');
 var process = require('process');
+var DockerfileHelper = require('./dockerfileHelper.js');
 
 /**
  * Represents a helper for Node.js projects.
@@ -21,6 +22,33 @@ var NodejsHelper = function(useNodemon, portNumber, imageName) {
 }
 
 /**
+ * Creates dockerfile contents.
+ * @returns {string}
+ */
+NodejsHelper.prototype.createDockerfile = function() {
+    var _dockerfileHelper = new DockerfileHelper();
+    _dockerfileHelper.addFromCommand(this.getDockerImageName());
+    _dockerfileHelper.addRunCommand('mkdir /src');
+    _dockerfileHelper.addAddCommand('. /src');
+    _dockerfileHelper.addWorkdirCommand('/src');
+    _dockerfileHelper.addExposeCommand(this._portNumber);
+
+    if (this._useNodemon) {
+        _dockerfileHelper.addRunCommand('npm install nodemon -g');
+    }
+
+    _dockerfileHelper.addRunCommand('npm install');
+    
+    if (this._useNodemon) {
+        _dockerfileHelper.addCmdCommand('["nodemon"]');
+    } else {
+        _dockerfileHelper.addCmdCommand('["node", "./bin/www"]');
+    }
+    
+    return _dockerfileHelper.createDockerfileContents();
+}
+
+/**
  * Gets the Docker image name.
  * @returns {string}
  */
@@ -29,51 +57,11 @@ NodejsHelper.prototype.getDockerImageName = function() {
 }
 
 /**
- * Gets the port number.
- * @returns {int}
- */
-NodejsHelper.prototype.getPortNumber = function() {
-    return this._portNumber;
-}
-
-/**
- * Gets the app image name.
- * @returns {string}
- */
-NodejsHelper.prototype.getImageName = function() {
-    return this._imageName;
-}
-
-/**
- * Gets run command to be used in the Dockerfile.
- * @returns {string}
- */
-NodejsHelper.prototype.getDockerfileRunCommand = function() {
-    return this._useNodemon ? 'CMD ["nodemon"]' : 'CMD ["node", "./bin/www"]';
-}
-
-/**
- * Gets the Nodemon command to be used in the Dockerfile.
- * @returns {string}
- */
-NodejsHelper.prototype.getNodemonCommand = function() {
-    return this._useNodemon ? 'RUN npm install nodemon -g' : '';
-}
-
-/**
  * Gets the template script name.
  * @returns {string}
  */
 NodejsHelper.prototype.getTemplateScriptName = function() {
     return util.isWindows() ? '_dockerTaskGeneric.cmd' : '_dockerTaskGeneric.sh';
-}
-
-/**
- * Gets the template Dockerfile name.
- * @returns {string}
- */
-NodejsHelper.prototype.getTemplateDockerfileName = function() {
-    return '_Dockerfile.nodejs';
 }
 
 /**
