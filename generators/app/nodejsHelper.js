@@ -7,6 +7,7 @@ var util = require('./utils.js');
 var path = require('path');
 var process = require('process');
 var DockerfileHelper = require('./dockerfileHelper.js');
+var DockerComposeHelper = require('./dockerComposeHelper.js');
 
 /**
  * Represents a helper for Node.js projects.
@@ -46,6 +47,29 @@ NodejsHelper.prototype.createDockerfile = function() {
     }
     
     return _dockerfileHelper.createDockerfileContents();
+}
+
+/**
+ * Creates docker-compose file contents.
+ * @returns {string}
+*/
+NodejsHelper.prototype.createDockerComposeFile = function() {
+    var _dockerComposeHelper = new DockerComposeHelper();
+    _dockerComposeHelper.addAppName(this._imageName);
+    _dockerComposeHelper.addDockerfile('Dockerfile');
+    _dockerComposeHelper.addBuildContext('.');
+    _dockerComposeHelper.addPort(this._portNumber + ':' + this._portNumber);
+
+    if (this._useNodemon) {
+        if (util.isWindows()) {
+            var sourcePath = '/' + process.cwd().replace(path.sep, '/');
+            _dockerComposeHelper.addVolume(sourcePath + ':/src');
+        } else {
+            _dockerComposeHelper.addVolume('.:/src');
+        }
+    }
+
+    return _dockerComposeHelper.createContents();
 }
 
 /**

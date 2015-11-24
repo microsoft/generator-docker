@@ -13,6 +13,13 @@ buildImage () {
     docker build -t $imageName .
 }
 
+# Runs docker-compose.
+compose () {
+  echo "Composing."
+  docker-compose up -d
+  <%= openWebSiteCommand %>
+}
+
 # Runs the container.
 runContainer () {
     # Check if container is already running, stop it and run a new one.
@@ -32,6 +39,7 @@ showUsage () {
     echo "    build: Builds a Docker image ('$imageName')."
     echo "    run: Runs a container based on an existing Docker image ('$imageName')."
     echo "    buildrun: Builds a Docker image and runs the container."
+    echo "    compose: Runs docker-compose."
     echo "    clean: Removes the image '$imageName' and kills all containers based on that image."
     echo ""
     echo "Example:"
@@ -45,6 +53,9 @@ if [ $# -eq 0 ]; then
   showUsage
 else
   case "$1" in
+      "compose")
+             compose
+             ;;
       "build")
              buildImage
              ;;

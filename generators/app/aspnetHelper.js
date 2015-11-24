@@ -8,6 +8,7 @@ var path = require('path');
 var process = require('process');
 var fs = require('fs');
 var DockerfileHelper = require('./dockerfileHelper.js');
+var DockerComposeHelper = require('./dockerComposeHelper.js');
 
 /**
  * Represents a helper for ASP.NET projects.
@@ -37,6 +38,19 @@ AspNetHelper.prototype.createDockerfile = function() {
     _dockerfileHelper.addEntrypointCommand('["dnx", "-p", "project.json", "' + this.getAspNetCommandName() + '"]');
 
     return _dockerfileHelper.createDockerfileContents();
+}
+
+/**
+ * Creates docker-compose file contents.
+ * @returns {string}
+*/
+AspNetHelper.prototype.createDockerComposeFile = function() {
+    var _dockerComposeHelper = new DockerComposeHelper();
+    _dockerComposeHelper.addAppName(this._imageName);
+    _dockerComposeHelper.addDockerfile('Dockerfile');
+    _dockerComposeHelper.addBuildContext('.');
+    _dockerComposeHelper.addPort(this._portNumber + ':' + this._portNumber);
+    return _dockerComposeHelper.createContents();
 }
 
 /**
