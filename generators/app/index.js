@@ -236,8 +236,8 @@ function logData() {
     if (!trackData) {
         return;
     }
-
-    if (DockerGenerator.config.get('runningTests') !== undefined) {
+    
+    if (DockerGenerator.config !== undefined && DockerGenerator.config.get('runningTests') !== undefined) {
         return;
     }
 
@@ -284,6 +284,17 @@ function handleAppInsights(yo) {
         yo.prompt(q, function(props) {
             trackData = props.optIn;
             config.set(AppInsightsOptInName, trackData);
+            
+             var client = appInsights.getClient(AppInsightsKey)
+             client.config.maxBatchIntervalMs = 1000;
+             appInsights.setup(AppInsightsKey).start();
+             
+             client.trackEvent('YoDockerCollectData', {
+                 'opt-in': trackData.toString()
+             });
+             
+             appInsights.setAutoCollectPerformance(false);
+
             done();
         }.bind(yo));
     } else {

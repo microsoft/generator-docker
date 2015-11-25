@@ -53,6 +53,11 @@ opt-in or opt-out first time you run the tool. If you opt-in and decide to opt-o
 
 ## Changelog
 ```
+v0.0.25
+=======
++ BugFix: making sure config is defined before reading a property.
++ BugFix: tracking if users opted-in or out for data collection.
+ 
 v0.0.24
 =======
 + Docker-compose.yml files are being created now for all project types.
