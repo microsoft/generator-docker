@@ -53,6 +53,10 @@ opt-in or opt-out first time you run the tool. If you opt-in and decide to opt-o
 
 ## Changelog
 ```
+v0.0.26
+=======
++ BugFix: fixing issues with the path on Windows when using volume sharing in Node.js projects.
+
 v0.0.25
 =======
 + BugFix: making sure config is defined before reading a property.

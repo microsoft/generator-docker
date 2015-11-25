@@ -62,7 +62,7 @@ NodejsHelper.prototype.createDockerComposeFile = function() {
 
     if (this._useNodemon) {
         if (util.isWindows()) {
-            var sourcePath = '/' + process.cwd().replace(path.sep, '/');
+            var sourcePath = '/' + process.cwd().replace(/\\/g, '/').replace(/:/g,'');
             _dockerComposeHelper.addVolume(sourcePath + ':/src');
         } else {
             _dockerComposeHelper.addVolume('.:/src');
