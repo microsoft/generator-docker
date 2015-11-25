@@ -94,7 +94,7 @@ NodejsHelper.prototype.getTemplateScriptName = function() {
  */
 NodejsHelper.prototype._getVolumeShareParameter = function() {
     // Use for volume sharing in Windows.
-    var sourcePath = '/' + process.cwd().replace(path.sep, '/');
+    var sourcePath = '/' + process.cwd().replace(/\\/g, '/').replace(/:/g,'');
     return util.isWindows() ? '-v ' + sourcePath + ':/src' : '-v `pwd`:/src';
 }
 
