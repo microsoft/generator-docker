@@ -10,6 +10,9 @@ This generator creates a Dockerfile and a script (`dockerTask.sh` or `dockerTask
 - Node.js
 
 ### Quick demo
+![nodejs-demo](images/nodejsdemo.gif)
+
+## Longer walkthrough video
 [![See the generator in action][yovideoScreenshot]][yovideo]]
 
 ## Installing
@@ -47,6 +50,13 @@ To see and provide feedback, please take a look at: [yo docker compose prototype
 ## Collecting usage data
 Generator-docker collects anonymized data on the options you selected in the tool to understand and improve the experience. You are given a choice to 
 opt-in or opt-out first time you run the tool. If you opt-in and decide to opt-out later, simply delete the `~/.config/configstore/generator-docker.json` file from your machine. 
+
+## Changelog
+```
+v0.0.24
+=======
++ Docker-compose.yml files are being created now for all project types.
+```
 
 ## License
 See [LICENSE][licenseLink] for full license text.
