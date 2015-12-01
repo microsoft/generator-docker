@@ -8,170 +8,61 @@ var path = require('path');
 var assert = require('yeoman-generator').assert;
 var helpers = require('yeoman-generator').test;
 
-function createNodeJsPrompts(addNodemon, portNumber, imageName) {
-    return {
-        projectType: 'nodejs',
-        addNodemon: addNodemon,
-        portNumber: portNumber,
-        imageName: imageName,
-    }
-}
+describe('Node.js project file creation', function () {
+    before(function (done) {
+        helpers.run(path.join( __dirname, '../generators/app'))
+        .withLocalConfig(function() {
+            return { "appInsightsOptIn": false, "runningTests": true }; })
+        .withPrompts({ projectType: 'nodejs' })
+        .on('end', done);
+    });
+    
+    it('generates dockerfiles', function (done) {
+        assert.file('dockerfile.debug');
+        assert.file('dockerfile.release');
+        done();
+    });
+    
+    it('generates compose files', function (done) {
+        assert.file('docker-compose.debug.yml');
+        assert.file('docker-compose.release.yml');
+        done();
+    });
 
-describe('node.js generator', function() {
-    it('creates files', function(done) {
-            helpers.run(path.join(__dirname, '../generators/app'))
-                .withLocalConfig(function() {
-                    return {
-                        "appInsightsOptIn": false,
-                        "runningTests": true
-                    };
-                })
-                .withPrompts({
-                    projectType: 'nodejs'
-                })
-                .on('end', function() {
-                    assert.file([
-                        'Dockerfile',
-                        'dockerTask.sh',
-                        'docker-compose.yml'
-                    ]);
-                });
-            done();
-        }),
-        it('creates Dockerfile with correct contents (with Nodemon)', function(done) {
-            var portNumber = 1234;
-            var imageName = 'nodejsimagename';
-            helpers.run(path.join(__dirname, '../generators/app'))
-                .withLocalConfig(function() {
-                    return {
-                        "appInsightsOptIn": false,
-                        "runningTests": true
-                    };
-                })
-                .withPrompts(createNodeJsPrompts(true, portNumber, imageName))
-                .on('end', function() {
-                    assert.fileContent(
-                        'Dockerfile', 'FROM node');
-                    assert.fileContent(
-                        'Dockerfile', 'EXPOSE ' + portNumber);
-                    assert.fileContent(
-                        'Dockerfile', 'RUN npm install nodemon -g');
-                    assert.fileContent(
-                        'Dockerfile', 'CMD ["nodemon"]');
-                });
-            done();
-        }),
-        it('creates dockerTask.sh with correct contents (with Nodemon)', function(done) {
-            var portNumber = 1234;
-            var imageName = 'nodejsimagename';
-            helpers.run(path.join(__dirname, '../generators/app'))
-                .withLocalConfig(function() {
-                    return {
-                        "appInsightsOptIn": false,
-                        "runningTests": true
-                    };
-                })
-                .withPrompts(createNodeJsPrompts(true, portNumber, imageName))
-                .on('end', function() {
-                    assert.fileContent(
-                        'dockerTask.sh', 'imageName="' + imageName + '"');
-                    assert.fileContent(
-                        'dockerTask.sh', 'publicPort=' + portNumber);
-                    assert.fileContent(
-                        'dockerTask.sh', 'docker run -di -p $publicPort:$containerPort -v `pwd`:/src $imageName');
-                });
-            done();
-        })
-    it('creates Dockerfile with correct contents (without Nodemon)', function(done) {
-            var portNumber = 1234;
-            var imageName = 'nodejsimagename';
-            helpers.run(path.join(__dirname, '../generators/app'))
-                .withLocalConfig(function() {
-                    return {
-                        "appInsightsOptIn": false,
-                        "runningTests": true
-                    };
-                })
-                .withPrompts(createNodeJsPrompts(false, portNumber, imageName))
-                .on('end', function() {
-                    assert.fileContent(
-                        'Dockerfile', 'FROM node');
-                    assert.fileContent(
-                        'Dockerfile', 'EXPOSE ' + portNumber);
-                    assert.noFileContent(
-                        'Dockerfile', 'RUN npm install nodemon -g');
-                    assert.fileContent(
-                        'Dockerfile', 'CMD ["node", "./bin/www"]');
-                });
-            done();
-        }),
-        it('creates dockerTask.sh with correct contents (without Nodemon)', function(done) {
-            var portNumber = 1234;
-            var imageName = 'nodejsimagename';
-            helpers.run(path.join(__dirname, '../generators/app'))
-                .withLocalConfig(function() {
-                    return {
-                        "appInsightsOptIn": false,
-                        "runningTests": true
-                    };
-                })
-                .withPrompts(createNodeJsPrompts(false, portNumber, imageName))
-                .on('end', function() {
-                    assert.fileContent(
-                        'dockerTask.sh', 'imageName="' + imageName + '"');
-                    assert.fileContent(
-                        'dockerTask.sh', 'publicPort=' + portNumber);
-                    assert.fileContent(
-                        'dockerTask.sh', 'docker run -di -p $publicPort:$containerPort $imageName');
-                });
-            done();
-        }),
-        it ('create docker-compose file with correct contents (with Nodemon)', function (done) {
-            var portNumber = 1234;
-            var imageName = 'nodejsimagename';
-            helpers.run(path.join(__dirname, '../generators/app'))
-                .withLocalConfig(function() {
-                    return {
-                        "appInsightsOptIn": false,
-                        "runningTests": true
-                    };
-                })
-                .withPrompts(createNodeJsPrompts(true, portNumber, imageName))
-                .on('end', function() {
-                    assert.fileContent(
-                        'docker-compose.yml', imageName + ':');
-                    assert.fileContent(
-                        'docker-compose.yml', 'dockerfile: Dockerfile');
-                    assert.fileContent(
-                        'docker-compose.yml', 'build: .');
-                    assert.fileContent(
-                        'docker-compose.yml', '- .:/src');
-                    assert.fileContent(
-                        'docker-compose.yml', '- "' + portNumber + ':' + portNumber + '"');
-                });
-            done();
-        }),
-         it ('create docker-compose file with correct contents (without Nodemon)', function (done) {
-            var portNumber = 1234;
-            var imageName = 'nodejsimagename';
-            helpers.run(path.join(__dirname, '../generators/app'))
-                .withLocalConfig(function() {
-                    return {
-                        "appInsightsOptIn": false,
-                        "runningTests": true
-                    };
-                })
-                .withPrompts(createNodeJsPrompts(false, portNumber, imageName))
-                .on('end', function() {
-                    assert.fileContent(
-                        'docker-compose.yml', imageName + ':');
-                    assert.fileContent(
-                        'docker-compose.yml', 'dockerfile: Dockerfile');
-                    assert.fileContent(
-                        'docker-compose.yml', 'build: .');
-                    assert.fileContent(
-                        'docker-compose.yml', '- "' + portNumber + ':' + portNumber + '"');
-                });
-            done();
-        })
+    it('generates dockertask.sh file', function (done) {
+        assert.file('dockerTask.sh');
+        done();
+    });
+    
+    it('web project variable is set correctly in script file', function (done) {
+        assert.fileContent('dockerTask.sh', 'isWebProject=true');
+        done();
+    });
+    
+    it('correct dockerfile contents (debug)', function (done) {
+        assert.fileContent('Dockerfile.debug', 'RUN npm install nodemon -g');
+        assert.fileContent('Dockerfile.debug', 'RUN npm install');
+        assert.fileContent('Dockerfile.debug', 'CMD ["nodemon"]');
+        done(); 
+    });
+    
+    it('correct dockerfile contents (release)', function (done) {
+        assert.noFileContent('Dockerfile.release', 'RUN npm install nodemon -g');
+        assert.fileContent('Dockerfile.release', 'CMD ["node", "./bin/www"]');
+        done(); 
+    });
+    
+    it('correct compose file contents (debug)', function (done) {
+        assert.fileContent('docker-compose.debug.yml', 'dockerfile: Dockerfile.debug');
+        assert.fileContent('docker-compose.debug.yml', '.:/src');
+        assert.fileContent('docker-compose.debug.yml', '"debug"');
+        done(); 
+    });
+    
+    it('correct compose file contents (release)', function (done) {
+        assert.fileContent('docker-compose.release.yml', 'dockerfile: Dockerfile.release');
+        assert.noFileContent('docker-compose.release.yml', '.:/src');
+        assert.fileContent('docker-compose.release.yml', '"release"');
+        done(); 
+    });
 });

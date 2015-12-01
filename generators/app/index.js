@@ -24,11 +24,10 @@ var error = false;
 // Docker variables
 var portNumber = 3000;
 var imageName = '';
-var DOCKERFILE_NAME = 'Dockerfile';
-var DOCKERCOMPOSE_NAME = 'docker-compose.yml';
-
-// Node.js variables
-var addNodemon = false;
+var DEBUG_DOCKERFILE_NAME = 'Dockerfile.debug';
+var DEBUG_DOCKERCOMPOSE_NAME = 'docker-compose.debug.yml';
+var RELEASE_DOCKERFILE_NAME = 'Dockerfile.release';
+var RELEASE_DOCKERCOMPOSE_NAME = 'docker-compose.release.yml';
 
 // Golang variables
 var isGoWeb = false;
@@ -56,61 +55,53 @@ function showPrompts() {
             name: 'ASP.NET 5',
             value: 'aspnet'
         }, {
-            name: 'Golang',
-            value: 'golang'
+                name: 'Golang',
+                value: 'golang'
+            }, {
+                name: 'Node.js',
+                value: 'nodejs'
+            }]
+    }, {
+            type: 'list',
+            name: 'aspNetVersion',
+            message: 'Which version of ASP.NET 5 is your project using?',
+            choices: [{
+                name: 'beta8',
+                value: '1.0.0-beta8'
+            }, {
+                    name: 'beta7',
+                    value: '1.0.0-beta7'
+                }],
+            when: function (answers) {
+                return answers.projectType === 'aspnet';
+            }
         }, {
-            name: 'Node.js',
-            value: 'nodejs'
-        }]
-    }, {
-        type: 'confirm',
-        name: 'addNodemon',
-        message: 'Do you want to use Nodemon?',
-        when: function(answers) {
-            return answers.projectType === 'nodejs';
-        }
-    }, {
-        type: 'list',
-        name: 'aspNetVersion',
-        message: 'Which version of ASP.NET 5 is your project using?',
-        choices: [{
-            name: 'beta8',
-            value: '1.0.0-beta8'
+            type: 'confirm',
+            name: 'isGoWeb',
+            message: 'Does your Go project use a web server?',
+            when: function (answers) {
+                return answers.projectType === 'golang';
+            }
         }, {
-            name: 'beta7',
-            value: '1.0.0-beta7'
-        }],
-        when: function(answers) {
-            return answers.projectType === 'aspnet';
-        }
-    }, {
-        type: 'confirm',
-        name: 'isGoWeb',
-        message: 'Does your Go project use a web server?',
-        when: function(answers) {
-            return answers.projectType === 'golang';
-        }
-    }, {
-        type: 'input',
-        name: 'portNumber',
-        message: 'Which port is your app listening to?',
-        default: function(answers) {
-            return answers.projectType === 'aspnet' ? 5000 : 3000;
-        },
-        when: function(answers) {
-            // Show this answer if user picked ASP.NET, Node.js or Golang that's using a web server.
-            return answers.projectType === 'aspnet' || answers.projectType === 'nodejs' || (answers.projectType === 'golang' && answers.isGoWeb);
-        }
-    }, {
-        type: 'input',
-        name: 'imageName',
-        message: 'What do you want to name your image?',
-        default: process.cwd().split(path.sep).pop().toLowerCase() + '_image',
-    }];
+            type: 'input',
+            name: 'portNumber',
+            message: 'Which port is your app listening to?',
+            default: function (answers) {
+                return answers.projectType === 'aspnet' ? 5000 : 3000;
+            },
+            when: function (answers) {
+                // Show this answer if user picked ASP.NET, Node.js or Golang that's using a web server.
+                return answers.projectType === 'aspnet' || answers.projectType === 'nodejs' || (answers.projectType === 'golang' && answers.isGoWeb);
+            }
+        }, {
+            type: 'input',
+            name: 'imageName',
+            message: 'What do you want to name your image?',
+            default: process.cwd().split(path.sep).pop().toLowerCase() + '_image',
+        }];
 
-    this.prompt(prompts, function(props) {
+    this.prompt(prompts, function (props) {
         projectType = props.projectType;
-        addNodemon = props.addNodemon;
         portNumber = props.portNumber;
         imageName = props.imageName;
         isGoWeb = props.isGoWeb;
@@ -123,7 +114,7 @@ function showPrompts() {
  * Handles Node.js option.
  */
 function handleNodeJs(yo) {
-    var nodeJs = new NodejsHelper(addNodemon, portNumber, imageName);
+    var nodeJs = new NodejsHelper(portNumber, imageName);
 
     if (!nodeJs.canShareVolume()) {
         error = true;
@@ -131,18 +122,24 @@ function handleNodeJs(yo) {
         return;
     }
 
-    var dockerfileContents = nodeJs.createDockerfile();
-    yo.fs.write(yo.destinationPath(DOCKERFILE_NAME), new Buffer(dockerfileContents));
-    
-    var dockerComposeContents = nodeJs.createDockerComposeFile();
-    yo.fs.write(yo.destinationPath('docker-compose.yml'), new Buffer(dockerComposeContents));
+    var debugDockerfileContents = nodeJs.createDockerfile(true);
+    yo.fs.write(yo.destinationPath(DEBUG_DOCKERFILE_NAME), new Buffer(debugDockerfileContents));
+
+    var releaseDockerfileContents = nodeJs.createDockerfile(false);
+    yo.fs.write(yo.destinationPath(RELEASE_DOCKERFILE_NAME), new Buffer(releaseDockerfileContents));
+
+    var debugDockerComposeContents = nodeJs.createDockerComposeFile(true);
+    yo.fs.write(yo.destinationPath(DEBUG_DOCKERCOMPOSE_NAME), new Buffer(debugDockerComposeContents));
+
+    var releaseDockerComposeContents = nodeJs.createDockerComposeFile(false);
+    yo.fs.write(yo.destinationPath(RELEASE_DOCKERCOMPOSE_NAME), new Buffer(releaseDockerComposeContents));
 
     yo.fs.copyTpl(
         yo.templatePath(nodeJs.getTemplateScriptName()),
         yo.destinationPath(util.getDestinationScriptName()), {
             imageName: imageName,
             portNumber: portNumber,
-            containerRunCommand: nodeJs.getContainerRunCommand()
+            isWebProject: true
         });
 }
 
@@ -152,18 +149,24 @@ function handleNodeJs(yo) {
 function handleGolang(yo) {
     var golang = new GolangHelper(isGoWeb, portNumber, imageName);
 
-    var dockerfileContents = golang.createDockerfile();
-    yo.fs.write(yo.destinationPath(DOCKERFILE_NAME), new Buffer(dockerfileContents));
-    
-    var dockerComposeContents = golang.createDockerComposeFile();
-    yo.fs.write(yo.destinationPath(DOCKERCOMPOSE_NAME), new Buffer(dockerComposeContents));
+    var debugDockerfileContents = golang.createDockerfile(true);
+    yo.fs.write(yo.destinationPath(DEBUG_DOCKERFILE_NAME), new Buffer(debugDockerfileContents));
+
+    var releaseDockerfileContents = golang.createDockerfile(false);
+    yo.fs.write(yo.destinationPath(RELEASE_DOCKERFILE_NAME), new Buffer(releaseDockerfileContents));
+
+    var debugDockerComposeContents = golang.createDockerComposeFile(true);
+    yo.fs.write(yo.destinationPath(DEBUG_DOCKERCOMPOSE_NAME), new Buffer(debugDockerComposeContents));
+
+    var releaseDockerComposeContents = golang.createDockerComposeFile(false);
+    yo.fs.write(yo.destinationPath(RELEASE_DOCKERCOMPOSE_NAME), new Buffer(releaseDockerComposeContents));
 
     yo.fs.copyTpl(
         yo.templatePath(golang.getTemplateScriptName()),
         yo.destinationPath(util.getDestinationScriptName()), {
             imageName: golang.getImageName(),
-            runImageCommand: golang.getContainerRunCommand(),
-            openWebSiteCommand: golang.getOpenWebSiteCommand(),
+            portNumber: portNumber,
+            isWebProject: isGoWeb,
         });
 }
 
@@ -174,7 +177,7 @@ function handleAspNet(yo) {
     var aspNet = new AspNetHelper(aspNetVersion, portNumber, imageName);
 
     var done = yo.async();
-    aspNet.addKestrelCommand(function(err, commandAdded) {
+    aspNet.addKestrelCommand(function (err, commandAdded) {
         if (err) {
             error = true;
             yo.log.error(err);
@@ -184,18 +187,24 @@ function handleAspNet(yo) {
         done();
     }.bind(yo));
 
-    var dockerfileContents = aspNet.createDockerfile();
-    yo.fs.write(yo.destinationPath(DOCKERFILE_NAME), new Buffer(dockerfileContents));
+    var debugDockerfileContents = aspNet.createDockerfile(true);
+    yo.fs.write(yo.destinationPath(DEBUG_DOCKERFILE_NAME), new Buffer(debugDockerfileContents));
 
-    var dockerComposeContents = aspNet.createDockerComposeFile();
-    yo.fs.write(yo.destinationPath(DOCKERCOMPOSE_NAME), new Buffer(dockerComposeContents));
+    var releaseDockerfileContents = aspNet.createDockerfile(false);
+    yo.fs.write(yo.destinationPath(RELEASE_DOCKERFILE_NAME), new Buffer(releaseDockerfileContents));
+
+    var debugDockerComposeContents = aspNet.createDockerComposeFile(true);
+    yo.fs.write(yo.destinationPath(DEBUG_DOCKERCOMPOSE_NAME), new Buffer(debugDockerComposeContents));
+
+    var releaseDockerComposeContents = aspNet.createDockerComposeFile(false);
+    yo.fs.write(yo.destinationPath(RELEASE_DOCKERCOMPOSE_NAME), new Buffer(releaseDockerComposeContents));
 
     yo.fs.copyTpl(
         yo.templatePath(aspNet.getTemplateScriptName()),
         yo.destinationPath(util.getDestinationScriptName()), {
             imageName: aspNet.getImageName(),
-            portNumber: aspNet.getPortNumber(),
-            containerRunCommand: aspNet.getContainerRunCommand()
+            portNumber: portNumber,
+            isWebProject: true
         });
 }
 
@@ -210,7 +219,7 @@ function end() {
 
     var done = this.async();
     if (!util.isWindows()) {
-        exec('chmod +x ' + util.getDestinationScriptName(), function(err) {
+        exec('chmod +x ' + util.getDestinationScriptName(), function (err) {
             if (err) {
                 this.log.error(err);
                 this.log.error('Error making script executable. Run ' + chalk.bold('chmod +x ' + util.getDestinationScriptName()) + ' manually.');
@@ -236,7 +245,7 @@ function logData() {
     if (!trackData) {
         return;
     }
-    
+
     if (DockerGenerator.config !== undefined && DockerGenerator.config.get('runningTests') !== undefined) {
         return;
     }
@@ -249,7 +258,7 @@ function logData() {
         'version': pkg.version,
         'osPlatform': os.platform(),
         'projectType': projectType,
-        'usingNodemon': addNodemon === undefined ? 'undefined' : addNodemon,
+        'usingNodemon': 'N/A',
         'portNumber': portNumber,
         'imageName': imageName,
         'isGoWebProject': isGoWeb === undefined ? 'undefined' : isGoWeb,
@@ -277,23 +286,23 @@ function handleAppInsights(yo) {
             type: 'confirm',
             name: 'optIn',
             message: 'Generator-docker would like to collect anonymized data on the options you selected to understand and improve your experience.' +
-                'To opt out later, you can delete ' + chalk.red('~/.config/configstore/' + pkg.name + '.json. ') + 'Will you help us help you and your fellow developers?',
+            'To opt out later, you can delete ' + chalk.red('~/.config/configstore/' + pkg.name + '.json. ') + 'Will you help us help you and your fellow developers?',
             default: true
         };
 
-        yo.prompt(q, function(props) {
+        yo.prompt(q, function (props) {
             trackData = props.optIn;
             config.set(AppInsightsOptInName, trackData);
-            
-             var client = appInsights.getClient(AppInsightsKey)
-             client.config.maxBatchIntervalMs = 1000;
-             appInsights.setup(AppInsightsKey).start();
-             
-             client.trackEvent('YoDockerCollectData', {
-                 'opt-in': trackData.toString()
-             });
-             
-             appInsights.setAutoCollectPerformance(false);
+
+            var client = appInsights.getClient(AppInsightsKey)
+            client.config.maxBatchIntervalMs = 1000;
+            appInsights.setup(AppInsightsKey).start();
+
+            client.trackEvent('YoDockerCollectData', {
+                'opt-in': trackData.toString()
+            });
+
+            appInsights.setAutoCollectPerformance(false);
 
             done();
         }.bind(yo));
@@ -306,16 +315,16 @@ function handleAppInsights(yo) {
  * Docker Generator.
  */
 var DockerGenerator = yeoman.generators.Base.extend({
-    constructor: function() {
+    constructor: function () {
         yeoman.generators.Base.apply(this, arguments);
     },
 
-    init: function() {
+    init: function () {
         this.log(yosay('Welcome to the ' + chalk.red('Docker') + ' generator!' + chalk.green('\nLet\'s add Docker container magic to your app!')));
         handleAppInsights(this);
     },
     askFor: showPrompts,
-    writing: function() {
+    writing: function () {
         this.sourceRoot(path.join(__dirname, './templates'));
         switch (projectType) {
             case 'nodejs':

@@ -8,168 +8,126 @@ var path = require('path');
 var assert = require('yeoman-generator').assert;
 var helpers = require('yeoman-generator').test;
 
-function createGolangPrompts(isWebProject, portNumber, imageName) {
-    return {
-        projectType: 'golang',
-        isGoWeb: isWebProject,
-        portNumber: portNumber,
-        imageName: imageName,
-    }
-}
+describe('Golang project file creation (non Web project)', function () {
+    before(function (done) {
+        helpers.run(path.join( __dirname, '../generators/app'))
+        .withLocalConfig(function() {
+            return { "appInsightsOptIn": false, "runningTests": true }; })
+        .withPrompts({ projectType: 'golang', isGoWeb: false })
+        .on('end', done);
+    });
 
-describe('golang generator', function() {
-    it('creates files', function(done) {
-            helpers.run(path.join(__dirname, '../generators/app'))
-                .withPrompts({
-                    projectType: 'golang'
-                })
-                .withLocalConfig(function() {
-                    return {
-                        "appInsightsOptIn": false,
-                        "runningTests": true
-                    };
-                })
-                .on('end', function() {
-                    assert.file([
-                        'Dockerfile',
-                        'dockerTask.sh',
-                        'docker-compose.yml'
-                    ]);
-                });
-            done();
-        }),
-        it('creates Dockerfile with correct contents (Web project)', function(done) {
-            var portNumber = 1234;
-            var imageName = 'golangimagename';
-            helpers.run(path.join(__dirname, '../generators/app'))
-                .withLocalConfig(function() {
-                    return {
-                        "appInsightsOptIn": false,
-                        "runningTests": true
-                    };
-                })
-                .withPrompts(createGolangPrompts(true, portNumber, imageName))
-                .on('end', function() {
-                    var currentFolder = process.cwd().split(path.sep).pop();
-                    assert.fileContent(
-                        'Dockerfile', 'FROM golang');
-                    assert.fileContent(
-                        'Dockerfile', 'ADD . /go/src/github.com/' + currentFolder);
-                    assert.fileContent(
-                        'Dockerfile', 'RUN go install github.com/' + currentFolder);
-                    assert.fileContent(
-                        'Dockerfile', 'ENTRYPOINT /go/bin/' + currentFolder);
-                });
-            done();
-        }),
-        it('creates Dockerfile with correct contents (non-Web project)', function(done) {
-            var portNumber = 1234;
-            var imageName = 'golangimagename';
-            helpers.run(path.join(__dirname, '../generators/app'))
-                .withLocalConfig(function() {
-                    return {
-                        "appInsightsOptIn": false,
-                        "runningTests": true
-                    };
-                })
-                .withPrompts(createGolangPrompts(false, portNumber, imageName))
-                .on('end', function() {
-                    var currentFolder = process.cwd().split(path.sep).pop();
-                    assert.fileContent(
-                        'Dockerfile', 'FROM golang');
-                    assert.fileContent(
-                        'Dockerfile', 'ADD . /go/src/github.com/' + currentFolder);
-                    assert.fileContent(
-                        'Dockerfile', 'RUN go install github.com/' + currentFolder);
-                    assert.fileContent(
-                        'Dockerfile', 'ENTRYPOINT /go/bin/' + currentFolder);
-                });
-            done();
-        }),
-        it('creates dockerTask.sh with correct contents (Web project)', function(done) {
-            var portNumber = 1234;
-            var imageName = 'golangimagename';
-            helpers.run(path.join(__dirname, '../generators/app'))
-                .withLocalConfig(function() {
-                    return {
-                        "appInsightsOptIn": false,
-                        "runningTests": true
-                    };
-                })
-                .withPrompts(createGolangPrompts(true, portNumber, imageName))
-                .on('end', function() {
-                    assert.fileContent(
-                        'dockerTask.sh', 'imageName="' + imageName + '"');
-                    assert.fileContent(
-                        'dockerTask.sh', 'open \"http://$(docker-machine ip $(docker-machine active)):' + portNumber + '"');
-                    assert.fileContent(
-                        'dockerTask.sh', 'docker run -di -p ' + portNumber + ':' + portNumber + ' ' + imageName);
-                });
-            done();
-        })
-    it('creates dockerTask.sh with correct contents (non-Web project)', function(done) {
-        var portNumber = 1234;
-        var imageName = 'golangimagename';
-        helpers.run(path.join(__dirname, '../generators/app'))
-            .withLocalConfig(function() {
-                return {
-                    "appInsightsOptIn": false,
-                    "runningTests": true
-                };
-            })
-            .withPrompts(createGolangPrompts(false, portNumber, imageName))
-            .on('end', function() {
-                assert.fileContent(
-                    'dockerTask.sh', 'imageName="' + imageName + '"');
-                assert.noFileContent(
-                    'dockerTask.sh', 'open \"http://$(docker-machine ip $(docker-machine active)):' + portNumber + '"');
-                assert.fileContent(
-                    'dockerTask.sh', 'docker run -di ' + imageName);
-            });
+    it('generates dockerfiles', function (done) {
+        assert.file('dockerfile.debug');
+        assert.file('dockerfile.release');
         done();
-    }),
-      it('creates docker-compose with correct contents (non-Web project)', function(done) {
-        var portNumber = 1234;
-        var imageName = 'golangimagename';
-        helpers.run(path.join(__dirname, '../generators/app'))
-            .withLocalConfig(function() {
-                return {
-                    "appInsightsOptIn": false,
-                    "runningTests": true
-                };
-            })
-            .withPrompts(createGolangPrompts(false, portNumber, imageName))
-            .on('end', function() {
-                assert.fileContent(
-                    'docker-compose.yml', imageName + ':');
-                assert.fileContent(
-                    'docker-compose.yml', 'dockerfile: Dockerfile');
-                assert.fileContent(
-                    'docker-compose.yml', 'build: .');
-            });
+    });
+
+    it('generates compose files', function (done) {
+        assert.file('docker-compose.debug.yml');
+        assert.file('docker-compose.release.yml');
         done();
-    }),
-          it('creates docker-compose with correct contents (Web project)', function(done) {
-        var portNumber = 1234;
-        var imageName = 'golangimagename';
-        helpers.run(path.join(__dirname, '../generators/app'))
-            .withLocalConfig(function() {
-                return {
-                    "appInsightsOptIn": false,
-                    "runningTests": true
-                };
-            })
-            .withPrompts(createGolangPrompts(false, portNumber, imageName))
-            .on('end', function() {
-                assert.fileContent(
-                    'docker-compose.yml', imageName + ':');
-                assert.fileContent(
-                    'docker-compose.yml', 'dockerfile: Dockerfile');
-                assert.fileContent(
-                    'docker-compose.yml', 'build: .');
-                assert.fileContent(
-                    'docker-compose.yml', '- "' + portNumber + ':' + portNumber +'"');
-            });
+    });
+
+    it('generates dockertask.sh file', function (done) {
+        assert.file('dockerTask.sh');
         done();
-    })
+    });
+    
+    it('web project variable is set correctly in script file', function (done) {
+        assert.fileContent('dockerTask.sh', 'isWebProject=false');
+        done();
+    });
+
+    it('correct dockerfile contents (debug)', function (done) {
+        var currentFolder = process.cwd().split(path.sep).pop();
+        assert.fileContent('Dockerfile.debug', 'ADD . /go/src/github.com/' + currentFolder);
+        assert.fileContent('Dockerfile.debug', 'RUN go install github.com/' + currentFolder);
+        assert.fileContent('Dockerfile.debug', 'ENTRYPOINT /go/bin/' + currentFolder);
+        done(); 
+    });
+    
+    it('correct dockerfile contents (release)', function (done) {
+        var currentFolder = process.cwd().split(path.sep).pop();
+        assert.fileContent('Dockerfile.release', 'ADD . /go/src/github.com/' + currentFolder);
+        assert.fileContent('Dockerfile.release', 'RUN go install github.com/' + currentFolder);
+        assert.fileContent('Dockerfile.release', 'ENTRYPOINT /go/bin/' + currentFolder);
+        done(); 
+    });
+
+    it('correct compose file contents (debug)', function (done) {
+        assert.fileContent('docker-compose.debug.yml', 'dockerfile: Dockerfile.debug');
+        assert.noFileContent('docker-compose.debug.yml', '"3000:3000"');
+        assert.fileContent('docker-compose.debug.yml', '"debug"');
+        done(); 
+    });
+
+    it('correct compose file contents (release)', function (done) {
+        assert.fileContent('docker-compose.release.yml', 'dockerfile: Dockerfile.release');
+        assert.noFileContent('docker-compose.debug.yml', '"3000:3000"');
+        assert.fileContent('docker-compose.release.yml', '"release"');
+        done(); 
+    });
+});
+
+describe('Golang project file creation (Web project)', function () {
+    before(function (done) {
+        helpers.run(path.join( __dirname, '../generators/app'))
+        .withLocalConfig(function() {
+            return { "appInsightsOptIn": false, "runningTests": true }; })
+        .withPrompts({ projectType: 'golang' })
+        .on('end', done);
+    });
+
+    it('generates dockerfiles', function (done) {
+        assert.file('dockerfile.debug');
+        assert.file('dockerfile.release');
+        done();
+    });
+
+    it('generates compose files', function (done) {
+        assert.file('docker-compose.debug.yml');
+        assert.file('docker-compose.release.yml');
+        done();
+    });
+
+    it('generates dockertask.sh file', function (done) {
+        assert.file('dockerTask.sh');
+        done();
+    });
+    
+    it('web project variable is set correctly in script file', function (done) {
+        assert.fileContent('dockerTask.sh', 'isWebProject=true');
+        done();
+    });
+
+    it('correct dockerfile contents (debug)', function (done) {
+        var currentFolder = process.cwd().split(path.sep).pop();
+        assert.fileContent('Dockerfile.debug', 'ADD . /go/src/github.com/' + currentFolder);
+        assert.fileContent('Dockerfile.debug', 'RUN go install github.com/' + currentFolder);
+        assert.fileContent('Dockerfile.debug', 'ENTRYPOINT /go/bin/' + currentFolder);
+        done(); 
+    });
+    
+    it('correct dockerfile contents (release)', function (done) {
+        var currentFolder = process.cwd().split(path.sep).pop();
+        assert.fileContent('Dockerfile.release', 'ADD . /go/src/github.com/' + currentFolder);
+        assert.fileContent('Dockerfile.release', 'RUN go install github.com/' + currentFolder);
+        assert.fileContent('Dockerfile.release', 'ENTRYPOINT /go/bin/' + currentFolder);
+        done(); 
+    });
+
+    it('correct compose file contents (debug)', function (done) {
+        assert.fileContent('docker-compose.debug.yml', 'dockerfile: Dockerfile.debug');
+        assert.fileContent('docker-compose.debug.yml', '"debug"');
+        assert.fileContent('docker-compose.debug.yml', '"3000:3000"');
+        done(); 
+    });
+
+    it('correct compose file contents (release)', function (done) {
+        assert.fileContent('docker-compose.release.yml', 'dockerfile: Dockerfile.release');
+        assert.fileContent('docker-compose.release.yml', '"release"');
+        assert.fileContent('docker-compose.release.yml', '"3000:3000"');
+        done(); 
+    });
 });
