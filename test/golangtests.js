@@ -80,8 +80,8 @@ describe('Golang project file creation (Web project)', function () {
     });
 
     it('generates dockerfiles', function (done) {
-        assert.file('dockerfile.debug');
-        assert.file('dockerfile.release');
+        assert.file('Dockerfile.debug');
+        assert.file('Dockerfile.release');
         done();
     });
 

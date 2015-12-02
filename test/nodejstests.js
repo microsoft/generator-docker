@@ -18,8 +18,8 @@ describe('Node.js project file creation', function () {
     });
     
     it('generates dockerfiles', function (done) {
-        assert.file('dockerfile.debug');
-        assert.file('dockerfile.release');
+        assert.file('Dockerfile.debug');
+        assert.file('Dockerfile.release');
         done();
     });
     
