@@ -30,7 +30,7 @@ GolangHelper.prototype.createDockerfile = function (isDebug) {
     var projectName = this.getProjectName();
     var _dockerfileHelper = new DockerfileHelper();
     _dockerfileHelper.addFromCommand(this.getDockerImageName());
-    _dockerfileHelper.addAddCommand('. /go/src/github.com/' + projectName);
+    _dockerfileHelper.addCopyCommand('. /go/src/github.com/' + projectName);
     _dockerfileHelper.addRunCommand('go install github.com/' + projectName);
     _dockerfileHelper.addEntrypointCommand('/go/bin/' + projectName);
 

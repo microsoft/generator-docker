@@ -28,7 +28,7 @@ NodejsHelper.prototype.createDockerfile = function (isDebug) {
     var _dockerfileHelper = new DockerfileHelper();
     _dockerfileHelper.addFromCommand(this.getDockerImageName());
     _dockerfileHelper.addRunCommand('mkdir /src');
-    _dockerfileHelper.addAddCommand('. /src');
+    _dockerfileHelper.addCopyCommand('. /src');
     _dockerfileHelper.addWorkdirCommand('/src');
     _dockerfileHelper.addExposeCommand(this._portNumber);
 

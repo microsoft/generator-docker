@@ -39,13 +39,6 @@ DockerfileHelper.prototype.addWorkdirCommand = function (command) {
     this._addCommand('WORKDIR', command);
 }
 
-/**
- * Adds ADD [command] line.
-*/
-DockerfileHelper.prototype.addAddCommand = function (command) {
-    this._addCommand('ADD', command);
-}
-
 DockerfileHelper.prototype.addExposeCommand = function (command) {
     this._addCommand('EXPOSE', command);
 }

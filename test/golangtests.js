@@ -41,7 +41,7 @@ describe('Golang project file creation (non Web project)', function () {
 
     it('correct dockerfile contents (debug)', function (done) {
         var currentFolder = process.cwd().split(path.sep).pop();
-        assert.fileContent('Dockerfile.debug', 'ADD . /go/src/github.com/' + currentFolder);
+        assert.fileContent('Dockerfile.debug', 'COPY . /go/src/github.com/' + currentFolder);
         assert.fileContent('Dockerfile.debug', 'RUN go install github.com/' + currentFolder);
         assert.fileContent('Dockerfile.debug', 'ENTRYPOINT /go/bin/' + currentFolder);
         done(); 
@@ -49,7 +49,7 @@ describe('Golang project file creation (non Web project)', function () {
     
     it('correct dockerfile contents (release)', function (done) {
         var currentFolder = process.cwd().split(path.sep).pop();
-        assert.fileContent('Dockerfile.release', 'ADD . /go/src/github.com/' + currentFolder);
+        assert.fileContent('Dockerfile.release', 'COPY . /go/src/github.com/' + currentFolder);
         assert.fileContent('Dockerfile.release', 'RUN go install github.com/' + currentFolder);
         assert.fileContent('Dockerfile.release', 'ENTRYPOINT /go/bin/' + currentFolder);
         done(); 
@@ -103,7 +103,7 @@ describe('Golang project file creation (Web project)', function () {
 
     it('correct dockerfile contents (debug)', function (done) {
         var currentFolder = process.cwd().split(path.sep).pop();
-        assert.fileContent('Dockerfile.debug', 'ADD . /go/src/github.com/' + currentFolder);
+        assert.fileContent('Dockerfile.debug', 'COPY . /go/src/github.com/' + currentFolder);
         assert.fileContent('Dockerfile.debug', 'RUN go install github.com/' + currentFolder);
         assert.fileContent('Dockerfile.debug', 'ENTRYPOINT /go/bin/' + currentFolder);
         done(); 
@@ -111,7 +111,7 @@ describe('Golang project file creation (Web project)', function () {
     
     it('correct dockerfile contents (release)', function (done) {
         var currentFolder = process.cwd().split(path.sep).pop();
-        assert.fileContent('Dockerfile.release', 'ADD . /go/src/github.com/' + currentFolder);
+        assert.fileContent('Dockerfile.release', 'COPY . /go/src/github.com/' + currentFolder);
         assert.fileContent('Dockerfile.release', 'RUN go install github.com/' + currentFolder);
         assert.fileContent('Dockerfile.release', 'ENTRYPOINT /go/bin/' + currentFolder);
         done(); 
