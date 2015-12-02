@@ -117,9 +117,7 @@ function handleNodeJs(yo) {
     var nodeJs = new NodejsHelper(portNumber, imageName);
 
     if (!nodeJs.canShareVolume()) {
-        error = true;
-        yo.log.error('Your project has to be under %HOMEDRIVE%\Users folder in order to use Nodemon on Windows.');
-        return;
+        yo.log(chalk.yellow('Warning: Your project has to be under %HOMEDRIVE%\Users folder in order to use Nodemon on Windows.'));
     }
 
     var debugDockerfileContents = nodeJs.createDockerfile(true);
@@ -258,7 +256,6 @@ function logData() {
         'version': pkg.version,
         'osPlatform': os.platform(),
         'projectType': projectType,
-        'usingNodemon': 'N/A',
         'portNumber': portNumber,
         'imageName': imageName,
         'isGoWebProject': isGoWeb === undefined ? 'undefined' : isGoWeb,
