@@ -117,7 +117,7 @@ function handleNodeJs(yo) {
     var nodeJs = new NodejsHelper(portNumber, imageName);
 
     if (!nodeJs.canShareVolume()) {
-        yo.log(chalk.yellow('Warning: Your project has to be under %HOMEDRIVE%\Users folder in order to use Nodemon on Windows.'));
+        yo.log(chalk.yellow('Warning: Your project has to be under %HOMEDRIVE%\Users folder in order to use Nodemon on Windows in the Debug environment.'));
     }
 
     var debugDockerfileContents = nodeJs.createDockerfile(true);
