@@ -38,8 +38,13 @@ compose () {
   else
     echo "Running compose file $composeFileName"
     docker-compose -f $composeFileName kill
-    docker-compose -f $composeFileName up -d
     
+    if [[ $ENVIRONMENT = "release" ]]; then
+      docker-compose -f $composeFileName build
+    fi
+
+    docker-compose -f $composeFileName up -d
+
     if [[ $isWebProject = true ]]; then
       openSite
     fi
@@ -64,7 +69,7 @@ showUsage () {
     echo ""
     echo "Commands:"
     echo "    build: Builds a Docker image ('$imageName')."
-    echo "    compose: Runs docker-compose."
+    echo "    compose: Builds the images and runs docker-compose. Images are re-built when using release environment, while debug environment uses a cached version of the image."
     echo "    clean: Removes the image '$imageName' and kills all containers based on that image."
     echo ""
     echo "Environments:"
