@@ -94,7 +94,7 @@ GolangHelper.prototype.getImageName = function () {
  * @returns {string}
  */
 GolangHelper.prototype.getTemplateScriptName = function () {
-    return util.isWindows() ? '_dockerTaskGeneric.cmd' : '_dockerTaskGeneric.sh';
+    return util.isWindows() ? '_dockerTaskGeneric.ps1' : '_dockerTaskGeneric.sh';
 }
 
 /**

@@ -150,7 +150,7 @@ AspNetHelper.prototype.addKestrelCommand = function (cb) {
  * @returns {string}
  */
 AspNetHelper.prototype.getTemplateScriptName = function () {
-    return util.isWindows() ? '_dockerTaskGeneric.cmd' : '_dockerTaskGeneric.sh';
+    return util.isWindows() ? '_dockerTaskGeneric.ps1' : '_dockerTaskGeneric.sh';
 }
 
 /**
