@@ -19,7 +19,7 @@ module.exports = {
      * @returns {string}
      */
     getDestinationScriptName: function () {
-        return this.isWindows() ? 'dockerTask.cmd' : 'dockerTask.sh';
+        return this.isWindows() ? 'dockerTask.ps1' : 'dockerTask.sh';
     },
 
     /**
