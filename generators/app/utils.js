@@ -10,7 +10,7 @@ module.exports = {
      * Gets a value indicating if host is Windows or not.
      * @returns {boolean}
      */
-    isWindows: function() {
+    isWindows: function () {
         return os.platform() === 'win32';
     },
 
@@ -18,8 +18,8 @@ module.exports = {
      * Gets the destination script name based on the platform.
      * @returns {string}
      */
-    getDestinationScriptName: function() {
-        return this.isWindows() ? 'dockerTask.cmd' : 'dockerTask.sh';
+    getDestinationScriptName: function () {
+        return this.isWindows() ? 'dockerTask.ps1' : 'dockerTask.sh';
     },
 
     /**
@@ -28,7 +28,7 @@ module.exports = {
      * @param {string} variableName
      * @returns {string}
      */
-    scriptify: function(variableName) {
+    scriptify: function (variableName) {
         return this.isWindows() ? '%' + variableName + '%' : '$' + variableName;
     },
 };

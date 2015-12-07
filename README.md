@@ -4,7 +4,7 @@
 [![CI Status][ciStatusBadge]][ciLink]
 [![Downloads][npmDownloadsBadge]][npmLink]
 
-This generator creates a Dockerfile and a script (`dockerTask.sh` or `dockerTask.cmd`) that helps you build and run your project inside of a Docker container. The following project types are currently supported:
+This generator creates a Dockerfile and a script (`dockerTask.sh` or `dockerTask.ps1`) that helps you build and run your project inside of a Docker container. The following project types are currently supported:
 - ASP.NET 5.0
 - Go 
 - Node.js
@@ -53,6 +53,12 @@ opt-in or opt-out first time you run the tool. If you opt-in and decide to opt-o
 
 ## Changelog
 ```
+v0.0.27
+=======
++ Replaced .CMD file with PowerShell script.
++ Adding .debug and .release compose files.
++ Replaced ADD command with COPY command in dockerfile.
+
 v0.0.26
 =======
 + BugFix: fixing issues with the path on Windows when using volume sharing in Node.js projects.

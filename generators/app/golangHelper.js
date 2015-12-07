@@ -16,7 +16,7 @@ var DockerComposeHelper = require('./dockerComposeHelper.js');
  * @param {int} portNumber - Port number.
  * @param {string} imageName - App image name.
  */
-var GolangHelper = function(isWeb, portNumber, imageName) {
+var GolangHelper = function (isWeb, portNumber, imageName) {
     this._isWeb = isWeb;
     this._portNumber = portNumber;
     this._imageName = imageName;
@@ -26,11 +26,11 @@ var GolangHelper = function(isWeb, portNumber, imageName) {
  * Creates dockerfile contents.
  * @returns {string}
  */
-GolangHelper.prototype.createDockerfile = function() {
+GolangHelper.prototype.createDockerfile = function (isDebug) {
     var projectName = this.getProjectName();
     var _dockerfileHelper = new DockerfileHelper();
     _dockerfileHelper.addFromCommand(this.getDockerImageName());
-    _dockerfileHelper.addAddCommand('. /go/src/github.com/' + projectName);
+    _dockerfileHelper.addCopyCommand('. /go/src/github.com/' + projectName);
     _dockerfileHelper.addRunCommand('go install github.com/' + projectName);
     _dockerfileHelper.addEntrypointCommand('/go/bin/' + projectName);
 
@@ -41,14 +41,25 @@ GolangHelper.prototype.createDockerfile = function() {
  * Creates docker-compose file contents.
  * @returns {string}
 */
-GolangHelper.prototype.createDockerComposeFile = function() {
+GolangHelper.prototype.createDockerComposeFile = function (isDebug) {
     var _dockerComposeHelper = new DockerComposeHelper();
     _dockerComposeHelper.addAppName(this._imageName);
-    _dockerComposeHelper.addDockerfile('Dockerfile');
+
+    if (isDebug) {
+        _dockerComposeHelper.addDockerfile('Dockerfile.debug');
+    } else {
+        _dockerComposeHelper.addDockerfile('Dockerfile.release');
+    }
     _dockerComposeHelper.addBuildContext('.');
 
     if (this._isWeb) {
         _dockerComposeHelper.addPort(this._portNumber + ':' + this._portNumber);
+    }
+
+    if (isDebug) {
+        _dockerComposeHelper.addLabel('com.' + this._imageName + '.environment: "debug"');
+    } else {
+        _dockerComposeHelper.addLabel('com.' + this._imageName + '.environment: "release"');
     }
 
     return _dockerComposeHelper.createContents();
@@ -58,7 +69,7 @@ GolangHelper.prototype.createDockerComposeFile = function() {
  * Gets the Docker image name.
  * @returns {string}
  */
-GolangHelper.prototype.getDockerImageName = function() {
+GolangHelper.prototype.getDockerImageName = function () {
     return 'golang';
 }
 
@@ -66,7 +77,7 @@ GolangHelper.prototype.getDockerImageName = function() {
  * Gets the port number.
  * @returns {int}
  */
-GolangHelper.prototype.getPortNumber = function() {
+GolangHelper.prototype.getPortNumber = function () {
     return this._portNumber;
 }
 
@@ -74,7 +85,7 @@ GolangHelper.prototype.getPortNumber = function() {
  * Gets the app image name.
  * @returns {string}
  */
-GolangHelper.prototype.getImageName = function() {
+GolangHelper.prototype.getImageName = function () {
     return this._imageName;
 }
 
@@ -82,52 +93,17 @@ GolangHelper.prototype.getImageName = function() {
  * Gets the template script name.
  * @returns {string}
  */
-GolangHelper.prototype.getTemplateScriptName = function() {
-    return util.isWindows() ? '_dockerTaskGolang.cmd' : '_dockerTaskGolang.sh';
+GolangHelper.prototype.getTemplateScriptName = function () {
+    return util.isWindows() ? '_dockerTaskGeneric.ps1' : '_dockerTaskGeneric.sh';
 }
 
 /**
  * Gets the project name (this is used in the Dockerfile).
  * @returns {string}
  */
-GolangHelper.prototype.getProjectName = function() {
+GolangHelper.prototype.getProjectName = function () {
     // Use the current folder name for project name.
     return process.cwd().split(path.sep).pop();
-}
-
-/**
- * Gets the command for opening the web site.
- * @returns {string}
- */
-GolangHelper.prototype.getOpenWebSiteCommand = function() {
-    var command = '';
-
-    if (this._isWeb) {
-        if (util.isWindows()) {
-            command = 'FOR /F %%i IN (\' "docker-machine active" \') do set dockerHostName=%%i\
-                      FOR /F %%i IN (\' "docker-machine ip %dockerHostName:"=%" \') do set tmpValue=%%i\
-                       \r\n\t\tset ipValue=%tmpValue: =%\
-                       \r\n\t\tstart http://%ipValue%:' + this._portNumber;
-        } else {
-            
-             command = 'until $(curl --output /dev/null --silent --head --fail http://$(docker-machine ip $(docker-machine active)):' + this._portNumber + '); do\
-                        \nprintf \'.\'\
-                        \nsleep 1\
-                        \ndone\
-                        \nopen \"http://$(docker-machine ip $(docker-machine active)):' + this._portNumber + '\"';
-        }
-    }
-
-    return command;
-}
-
-/**
- * Gets the command for running the docker container.
- * @returns {string}
- */
-GolangHelper.prototype.getContainerRunCommand = function() {
-    return this._isWeb ? 'docker run -di -p ' + this._portNumber + ':' + this._portNumber + ' ' + this._imageName :
-        'docker run -di ' + this._imageName;
 }
 
 module.exports = GolangHelper;

@@ -12,12 +12,10 @@ var DockerComposeHelper = require('./dockerComposeHelper.js');
 /**
  * Represents a helper for Node.js projects.
  * @constructor
- * @param {boolean} useNodemon - True if Nodemon should be used, false otherwise.
  * @param {int} portNumber - Port number.
  * @param {string} imageName - App image name.
  */
-var NodejsHelper = function(useNodemon, portNumber, imageName) {
-    this._useNodemon = useNodemon;
+var NodejsHelper = function (portNumber, imageName) {
     this._portNumber = portNumber;
     this._imageName = imageName;
 }
@@ -26,26 +24,26 @@ var NodejsHelper = function(useNodemon, portNumber, imageName) {
  * Creates dockerfile contents.
  * @returns {string}
  */
-NodejsHelper.prototype.createDockerfile = function() {
+NodejsHelper.prototype.createDockerfile = function (isDebug) {
     var _dockerfileHelper = new DockerfileHelper();
     _dockerfileHelper.addFromCommand(this.getDockerImageName());
     _dockerfileHelper.addRunCommand('mkdir /src');
-    _dockerfileHelper.addAddCommand('. /src');
+    _dockerfileHelper.addCopyCommand('. /src');
     _dockerfileHelper.addWorkdirCommand('/src');
     _dockerfileHelper.addExposeCommand(this._portNumber);
 
-    if (this._useNodemon) {
+    if (isDebug) {
         _dockerfileHelper.addRunCommand('npm install nodemon -g');
     }
 
     _dockerfileHelper.addRunCommand('npm install');
-    
-    if (this._useNodemon) {
+
+    if (isDebug) {
         _dockerfileHelper.addCmdCommand('["nodemon"]');
     } else {
         _dockerfileHelper.addCmdCommand('["node", "./bin/www"]');
     }
-    
+
     return _dockerfileHelper.createDockerfileContents();
 }
 
@@ -53,20 +51,32 @@ NodejsHelper.prototype.createDockerfile = function() {
  * Creates docker-compose file contents.
  * @returns {string}
 */
-NodejsHelper.prototype.createDockerComposeFile = function() {
+NodejsHelper.prototype.createDockerComposeFile = function (isDebug) {
     var _dockerComposeHelper = new DockerComposeHelper();
     _dockerComposeHelper.addAppName(this._imageName);
-    _dockerComposeHelper.addDockerfile('Dockerfile');
+
+    if (isDebug) {
+        _dockerComposeHelper.addDockerfile('Dockerfile.debug');
+    } else {
+        _dockerComposeHelper.addDockerfile('Dockerfile.release');
+    }
+
     _dockerComposeHelper.addBuildContext('.');
     _dockerComposeHelper.addPort(this._portNumber + ':' + this._portNumber);
 
-    if (this._useNodemon) {
+    if (isDebug) {
         if (util.isWindows()) {
-            var sourcePath = '/' + process.cwd().replace(/\\/g, '/').replace(/:/g,'');
+            var sourcePath = '/' + process.cwd().replace(/\\/g, '/').replace(/:/g, '');
             _dockerComposeHelper.addVolume(sourcePath + ':/src');
         } else {
             _dockerComposeHelper.addVolume('.:/src');
         }
+    }
+
+    if (isDebug) {
+        _dockerComposeHelper.addLabel('com.' + this._imageName + '.environment: "debug"');
+    } else {
+        _dockerComposeHelper.addLabel('com.' + this._imageName + '.environment: "release"');
     }
 
     return _dockerComposeHelper.createContents();
@@ -76,7 +86,7 @@ NodejsHelper.prototype.createDockerComposeFile = function() {
  * Gets the Docker image name.
  * @returns {string}
  */
-NodejsHelper.prototype.getDockerImageName = function() {
+NodejsHelper.prototype.getDockerImageName = function () {
     return 'node';
 }
 
@@ -84,26 +94,18 @@ NodejsHelper.prototype.getDockerImageName = function() {
  * Gets the template script name.
  * @returns {string}
  */
-NodejsHelper.prototype.getTemplateScriptName = function() {
-    return util.isWindows() ? '_dockerTaskGeneric.cmd' : '_dockerTaskGeneric.sh';
+NodejsHelper.prototype.getTemplateScriptName = function () {
+    return util.isWindows() ? '_dockerTaskGeneric.ps1' : '_dockerTaskGeneric.sh';
 }
 
 /**
  * Gets the parameter for volume sharing used in the docker run command.
  * @returns {string}
  */
-NodejsHelper.prototype._getVolumeShareParameter = function() {
+NodejsHelper.prototype._getVolumeShareParameter = function () {
     // Use for volume sharing in Windows.
-    var sourcePath = '/' + process.cwd().replace(/\\/g, '/').replace(/:/g,'');
+    var sourcePath = '/' + process.cwd().replace(/\\/g, '/').replace(/:/g, '');
     return util.isWindows() ? '-v ' + sourcePath + ':/src' : '-v `pwd`:/src';
-}
-
-/**
- * Gets the port parameter to be used in the docker run command.
- * @returns {string}
- */
-NodejsHelper.prototype._getPortParameter = function() {
-    return '-p ' + util.scriptify('publicPort') + ':' + util.scriptify('containerPort');
 }
 
 /**
@@ -111,27 +113,17 @@ NodejsHelper.prototype._getPortParameter = function() {
  * For volume sharing on Windows, project has to be under %HOMEDRIVE%\Users\ folder.
  * @returns {boolean}
  */
-NodejsHelper.prototype.canShareVolume = function() {
-    if (util.isWindows() && this._useNodemon) {
+NodejsHelper.prototype.canShareVolume = function () {
+    if (util.isWindows()) {
         var splitFolders = process.cwd().split(path.sep);
         var rootFolder = splitFolders[0] + path.sep + splitFolders[1];
-        
+
         if (rootFolder.toLowerCase() != process.env.HOMEDRIVE.toLowerCase() + path.sep + 'users') {
             return false;
         }
     }
 
     return true;
-}
-
-/**
- * Gets the command for running the docker container.
- * @returns {string}
- */
-NodejsHelper.prototype.getContainerRunCommand = function() {
-    return this._useNodemon ?
-        'docker run -di ' + this._getPortParameter() + ' ' + this._getVolumeShareParameter() + ' ' + util.scriptify('imageName') :
-        'docker run -di ' + this._getPortParameter() + ' ' + util.scriptify('imageName');;
 }
 
 module.exports = NodejsHelper;

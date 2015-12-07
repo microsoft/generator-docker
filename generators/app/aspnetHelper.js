@@ -17,7 +17,7 @@ var DockerComposeHelper = require('./dockerComposeHelper.js');
  * @param {int} portNumber - Port number.
  * @param {string} imageName - App image name.
  */
-var AspNetHelper = function(aspNetVersion, portNumber, imageName) {
+var AspNetHelper = function (aspNetVersion, portNumber, imageName) {
     this._aspNetVersion = aspNetVersion;
     this._portNumber = portNumber;
     this._imageName = imageName;
@@ -27,7 +27,7 @@ var AspNetHelper = function(aspNetVersion, portNumber, imageName) {
  * Creates dockerfile contents.
  * @returns {string}
  */
-AspNetHelper.prototype.createDockerfile = function() {
+AspNetHelper.prototype.createDockerfile = function (isDebug) {
     var _dockerfileHelper = new DockerfileHelper();
     _dockerfileHelper.addFromCommand(this.getDockerImageName());
     _dockerfileHelper.addCopyCommand('project.json /app/');
@@ -44,12 +44,25 @@ AspNetHelper.prototype.createDockerfile = function() {
  * Creates docker-compose file contents.
  * @returns {string}
 */
-AspNetHelper.prototype.createDockerComposeFile = function() {
+AspNetHelper.prototype.createDockerComposeFile = function (isDebug) {
     var _dockerComposeHelper = new DockerComposeHelper();
     _dockerComposeHelper.addAppName(this._imageName);
-    _dockerComposeHelper.addDockerfile('Dockerfile');
+
+    if (isDebug) {
+        _dockerComposeHelper.addDockerfile('Dockerfile.debug');
+    } else {
+        _dockerComposeHelper.addDockerfile('Dockerfile.release');
+    }
+
     _dockerComposeHelper.addBuildContext('.');
     _dockerComposeHelper.addPort(this._portNumber + ':' + this._portNumber);
+
+    if (isDebug) {
+        _dockerComposeHelper.addLabel('com.' + this._imageName + '.environment: "debug"');
+    } else {
+        _dockerComposeHelper.addLabel('com.' + this._imageName + '.environment: "release"');
+    }
+
     return _dockerComposeHelper.createContents();
 }
 
@@ -57,7 +70,7 @@ AspNetHelper.prototype.createDockerComposeFile = function() {
  * Gets the Docker image name.
  * @returns {string}
  */
-AspNetHelper.prototype.getDockerImageName = function() {
+AspNetHelper.prototype.getDockerImageName = function () {
     return 'microsoft/aspnet:' + this._aspNetVersion;
 }
 
@@ -65,7 +78,7 @@ AspNetHelper.prototype.getDockerImageName = function() {
  * Gets the port number.
  * @returns {int}
  */
-AspNetHelper.prototype.getPortNumber = function() {
+AspNetHelper.prototype.getPortNumber = function () {
     return this._portNumber;
 }
 
@@ -73,7 +86,7 @@ AspNetHelper.prototype.getPortNumber = function() {
  * Gets the app image name.
  * @returns {string}
  */
-AspNetHelper.prototype.getImageName = function() {
+AspNetHelper.prototype.getImageName = function () {
     return this._imageName;
 }
 
@@ -82,8 +95,8 @@ AspNetHelper.prototype.getImageName = function() {
  * @param {string} sourceFile - Source file.
  * @param {string} targetFile - Target file.
  */
-AspNetHelper.prototype._backupFile = function(sourceFile, targetFile) {
-    fs.readFile(sourceFile, 'utf8', function(err, data) {
+AspNetHelper.prototype._backupFile = function (sourceFile, targetFile) {
+    fs.readFile(sourceFile, 'utf8', function (err, data) {
         if (err) {
             console.log('Error reading file: ' + err);
             return;
@@ -96,13 +109,13 @@ AspNetHelper.prototype._backupFile = function(sourceFile, targetFile) {
  * Checks if  'kestrel' command is in the  project.json and adds it if command is not there yet.
  * @returns {boolean}
  */
-AspNetHelper.prototype.addKestrelCommand = function(cb) {
+AspNetHelper.prototype.addKestrelCommand = function (cb) {
     var rootFolder = process.cwd() + path.sep;
     var fileName = rootFolder + 'project.json';
     var backupFile = rootFolder + 'project.json.backup';
     var port = this._portNumber;
-    
-    fs.readFile(fileName, 'utf8', function(err, data) {
+
+    fs.readFile(fileName, 'utf8', function (err, data) {
         if (err) {
             cb(new Error('Can\'t read project.json file. Make sure project.json file exists.'));
             return;
@@ -118,7 +131,7 @@ AspNetHelper.prototype.addKestrelCommand = function(cb) {
         if (data.commands.kestrel === undefined) {
             AspNetHelper.prototype._backupFile(fileName, backupFile);
             data.commands.kestrel = 'Microsoft.AspNet.Hosting --server Microsoft.AspNet.Server.Kestrel --server.urls http://*:' + port;
-            fs.writeFile(fileName, JSON.stringify(data), function(err) {
+            fs.writeFile(fileName, JSON.stringify(data), function (err) {
                 if (err) {
                     cb(new Error('Can\'t write to project.json file.'));
                     return;
@@ -136,31 +149,15 @@ AspNetHelper.prototype.addKestrelCommand = function(cb) {
  * Gets the template script name.
  * @returns {string}
  */
-AspNetHelper.prototype.getTemplateScriptName = function() {
-    return util.isWindows() ? '_dockerTaskGeneric.cmd' : '_dockerTaskGeneric.sh';
-}
-
-/**
- * Gets the port parameter to be used in the docker run command.
- * @returns {string}
- */
-AspNetHelper.prototype._getPortParameter = function() {
-    return '-p ' + util.scriptify('publicPort') + ':' + util.scriptify('containerPort');
-}
-
-/**
- * Gets the container run command used in docker run command.
- * @returns {string}
- */
-AspNetHelper.prototype.getContainerRunCommand = function() {
-    return 'docker run -di ' + this._getPortParameter() + ' ' + util.scriptify('imageName');
+AspNetHelper.prototype.getTemplateScriptName = function () {
+    return util.isWindows() ? '_dockerTaskGeneric.ps1' : '_dockerTaskGeneric.sh';
 }
 
 /**
  * Gets the ASP.NET command name that's defined in the project.json file.
  * @returns {string}
  */
-AspNetHelper.prototype.getAspNetCommandName = function() {
+AspNetHelper.prototype.getAspNetCommandName = function () {
     return 'kestrel';
 }
 
