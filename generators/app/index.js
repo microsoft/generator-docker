@@ -16,6 +16,7 @@ var AspNetHelper = require('./aspnetHelper.js');
 var Configstore = require('configstore');
 var appInsights = require('applicationinsights');
 var os = require('os');
+var uuid = require('node-uuid');
 
 // General
 var projectType = '';
@@ -39,8 +40,10 @@ var kestrelCommandAdded = false;
 // Application insights variables.
 var pkg = require(__dirname + '/../../package.json');
 var AppInsightsOptInName = 'appInsightsOptIn';
+var AppInsightsUserIdName = 'userId';
 var AppInsightsKey = '21098969-0721-47bc-87cb-e346d186a9f5';
 var trackData = false;
+var userId = '';
 
 /**
  * Show prompts to the user.
@@ -253,6 +256,7 @@ function logData() {
     appInsights.setup(AppInsightsKey).start();
 
     client.trackEvent('YoDockerLaunch', {
+        'userId': userId,
         'version': pkg.version,
         'osPlatform': os.platform(),
         'projectType': projectType,
@@ -289,14 +293,20 @@ function handleAppInsights(yo) {
 
         yo.prompt(q, function (props) {
             trackData = props.optIn;
+
+            // Set the userId only if user opted-in.
+            var userId = trackData ? uuid.v1() : '';
+
             config.set(AppInsightsOptInName, trackData);
+            config.set(AppInsightsUserIdName, userId);
 
             var client = appInsights.getClient(AppInsightsKey)
             client.config.maxBatchIntervalMs = 1000;
             appInsights.setup(AppInsightsKey).start();
 
             client.trackEvent('YoDockerCollectData', {
-                'opt-in': trackData.toString()
+                'opt-in': trackData.toString(),
+                'userId': userId
             });
 
             appInsights.setAutoCollectPerformance(false);
@@ -305,6 +315,13 @@ function handleAppInsights(yo) {
         }.bind(yo));
     } else {
         trackData = config.get(AppInsightsOptInName);
+        userId = config.get(AppInsightsUserIdName);
+
+        // Create a user Id for opted-in users.
+        if (trackData && userId === undefined) {
+            userId = uuid.v1();
+            config.set(AppInsightsUserIdName, userId);
+        }
     }
 }
 
