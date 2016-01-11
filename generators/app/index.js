@@ -286,8 +286,10 @@ function handleAppInsights(yo) {
         var q = {
             type: 'confirm',
             name: 'optIn',
-            message: 'Generator-docker would like to collect anonymized data on the options you selected to understand and improve your experience.' +
-            'To opt out later, you can delete ' + chalk.red('~/.config/configstore/' + pkg.name + '.json. ') + 'Will you help us help you and your fellow developers?',
+            message: 'Generator-docker would like to collect anonymized data\n' +
+                'on the options you selected to understand and improve your experience.\n' +
+                'To opt out later, you can delete ' + chalk.red('~/.config/configstore/' + pkg.name + '.json.\n') +
+                'Will you help us help you and your fellow developers?',
             default: true
         };
 
