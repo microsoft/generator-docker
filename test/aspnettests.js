@@ -19,15 +19,15 @@ function createAspNetPrompts(aspNetVersion, portNumber, imageName) {
     }
 }
 
-function createTestProjectJson(dir, kestrelCommand) {
+function createTestProjectJson(dir, webCommand) {
     var projectJsonData = {
         commands: {
-            web: 'this is a web command'
+            ef: 'this is a EF command'
         }
     };
 
-    if (kestrelCommand !== undefined) {
-        projectJsonData.commands.kestrel = kestrelCommand;
+    if (webCommand !== undefined) {
+        projectJsonData.commands.web = webCommand;
     }
 
     var outputFile = dir + path.sep + 'project.json';
@@ -38,7 +38,80 @@ function createTestProjectJson(dir, kestrelCommand) {
     });
 }
 
-describe('ASP.NET project file creation', function () {
+describe('ASP.NET RC1 project file creation', function () {
+    before(function (done) {
+        helpers.run(path.join( __dirname, '../generators/app'))
+        .inTmpDir(function(dir) {
+            createTestProjectJson(dir); })
+        .withLocalConfig(function() {
+            return { "appInsightsOptIn": false, "runningTests": true }; })
+        .withPrompts({ projectType: 'aspnet', aspNetVersion: '1.0.0-rc1-final' })
+        .on('end', done);
+    });
+
+    it('generates dockerfiles', function (done) {
+        assert.file('Dockerfile.debug');
+        assert.file('Dockerfile.release');
+        done();
+    });
+
+    it('generates compose files', function (done) {
+        assert.file('docker-compose.debug.yml');
+        assert.file('docker-compose.release.yml');
+        done();
+    });
+
+    it('generates dockertask.sh file', function (done) {
+        assert.file('dockerTask.sh');
+        done();
+    });
+
+    it('web project variable is set correctly in script file', function (done) {
+        assert.fileContent('dockerTask.sh', 'isWebProject=true');
+        done();
+    });
+
+    it('correct dockerfile contents (debug)', function (done) {
+        assert.fileContent('Dockerfile.debug', 'FROM microsoft/aspnet:1.0.0-rc1-update1');
+        assert.fileContent('Dockerfile.debug', 'EXPOSE 5000');
+        assert.fileContent('Dockerfile.debug', 'ENTRYPOINT ["dnx", "-p", "project.json", "web"');
+        done();
+    });
+
+    it('correct dockerfile contents (release)', function (done) {
+        assert.fileContent('Dockerfile.release', 'FROM microsoft/aspnet:1.0.0-rc1-update1');
+        assert.fileContent('Dockerfile.release', 'EXPOSE 5000');
+        assert.fileContent('Dockerfile.release', 'ENTRYPOINT ["dnx", "-p", "project.json", "web"');
+        done();
+    });
+
+    it('correct compose file contents (debug)', function (done) {
+        assert.fileContent('docker-compose.debug.yml', 'dockerfile: Dockerfile.debug');
+        assert.fileContent('docker-compose.debug.yml', '"debug"');
+        assert.fileContent('docker-compose.debug.yml', '"5000:5000"');
+        done();
+    });
+
+    it('correct compose file contents (release)', function (done) {
+        assert.fileContent('docker-compose.release.yml', 'dockerfile: Dockerfile.release');
+        assert.fileContent('docker-compose.release.yml', '"release"');
+        assert.fileContent('docker-compose.release.yml', '"5000:5000"');
+        done();
+    });
+
+    it('generates project.json.backup file', function (done) {
+        assert.file('project.json.backup');
+        done();
+    });
+
+    it('update project.json and adds the web command if it doesn\'t exist', function (done) {
+        assert.file('project.json');
+        assert.fileContent('project.json', 'Microsoft.AspNet.Server.Kestrel --server.urls http://*:5000');
+        done();
+    });
+});
+
+describe('ASP.NET beta8 project file creation', function () {
     before(function (done) {
         helpers.run(path.join( __dirname, '../generators/app'))
         .inTmpDir(function(dir) {
@@ -65,7 +138,7 @@ describe('ASP.NET project file creation', function () {
         assert.file('dockerTask.sh');
         done();
     });
-    
+
     it('web project variable is set correctly in script file', function (done) {
         assert.fileContent('dockerTask.sh', 'isWebProject=true');
         done();
@@ -74,48 +147,70 @@ describe('ASP.NET project file creation', function () {
     it('correct dockerfile contents (debug)', function (done) {
         assert.fileContent('Dockerfile.debug', 'FROM microsoft/aspnet:1.0.0-beta8');
         assert.fileContent('Dockerfile.debug', 'EXPOSE 5000');
-        assert.fileContent('Dockerfile.debug', 'ENTRYPOINT ["dnx", "-p", "project.json", "kestrel"');
-        done(); 
+        assert.fileContent('Dockerfile.debug', 'ENTRYPOINT ["dnx", "-p", "project.json", "web"');
+        done();
     });
-    
+
     it('correct dockerfile contents (release)', function (done) {
         assert.fileContent('Dockerfile.release', 'FROM microsoft/aspnet:1.0.0-beta8');
         assert.fileContent('Dockerfile.release', 'EXPOSE 5000');
-        assert.fileContent('Dockerfile.release', 'ENTRYPOINT ["dnx", "-p", "project.json", "kestrel"');
-        done(); 
+        assert.fileContent('Dockerfile.release', 'ENTRYPOINT ["dnx", "-p", "project.json", "web"');
+        done();
     });
 
     it('correct compose file contents (debug)', function (done) {
         assert.fileContent('docker-compose.debug.yml', 'dockerfile: Dockerfile.debug');
         assert.fileContent('docker-compose.debug.yml', '"debug"');
         assert.fileContent('docker-compose.debug.yml', '"5000:5000"');
-        done(); 
+        done();
     });
 
     it('correct compose file contents (release)', function (done) {
         assert.fileContent('docker-compose.release.yml', 'dockerfile: Dockerfile.release');
         assert.fileContent('docker-compose.release.yml', '"release"');
         assert.fileContent('docker-compose.release.yml', '"5000:5000"');
-        done(); 
+        done();
     });
-    
+
     it('generates project.json.backup file', function (done) {
         assert.file('project.json.backup');
         done();
     });
 
-    it('update project.json and adds the kestrel command if it doesn\'t exist', function (done) {
+    it('update project.json and adds the web command if it doesn\'t exist', function (done) {
         assert.file('project.json');
-        assert.fileContent('project.json', 'Microsoft.AspNet.Hosting --server Microsoft.AspNet.Server.Kestrel --server.urls http://*:5000');
+        assert.fileContent('project.json', 'Microsoft.AspNet.Server.Kestrel --server.urls http://*:5000');
         done();
     });
 });
 
-describe('ASP.NET project file creation when kestrel command exists', function () {
+describe('ASP.NET RC1 project file creation when web command exists', function () {
     before(function (done) {
         helpers.run(path.join( __dirname, '../generators/app'))
         .inTmpDir(function(dir) {
-            createTestProjectJson(dir, 'EXISTING_KESTREL_COMMAND'); })
+            createTestProjectJson(dir, 'EXISTING_WEB_COMMAND'); })
+        .withLocalConfig(function() {
+            return { "appInsightsOptIn": false, "runningTests": true }; })
+        .withPrompts({ projectType: 'aspnet', aspNetVersion: '1.0.0-rc1-final' })
+        .on('end', done);
+    });
+
+    it('project.json.backup is not created', function (done) {
+        assert.noFile('project.json.backup');
+        done();
+    });
+
+    it('project.json is not modified', function (done) {
+        assert.fileContent('project.json', 'EXISTING_WEB_COMMAND');
+        done();
+    });
+});
+
+describe('ASP.NET beta8 project file creation when web command exists', function () {
+    before(function (done) {
+        helpers.run(path.join( __dirname, '../generators/app'))
+        .inTmpDir(function(dir) {
+            createTestProjectJson(dir, 'EXISTING_WEB_COMMAND'); })
         .withLocalConfig(function() {
             return { "appInsightsOptIn": false, "runningTests": true }; })
         .withPrompts({ projectType: 'aspnet', aspNetVersion: '1.0.0-beta8' })
@@ -128,7 +223,7 @@ describe('ASP.NET project file creation when kestrel command exists', function (
     });
 
     it('project.json is not modified', function (done) {
-        assert.fileContent('project.json', 'EXISTING_KESTREL_COMMAND');
+        assert.fileContent('project.json', 'EXISTING_WEB_COMMAND');
         done();
     });
 });

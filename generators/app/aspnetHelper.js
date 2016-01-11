@@ -35,7 +35,7 @@ AspNetHelper.prototype.createDockerfile = function (isDebug) {
     _dockerfileHelper.addRunCommand('["dnu", "restore"]');
     _dockerfileHelper.addCopyCommand('. /app');
     _dockerfileHelper.addExposeCommand(this.getPortNumber());
-    _dockerfileHelper.addEntrypointCommand('["dnx", "-p", "project.json", "' + this.getAspNetCommandName() + '"]');
+    _dockerfileHelper.addEntrypointCommand('["dnx", "-p", "project.json", "web"]');
 
     return _dockerfileHelper.createDockerfileContents();
 }
@@ -71,6 +71,14 @@ AspNetHelper.prototype.createDockerComposeFile = function (isDebug) {
  * @returns {string}
  */
 AspNetHelper.prototype.getDockerImageName = function () {
+    // Note: 1.0.0-rc1-update1 tag is used to provide
+    // updated RC1 runtime with backward support of rc1-final
+    // See updated release blog on MSDN:
+    // http://blogs.msdn.com/b/webdev/archive/2015/11/18/announcing-asp-net-5-release-candidate-1.aspx
+    // https://github.com/aspnet/aspnet-docker/pull/120
+    if(this._aspNetVersion === '1.0.0-rc1-final') {
+        return 'microsoft/aspnet:1.0.0-rc1-update1';
+    }
     return 'microsoft/aspnet:' + this._aspNetVersion;
 }
 
@@ -106,15 +114,15 @@ AspNetHelper.prototype._backupFile = function (sourceFile, targetFile) {
 }
 
 /**
- * Checks if  'kestrel' command is in the  project.json and adds it if command is not there yet.
+ * Checks if  'web' command is in the  project.json and adds it if command is not there yet.
  * @returns {boolean}
  */
-AspNetHelper.prototype.addKestrelCommand = function (cb) {
+AspNetHelper.prototype.addWebCommand = function (cb) {
     var rootFolder = process.cwd() + path.sep;
     var fileName = rootFolder + 'project.json';
     var backupFile = rootFolder + 'project.json.backup';
     var port = this._portNumber;
-
+    var self = this;
     fs.readFile(fileName, 'utf8', function (err, data) {
         if (err) {
             cb(new Error('Can\'t read project.json file. Make sure project.json file exists.'));
@@ -128,9 +136,9 @@ AspNetHelper.prototype.addKestrelCommand = function (cb) {
 
         data = JSON.parse(data);
 
-        if (data.commands.kestrel === undefined) {
-            AspNetHelper.prototype._backupFile(fileName, backupFile);
-            data.commands.kestrel = 'Microsoft.AspNet.Hosting --server Microsoft.AspNet.Server.Kestrel --server.urls http://*:' + port;
+        if (data.commands.web === undefined) {
+            self._backupFile(fileName, backupFile);
+            data.commands.web = 'Microsoft.AspNet.Server.Kestrel --server.urls http://*:' + port;
             fs.writeFile(fileName, JSON.stringify(data), function (err) {
                 if (err) {
                     cb(new Error('Can\'t write to project.json file.'));
@@ -151,14 +159,6 @@ AspNetHelper.prototype.addKestrelCommand = function (cb) {
  */
 AspNetHelper.prototype.getTemplateScriptName = function () {
     return util.isWindows() ? '_dockerTaskGeneric.ps1' : '_dockerTaskGeneric.sh';
-}
-
-/**
- * Gets the ASP.NET command name that's defined in the project.json file.
- * @returns {string}
- */
-AspNetHelper.prototype.getAspNetCommandName = function () {
-    return 'kestrel';
 }
 
 module.exports = AspNetHelper;
