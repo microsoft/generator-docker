@@ -251,7 +251,7 @@ function logData() {
         return;
     }
 
-    var client = appInsights.getClient(AppInsightsKey)
+    var client = appInsights.getClient(AppInsightsKey);
     client.config.maxBatchIntervalMs = 1000;
     appInsights.setup(AppInsightsKey).start();
 
@@ -300,7 +300,7 @@ function handleAppInsights(yo) {
             config.set(AppInsightsOptInName, trackData);
             config.set(AppInsightsUserIdName, userId);
 
-            var client = appInsights.getClient(AppInsightsKey)
+            var client = appInsights.getClient(AppInsightsKey);
             client.config.maxBatchIntervalMs = 1000;
             appInsights.setup(AppInsightsKey).start();
 
