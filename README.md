@@ -6,7 +6,7 @@
 
 This generator creates a Dockerfile and a script (`dockerTask.sh` or `dockerTask.ps1`) that helps you build and run your project inside of a Docker container. The following project types are currently supported:
 - ASP.NET 5.0
-- Go 
+- Go
 - Node.js
 
 ### Quick demo
@@ -17,7 +17,7 @@ This generator creates a Dockerfile and a script (`dockerTask.sh` or `dockerTask
 
 ## Installing
 
-Prerequisites: 
+Prerequisites:
 - [Node.js][nodejsSite]
 - [Yo generator][yoSite]
 
@@ -48,11 +48,15 @@ To see and provide feedback, please take a look at: [yo docker compose prototype
   - **A:** Of course. Please open an issue at [yodockerissues] or choose to [contribute][contributingLink]
 
 ## Collecting usage data
-Generator-docker collects anonymized data on the options you selected in the tool to understand and improve the experience. You are given a choice to 
-opt-in or opt-out first time you run the tool. If you opt-in and decide to opt-out later, simply delete the `~/.config/configstore/generator-docker.json` file from your machine. 
+Generator-docker collects anonymized data on the options you selected in the tool to understand and improve the experience. You are given a choice to
+opt-in or opt-out first time you run the tool. If you opt-in and decide to opt-out later, simply delete the `~/.config/configstore/generator-docker.json` file from your machine.
 
 ## Changelog
 ```
+v0.0.29
+=======
++ Fix for issue #34 (Update ASP.NET dockerfile and add support for RC)
+
 v0.0.27
 =======
 + Replaced .CMD file with PowerShell script.
@@ -67,7 +71,7 @@ v0.0.25
 =======
 + BugFix: making sure config is defined before reading a property.
 + BugFix: tracking if users opted-in or out for data collection.
- 
+
 v0.0.24
 =======
 + Docker-compose.yml files are being created now for all project types.
