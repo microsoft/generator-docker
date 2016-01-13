@@ -69,11 +69,11 @@ function showPrompts() {
             name: 'aspNetVersion',
             message: 'Which version of ASP.NET 5 is your project using?',
             choices: [{
-                name: 'beta8',
-                value: '1.0.0-beta8'
+                name: 'rc1',
+                value: '1.0.0-rc1-final'
             }, {
-                    name: 'beta7',
-                    value: '1.0.0-beta7'
+                    name: 'beta8',
+                    value: '1.0.0-beta8'
                 }],
             when: function (answers) {
                 return answers.projectType === 'aspnet';
@@ -178,7 +178,7 @@ function handleAspNet(yo) {
     var aspNet = new AspNetHelper(aspNetVersion, portNumber, imageName);
 
     var done = yo.async();
-    aspNet.addKestrelCommand(function (err, commandAdded) {
+    aspNet.addWebCommand(function (err, commandAdded) {
         if (err) {
             error = true;
             yo.log.error(err);
