@@ -297,7 +297,7 @@ function handleAppInsights(yo) {
             trackData = props.optIn;
 
             // Set the userId only if user opted-in.
-            var userId = trackData ? uuid.v1() : '';
+            userId = trackData ? uuid.v1() : '';
 
             config.set(AppInsightsOptInName, trackData);
             config.set(AppInsightsUserIdName, userId);
