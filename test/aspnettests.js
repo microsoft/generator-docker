@@ -5,15 +5,15 @@
 'use strict';
 
 var path = require('path');
-var assert = require('yeoman-generator').assert;
-var helpers = require('yeoman-generator').test;
+var assert = require('yeoman-assert');
+var helpers = require('yeoman-test');
 var process = require('process');
-var fs = require('fs');
+var fs = require('fs-extra');
 
-function createAspNetPrompts(aspNetVersion, portNumber, imageName) {
+function createAspNetPrompts(baseImageName, portNumber, imageName) {
     return {
         projectType: 'aspnet',
-        aspNetVersion: aspNetVersion,
+        baseImageName: baseImageName,
         portNumber: portNumber,
         imageName: imageName,
     }
@@ -38,6 +38,79 @@ function createTestProjectJson(dir, webCommand) {
     });
 }
 
+function createTestProgramCS(dir) {
+    var contents =
+'using System;\
+using System.Collections.Generic;\
+using System.IO;\
+using System.Linq;\
+using System.Threading.Tasks;\
+using Microsoft.AspNetCore.Hosting;\
+\
+namespace WebApplication1\
+{\
+    public class Program\
+    {\
+        public static void Main(string[] args)\
+        {\
+            var host = new WebHostBuilder()\
+                .UseKestrel()\
+                .UseContentRoot(Directory.GetCurrentDirectory())\
+                .UseIISIntegration()\
+                .UseStartup<Startup>()\
+                .Build();\
+\
+            host.Run();\
+        }\
+    }\
+}'
+
+    var outputFile = dir + path.sep + 'Program.cs';
+    
+    fs.writeFile(outputFile, contents, function(err) {
+        if (err) {
+            assert.fail('error writing Program.cs file.');
+        }
+    });
+}
+
+function createTestProgramCSWithUseUrls(dir) {
+    var contents =
+'using System;\
+using System.Collections.Generic;\
+using System.IO;\
+using System.Linq;\
+using System.Threading.Tasks;\
+using Microsoft.AspNetCore.Hosting;\
+\
+namespace WebApplication1\
+{\
+    public class Program\
+    {\
+        public static void Main(string[] args)\
+        {\
+            var host = new WebHostBuilder()\
+                .UseUrls("http://contoso.com:80")\
+                .UseKestrel()\
+                .UseContentRoot(Directory.GetCurrentDirectory())\
+                .UseIISIntegration()\
+                .UseStartup<Startup>()\
+                .Build();\
+\
+            host.Run();\
+        }\
+    }\
+}'
+
+    var outputFile = dir + path.sep + 'Program.cs';
+    
+    fs.writeFile(outputFile, contents, function(err) {
+        if (err) {
+            assert.fail('error writing Program.cs file.');
+        }
+    });
+}
+
 describe('ASP.NET RC1 project file creation', function () {
     before(function (done) {
         helpers.run(path.join( __dirname, '../generators/app'))
@@ -45,7 +118,7 @@ describe('ASP.NET RC1 project file creation', function () {
             createTestProjectJson(dir); })
         .withLocalConfig(function() {
             return { "appInsightsOptIn": false, "runningTests": true }; })
-        .withPrompts({ projectType: 'aspnet', aspNetVersion: '1.0.0-rc1-final' })
+        .withPrompts({ projectType: 'aspnet', baseImageName: 'aspnet:1.0.0-rc1-update1' })
         .on('end', done);
     });
 
@@ -73,6 +146,7 @@ describe('ASP.NET RC1 project file creation', function () {
 
     it('correct dockerfile contents (debug)', function (done) {
         assert.fileContent('Dockerfile.debug', 'FROM microsoft/aspnet:1.0.0-rc1-update1');
+        assert.fileContent('Dockerfile.debug', 'RUN ["dnu", "restore"');
         assert.fileContent('Dockerfile.debug', 'EXPOSE 5000');
         assert.fileContent('Dockerfile.debug', 'ENTRYPOINT ["dnx", "-p", "project.json", "web"');
         done();
@@ -80,6 +154,7 @@ describe('ASP.NET RC1 project file creation', function () {
 
     it('correct dockerfile contents (release)', function (done) {
         assert.fileContent('Dockerfile.release', 'FROM microsoft/aspnet:1.0.0-rc1-update1');
+        assert.fileContent('Dockerfile.debug', 'RUN ["dnu", "restore"');
         assert.fileContent('Dockerfile.release', 'EXPOSE 5000');
         assert.fileContent('Dockerfile.release', 'ENTRYPOINT ["dnx", "-p", "project.json", "web"');
         done();
@@ -111,14 +186,15 @@ describe('ASP.NET RC1 project file creation', function () {
     });
 });
 
-describe('ASP.NET beta8 project file creation', function () {
+describe('ASP.NET RC2 project file creation', function () {
     before(function (done) {
         helpers.run(path.join( __dirname, '../generators/app'))
         .inTmpDir(function(dir) {
-            createTestProjectJson(dir); })
+            createTestProjectJson(dir);
+            createTestProgramCS(dir); })
         .withLocalConfig(function() {
             return { "appInsightsOptIn": false, "runningTests": true }; })
-        .withPrompts({ projectType: 'aspnet', aspNetVersion: '1.0.0-beta8' })
+        .withPrompts({ projectType: 'aspnet', baseImageName: 'dotnet:1.0.0-preview1' })
         .on('end', done);
     });
 
@@ -145,16 +221,18 @@ describe('ASP.NET beta8 project file creation', function () {
     });
 
     it('correct dockerfile contents (debug)', function (done) {
-        assert.fileContent('Dockerfile.debug', 'FROM microsoft/aspnet:1.0.0-beta8');
+        assert.fileContent('Dockerfile.debug', 'FROM microsoft/dotnet:1.0.0-preview1');
+        assert.fileContent('Dockerfile.debug', 'RUN ["dotnet", "restore"]');
         assert.fileContent('Dockerfile.debug', 'EXPOSE 5000');
-        assert.fileContent('Dockerfile.debug', 'ENTRYPOINT ["dnx", "-p", "project.json", "web"');
+        assert.fileContent('Dockerfile.release', 'ENTRYPOINT ["dotnet", "run"');
         done();
     });
 
     it('correct dockerfile contents (release)', function (done) {
-        assert.fileContent('Dockerfile.release', 'FROM microsoft/aspnet:1.0.0-beta8');
+        assert.fileContent('Dockerfile.release', 'FROM microsoft/dotnet:1.0.0-preview1');
+        assert.fileContent('Dockerfile.debug', 'RUN ["dotnet", "restore"]');
         assert.fileContent('Dockerfile.release', 'EXPOSE 5000');
-        assert.fileContent('Dockerfile.release', 'ENTRYPOINT ["dnx", "-p", "project.json", "web"');
+        assert.fileContent('Dockerfile.release', 'ENTRYPOINT ["dotnet", "run"');
         done();
     });
 
@@ -172,14 +250,25 @@ describe('ASP.NET beta8 project file creation', function () {
         done();
     });
 
-    it('generates project.json.backup file', function (done) {
-        assert.file('project.json.backup');
+    it('doesn\'t generate project.json.backup file', function (done) {
+        assert.noFile('project.json.backup');
         done();
     });
 
-    it('update project.json and adds the web command if it doesn\'t exist', function (done) {
+    it('doesn\'t update project.json to add the web command if it doesn\'t exist', function (done) {
         assert.file('project.json');
-        assert.fileContent('project.json', 'Microsoft.AspNet.Server.Kestrel --server.urls http://*:5000');
+        assert.noFileContent('project.json', 'Microsoft.AspNet.Server.Kestrel --server.urls http://*:5000');
+        done();
+    });
+
+    it('generates Program.cs.backup file', function (done) {
+        assert.file('Program.cs.backup');
+        done();
+    });
+
+    it('update Program.cs and adds UseUrls if it doesn\'t exist', function (done) {
+        assert.file('Program.cs');
+        assert.fileContent('Program.cs', '.UseUrls("http://*:5000")');
         done();
     });
 });
@@ -191,7 +280,7 @@ describe('ASP.NET RC1 project file creation when web command exists', function (
             createTestProjectJson(dir, 'EXISTING_WEB_COMMAND'); })
         .withLocalConfig(function() {
             return { "appInsightsOptIn": false, "runningTests": true }; })
-        .withPrompts({ projectType: 'aspnet', aspNetVersion: '1.0.0-rc1-final' })
+        .withPrompts({ projectType: 'aspnet', baseImageName: 'aspnet:1.0.0-rc1-update1' })
         .on('end', done);
     });
 
@@ -206,24 +295,26 @@ describe('ASP.NET RC1 project file creation when web command exists', function (
     });
 });
 
-describe('ASP.NET beta8 project file creation when web command exists', function () {
+describe('ASP.NET RC2 project file creation when UseUrls exists', function () {
     before(function (done) {
         helpers.run(path.join( __dirname, '../generators/app'))
         .inTmpDir(function(dir) {
-            createTestProjectJson(dir, 'EXISTING_WEB_COMMAND'); })
+            createTestProjectJson(dir);
+            createTestProgramCSWithUseUrls(dir); })
         .withLocalConfig(function() {
             return { "appInsightsOptIn": false, "runningTests": true }; })
-        .withPrompts({ projectType: 'aspnet', aspNetVersion: '1.0.0-beta8' })
+        .withPrompts({ projectType: 'aspnet', baseImageName: 'aspnet:1.0.0-rc1-update1' })
         .on('end', done);
     });
 
-    it('project.json.backup is not created', function (done) {
-        assert.noFile('project.json.backup');
+    it('Program.cs.backup is not created', function (done) {
+        assert.noFile('Program.cs.backup');
         done();
     });
 
-    it('project.json is not modified', function (done) {
-        assert.fileContent('project.json', 'EXISTING_WEB_COMMAND');
+    it('Program.cs not modified', function (done) {
+        assert.noFileContent('Program.cs', '.UseUrls("http://*:5000")');
         done();
     });
 });
+

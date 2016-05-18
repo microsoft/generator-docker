@@ -25,6 +25,7 @@ var error = false;
 // Docker variables
 var portNumber = 3000;
 var imageName = '';
+var DOCKERIGNORE_NAME = '.dockerignore';
 var DEBUG_DOCKERFILE_NAME = 'Dockerfile.debug';
 var DEBUG_DOCKERCOMPOSE_NAME = 'docker-compose.debug.yml';
 var RELEASE_DOCKERFILE_NAME = 'Dockerfile.release';
@@ -34,8 +35,8 @@ var RELEASE_DOCKERCOMPOSE_NAME = 'docker-compose.release.yml';
 var isGoWeb = false;
 
 // ASP.NET variables
-var aspNetVersion = '';
-var kestrelCommandAdded = false;
+var baseImageName = '';
+var configureUrlsNoteForUser = null;
 
 // Application insights variables.
 var pkg = require(__dirname + '/../../package.json');
@@ -66,14 +67,14 @@ function showPrompts() {
             }]
     }, {
             type: 'list',
-            name: 'aspNetVersion',
+            name: 'baseImageName',
             message: 'Which version of ASP.NET 5 is your project using?',
             choices: [{
-                name: 'rc1',
-                value: '1.0.0-rc1-final'
+                name: 'rc2',
+                value: 'dotnet:1.0.0-preview1'
             }, {
-                    name: 'beta8',
-                    value: '1.0.0-beta8'
+                    name: 'rc1',
+                    value: 'aspnet:1.0.0-rc1-update1'
                 }],
             when: function (answers) {
                 return answers.projectType === 'aspnet';
@@ -108,7 +109,7 @@ function showPrompts() {
         portNumber = props.portNumber;
         imageName = props.imageName;
         isGoWeb = props.isGoWeb;
-        aspNetVersion = props.aspNetVersion;
+        baseImageName = props.baseImageName;
         done();
     }.bind(this));
 }
@@ -175,18 +176,21 @@ function handleGolang(yo) {
  * Handles ASP.NET option.
  */
 function handleAspNet(yo) {
-    var aspNet = new AspNetHelper(aspNetVersion, portNumber, imageName);
+    var aspNet = new AspNetHelper(baseImageName, portNumber, imageName);
 
     var done = yo.async();
-    aspNet.addWebCommand(function (err, commandAdded) {
+    aspNet.configureUrls(function (err, noteForUser) {
         if (err) {
             error = true;
             yo.log.error(err);
             return;
         }
-        kestrelCommandAdded = commandAdded;
+        configureUrlsNoteForUser = noteForUser;
         done();
     }.bind(yo));
+
+    var dockerignoreFileContents = aspNet.createDockerignoreFile();
+    yo.fs.write(yo.destinationPath(DOCKERIGNORE_NAME), new Buffer(dockerignoreFileContents));
 
     var debugDockerfileContents = aspNet.createDockerfile(true);
     yo.fs.write(yo.destinationPath(DEBUG_DOCKERFILE_NAME), new Buffer(debugDockerfileContents));
@@ -230,8 +234,8 @@ function end() {
         }.bind(this));
     }
 
-    if (kestrelCommandAdded) {
-        this.log('We noticed your project.json file didn\'t know how to start the kestrel web server. We\'ve fixed that for you.');
+    if (configureUrlsNoteForUser !== null) {
+        this.log(configureUrlsNoteForUser);
     }
 
     logData();
@@ -263,7 +267,7 @@ function logData() {
         'portNumber': portNumber,
         'imageName': imageName,
         'isGoWebProject': isGoWeb === undefined ? 'undefined' : isGoWeb,
-        'aspNetVersion': aspNetVersion === undefined ? 'undefined' : aspNetVersion
+        'baseImageName': imageName === undefined ? 'undefined' : baseImageName
     });
 
     // Workaround for https://github.com/Microsoft/ApplicationInsights-node.js/issues/54

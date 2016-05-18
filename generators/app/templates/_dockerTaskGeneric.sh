@@ -18,7 +18,7 @@ buildImage () {
     dockerFileName="Dockerfile.$ENVIRONMENT"
 
     if [[ ! -f $dockerFileName ]]; then
-      echo "$ENVIRONMENT is not a valid parameter. File '$dockerFileName' does not exist." 
+      echo "$ENVIRONMENT is not a valid parameter. File '$dockerFileName' does not exist."
     else
       echo "Building the image $imageName ($ENVIRONMENT)."
       docker build -f $dockerFileName -t $imageName .
@@ -34,11 +34,11 @@ compose () {
   composeFileName="docker-compose.$ENVIRONMENT.yml"
 
   if [[ ! -f $composeFileName ]]; then
-    echo "$ENVIRONMENT is not a valid parameter. File '$composeFileName' does not exist." 
+    echo "$ENVIRONMENT is not a valid parameter. File '$composeFileName' does not exist."
   else
     echo "Running compose file $composeFileName"
     docker-compose -f $composeFileName kill
-    
+
     if [[ $ENVIRONMENT = "release" ]]; then
       docker-compose -f $composeFileName build
     fi
