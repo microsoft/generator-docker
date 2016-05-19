@@ -21,8 +21,8 @@ Param(
     [switch]$Build,
     [Parameter(Mandatory=$True,ParameterSetName="Clean")]
     [switch]$Clean,
-    [parameter(ParameterSetName="Compose")] 
-    [parameter(ParameterSetName="Build")] 
+    [parameter(ParameterSetName="Compose")]
+    [parameter(ParameterSetName="Build")]
     [ValidateNotNullOrEmpty()]
     [String]$Environment = "Debug"
 )
