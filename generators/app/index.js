@@ -222,8 +222,8 @@ function end() {
         return;
     }
 
-    var done = this.async();
     if (!util.isWindows()) {
+        var done = this.async();
         exec('chmod +x ' + util.getDestinationScriptName(), function (err) {
             if (err) {
                 this.log.error(err);

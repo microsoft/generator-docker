@@ -4,9 +4,10 @@
 
 'use strict';
 
+var os = require('os');
 var path = require('path');
-var assert = require('yeoman-generator').assert;
-var helpers = require('yeoman-generator').test;
+var assert = require('yeoman-assert');
+var helpers = require('yeoman-test');
 
 describe('Node.js project file creation', function () {
     before(function (done) {
@@ -29,16 +30,20 @@ describe('Node.js project file creation', function () {
         done();
     });
 
-    it('generates dockertask.sh file', function (done) {
-        assert.file('dockerTask.sh');
+    it('generates dockertask file', function (done) {
+        assert.file(os.platform() === 'win32' ? 'dockerTask.ps1' : 'dockerTask.sh');
         done();
     });
-    
+
     it('web project variable is set correctly in script file', function (done) {
-        assert.fileContent('dockerTask.sh', 'isWebProject=true');
+        if (os.platform() === 'win32') {
+            assert.fileContent('dockerTask.ps1', '$isWebProject=$true');
+        } else {
+            assert.fileContent('dockerTask.sh', 'isWebProject=true');
+        }
         done();
     });
-    
+
     it('correct dockerfile contents (debug)', function (done) {
         assert.fileContent('Dockerfile.debug', 'RUN npm install nodemon -g');
         assert.fileContent('Dockerfile.debug', 'RUN npm install');
