@@ -27,17 +27,18 @@ var NodejsHelper = function (portNumber, imageName) {
 NodejsHelper.prototype.createDockerfile = function (isDebug) {
     var _dockerfileHelper = new DockerfileHelper();
     _dockerfileHelper.addFromCommand(this.getDockerImageName());
-    _dockerfileHelper.addRunCommand('mkdir /src');
-    _dockerfileHelper.addCopyCommand('. /src');
-    _dockerfileHelper.addWorkdirCommand('/src');
-    _dockerfileHelper.addExposeCommand(this._portNumber);
-
+    
     if (isDebug) {
         _dockerfileHelper.addRunCommand('npm install nodemon -g');
     }
-
+    
+    _dockerfileHelper.addRunCommand('mkdir /src');
+    _dockerfileHelper.addCopyCommand('package.json /src');
     _dockerfileHelper.addRunCommand('npm install');
-
+    _dockerfileHelper.addCopyCommand('. /src');
+    _dockerfileHelper.addWorkdirCommand('/src');
+    _dockerfileHelper.addExposeCommand(this._portNumber);
+    
     if (isDebug) {
         _dockerfileHelper.addCmdCommand('["nodemon"]');
     } else {
