@@ -4,6 +4,7 @@
 
 'use strict';
 
+var os = require('os');
 var path = require('path');
 var assert = require('yeoman-assert');
 var helpers = require('yeoman-test');
@@ -31,11 +32,7 @@ function createTestProjectJson(dir, webCommand) {
     }
 
     var outputFile = dir + path.sep + 'project.json';
-    fs.writeFile(outputFile, JSON.stringify(projectJsonData, null, 4), function(err) {
-        if (err) {
-            assert.fail('error writing project.json file.');
-        }
-    });
+    fs.writeFileSync(outputFile, JSON.stringify(projectJsonData, null, 4));
 }
 
 function createTestProgramCS(dir) {
@@ -67,11 +64,7 @@ namespace WebApplication1\
 
     var outputFile = dir + path.sep + 'Program.cs';
     
-    fs.writeFile(outputFile, contents, function(err) {
-        if (err) {
-            assert.fail('error writing Program.cs file.');
-        }
-    });
+    fs.writeFileSync(outputFile, contents);
 }
 
 function createTestProgramCSWithUseUrls(dir) {
@@ -104,14 +97,12 @@ namespace WebApplication1\
 
     var outputFile = dir + path.sep + 'Program.cs';
     
-    fs.writeFile(outputFile, contents, function(err) {
-        if (err) {
-            assert.fail('error writing Program.cs file.');
-        }
-    });
+    fs.writeFileSync(outputFile, contents);
 }
 
 describe('ASP.NET RC1 project file creation', function () {
+    // On windows this test takes longer than the default 2s
+    this.timeout(10000);
     before(function (done) {
         helpers.run(path.join( __dirname, '../generators/app'))
         .inTmpDir(function(dir) {
@@ -126,7 +117,7 @@ describe('ASP.NET RC1 project file creation', function () {
         assert.file('Dockerfile.debug');
         assert.file('Dockerfile.release');
         done();
-    });
+        });
 
     it('generates compose files', function (done) {
         assert.file('docker-compose.debug.yml');
@@ -134,13 +125,17 @@ describe('ASP.NET RC1 project file creation', function () {
         done();
     });
 
-    it('generates dockertask.sh file', function (done) {
-        assert.file('dockerTask.sh');
+    it('generates dockertask file', function (done) {
+        assert.file(os.platform() === 'win32' ? 'dockerTask.ps1' : 'dockerTask.sh');
         done();
     });
 
     it('web project variable is set correctly in script file', function (done) {
-        assert.fileContent('dockerTask.sh', 'isWebProject=true');
+        if (os.platform() === 'win32') {
+            assert.fileContent('dockerTask.ps1', '$isWebProject=$true');
+        } else {
+            assert.fileContent('dockerTask.sh', 'isWebProject=true');
+        }
         done();
     });
 
@@ -210,13 +205,17 @@ describe('ASP.NET RC2 project file creation', function () {
         done();
     });
 
-    it('generates dockertask.sh file', function (done) {
-        assert.file('dockerTask.sh');
+    it('generates dockertask file', function (done) {
+        assert.file(os.platform() === 'win32' ? 'dockerTask.ps1' : 'dockerTask.sh');
         done();
     });
 
     it('web project variable is set correctly in script file', function (done) {
-        assert.fileContent('dockerTask.sh', 'isWebProject=true');
+        if (os.platform() === 'win32') {
+            assert.fileContent('dockerTask.ps1', '$isWebProject=$true');
+        } else {
+            assert.fileContent('dockerTask.sh', 'isWebProject=true');
+        }
         done();
     });
 

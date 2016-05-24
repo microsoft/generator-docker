@@ -152,6 +152,7 @@ AspNetHelper.prototype.configureUrls = function (cb) {
                     cb(null, 'We noticed your Program.cs file didn\'t call UseUrls. We\'ve fixed that for you.');
                     return;
                 });
+                return;
             }
             cb(null, null);
             return;
@@ -186,6 +187,7 @@ AspNetHelper.prototype.configureUrls = function (cb) {
                     cb(null, 'We noticed your project.json file didn\'t know how to start the kestrel web server. We\'ve fixed that for you.');
                     return;
                 });
+                return;
             }
             cb(null, null);
             return;

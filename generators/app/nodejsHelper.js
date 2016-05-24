@@ -65,12 +65,7 @@ NodejsHelper.prototype.createDockerComposeFile = function (isDebug) {
     _dockerComposeHelper.addPort(this._portNumber + ':' + this._portNumber);
 
     if (isDebug) {
-        if (util.isWindows()) {
-            var sourcePath = '/' + process.cwd().replace(/\\/g, '/').replace(/:/g, '');
-            _dockerComposeHelper.addVolume(sourcePath + ':/src');
-        } else {
-            _dockerComposeHelper.addVolume('.:/src');
-        }
+        _dockerComposeHelper.addVolume('.:/src');
     }
 
     if (isDebug) {
