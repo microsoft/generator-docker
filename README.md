@@ -53,6 +53,11 @@ opt-in or opt-out first time you run the tool. If you opt-in and decide to opt-o
 
 ## Changelog
 ```
+v0.0.31
+=======
++ Added support for ASP.Net Core 5 RC2
++ BigFix: Optimized the creation of the node image to take advantage of caching
+
 v0.0.29
 =======
 + Fix for issue #34 (Update ASP.NET dockerfile and add support for RC)
