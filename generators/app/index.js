@@ -118,65 +118,44 @@ function showPrompts() {
  * Handles Node.js option.
  */
 function handleNodeJs(yo) {
-    var nodeJs = new NodejsHelper(portNumber, imageName);
+    var nodeJs = new NodejsHelper();
 
     if (!nodeJs.canShareVolume()) {
         yo.log(chalk.yellow('Warning: Your project has to be under %HOMEDRIVE%\Users folder in order to use Nodemon on Windows in the Debug environment.'));
     }
 
-    var debugDockerfileContents = nodeJs.createDockerfile(true);
-    yo.fs.write(yo.destinationPath(DEBUG_DOCKERFILE_NAME), new Buffer(debugDockerfileContents));
-
-    var releaseDockerfileContents = nodeJs.createDockerfile(false);
-    yo.fs.write(yo.destinationPath(RELEASE_DOCKERFILE_NAME), new Buffer(releaseDockerfileContents));
-
-    var debugDockerComposeContents = nodeJs.createDockerComposeFile(true);
-    yo.fs.write(yo.destinationPath(DEBUG_DOCKERCOMPOSE_NAME), new Buffer(debugDockerComposeContents));
-
-    var releaseDockerComposeContents = nodeJs.createDockerComposeFile(false);
-    yo.fs.write(yo.destinationPath(RELEASE_DOCKERCOMPOSE_NAME), new Buffer(releaseDockerComposeContents));
-
-    yo.fs.copyTpl(
-        yo.templatePath(nodeJs.getTemplateScriptName()),
-        yo.destinationPath(util.getDestinationScriptName()), {
+    var templateData = {
             imageName: imageName,
             portNumber: portNumber,
-            isWebProject: true
-        });
+            isWebProject: true,
+            volumeMap: '.:/src'
+        };
+        
+    handleCommmonTemplates(yo, nodeJs, templateData);
 }
 
 /**
  * Handles Golang option.
  */
 function handleGolang(yo) {
-    var golang = new GolangHelper(isGoWeb, portNumber, imageName);
+    var golang = new GolangHelper();
 
-    var debugDockerfileContents = golang.createDockerfile(true);
-    yo.fs.write(yo.destinationPath(DEBUG_DOCKERFILE_NAME), new Buffer(debugDockerfileContents));
-
-    var releaseDockerfileContents = golang.createDockerfile(false);
-    yo.fs.write(yo.destinationPath(RELEASE_DOCKERFILE_NAME), new Buffer(releaseDockerfileContents));
-
-    var debugDockerComposeContents = golang.createDockerComposeFile(true);
-    yo.fs.write(yo.destinationPath(DEBUG_DOCKERCOMPOSE_NAME), new Buffer(debugDockerComposeContents));
-
-    var releaseDockerComposeContents = golang.createDockerComposeFile(false);
-    yo.fs.write(yo.destinationPath(RELEASE_DOCKERCOMPOSE_NAME), new Buffer(releaseDockerComposeContents));
-
-    yo.fs.copyTpl(
-        yo.templatePath(golang.getTemplateScriptName()),
-        yo.destinationPath(util.getDestinationScriptName()), {
-            imageName: golang.getImageName(),
+    var templateData = {
+            imageName: imageName,
+            projectName: golang.getProjectName(),
             portNumber: portNumber,
             isWebProject: isGoWeb,
-        });
+            volumeMap: null
+        };
+
+    handleCommmonTemplates(yo, golang, templateData);
 }
 
 /**
  * Handles ASP.NET option.
  */
 function handleAspNet(yo) {
-    var aspNet = new AspNetHelper(baseImageName, portNumber, imageName);
+    var aspNet = new AspNetHelper(baseImageName, portNumber);
 
     var done = yo.async();
     aspNet.configureUrls(function (err, noteForUser) {
@@ -189,28 +168,56 @@ function handleAspNet(yo) {
         done();
     }.bind(yo));
 
+    var templateData = {
+            baseImageName: aspNet.getDockerImageName(),
+            imageName: imageName,
+            portNumber: portNumber,
+            isWebProject: true,
+            volumeMap: null
+        };
+
     var dockerignoreFileContents = aspNet.createDockerignoreFile();
     yo.fs.write(yo.destinationPath(DOCKERIGNORE_NAME), new Buffer(dockerignoreFileContents));
 
-    var debugDockerfileContents = aspNet.createDockerfile(true);
-    yo.fs.write(yo.destinationPath(DEBUG_DOCKERFILE_NAME), new Buffer(debugDockerfileContents));
+    handleCommmonTemplates(yo, aspNet, templateData);
+}
 
-    var releaseDockerfileContents = aspNet.createDockerfile(false);
-    yo.fs.write(yo.destinationPath(RELEASE_DOCKERFILE_NAME), new Buffer(releaseDockerfileContents));
 
-    var debugDockerComposeContents = aspNet.createDockerComposeFile(true);
-    yo.fs.write(yo.destinationPath(DEBUG_DOCKERCOMPOSE_NAME), new Buffer(debugDockerComposeContents));
-
-    var releaseDockerComposeContents = aspNet.createDockerComposeFile(false);
-    yo.fs.write(yo.destinationPath(RELEASE_DOCKERCOMPOSE_NAME), new Buffer(releaseDockerComposeContents));
+/**
+ * Handles the common template files
+ */
+function handleCommmonTemplates(yo, helper, templateData) {
+    var debugTemplateData = Object.create(templateData, {
+            environment: {value: 'debug'}
+        });
+    var releaseTemplateData = Object.create(templateData, {
+            environment: {value: 'release'}
+        });
 
     yo.fs.copyTpl(
-        yo.templatePath(aspNet.getTemplateScriptName()),
-        yo.destinationPath(util.getDestinationScriptName()), {
-            imageName: aspNet.getImageName(),
-            portNumber: portNumber,
-            isWebProject: true
-        });
+        yo.templatePath(helper.getTemplateDockerFileName()),
+        yo.destinationPath(DEBUG_DOCKERFILE_NAME),
+        debugTemplateData);
+
+    yo.fs.copyTpl(
+        yo.templatePath(helper.getTemplateDockerFileName()),
+        yo.destinationPath(RELEASE_DOCKERFILE_NAME),
+        releaseTemplateData);
+
+    yo.fs.copyTpl(
+        yo.templatePath(helper.getTemplateDockerComposeFileName()),
+        yo.destinationPath(DEBUG_DOCKERCOMPOSE_NAME),
+        debugTemplateData);
+
+    yo.fs.copyTpl(
+        yo.templatePath(helper.getTemplateDockerComposeFileName()),
+        yo.destinationPath(RELEASE_DOCKERCOMPOSE_NAME),
+        releaseTemplateData);
+
+    yo.fs.copyTpl(
+        yo.templatePath(helper.getTemplateScriptName()),
+        yo.destinationPath(util.getDestinationScriptName()),
+        templateData);
 }
 
 /**
