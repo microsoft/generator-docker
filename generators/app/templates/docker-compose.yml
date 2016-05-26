@@ -1,0 +1,9 @@
+<%= imageName %>:
+  dockerfile: Dockerfile.<%= environment %>
+  build: .<% if (isWebProject && portNumber) { %>
+  ports:
+    - "<%= portNumber %>:<%= portNumber %>"<% } %><% if (environment === 'debug' && volumeMap !== null) { %>
+  volumes:
+    - <%= volumeMap %><% } %>
+  labels:
+    com.<%= imageName %>.environment: "<%= environment %>"

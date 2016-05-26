@@ -7,48 +7,28 @@ var util = require('./utils.js');
 var path = require('path');
 var process = require('process');
 var fs = require('fs');
-var DockerfileHelper = require('./dockerfileHelper.js');
-var DockerComposeHelper = require('./dockerComposeHelper.js');
 
 /**
  * Represents a helper for ASP.NET projects.
  * @constructor
- * @param {string} imageName - ASP.NET version to use.
+ * @param {string} baseImageName - ASP.NET base image to use.
  * @param {int} portNumber - Port number.
- * @param {string} imageName - App image name.
  */
-var AspNetHelper = function (baseImageName, portNumber, imageName) {
+var AspNetHelper = function (baseImageName, portNumber) {
     this._baseImageName = baseImageName;
-    this._portNumber = portNumber;
-    this._imageName = imageName;
-}
-
-/**
- * Creates dockerfile contents.
- * @returns {string}
- */
-AspNetHelper.prototype.createDockerfile = function (isDebug) {
-    var _dockerfileHelper = new DockerfileHelper();
-    _dockerfileHelper.addFromCommand(this.getDockerImageName());
-    _dockerfileHelper.addCopyCommand('project.json /app/');
-    _dockerfileHelper.addWorkdirCommand('/app');
-    if (this._baseImageName === 'dotnet:1.0.0-preview1' ) {
-        _dockerfileHelper.addRunCommand('["dotnet", "restore"]');
-    } else {
-        _dockerfileHelper.addRunCommand('["dnu", "restore"]');
+    this._portNumber = portNumber
+    
+    switch (baseImageName) {
+        case 'aspnet:1.0.0-rc1-update1':
+            this._templateFolder = 'dnx';
+            break;
+        case 'dotnet:1.0.0-preview1':
+            this._templateFolder = 'dotnet';
+            break;
+        default:
+            this._templateFolder = 'dotnet';
+            break;
     }
-    _dockerfileHelper.addCopyCommand('. /app');
-    if (this._baseImageName === 'dotnet:1.0.0-preview1' ) {
-        _dockerfileHelper.addRunCommand('["dotnet", "build", "-c", ' + (isDebug ? '"Debug"' : '"Release"') + ']');
-    }
-    _dockerfileHelper.addExposeCommand(this.getPortNumber());
-    if (this._baseImageName === 'dotnet:1.0.0-preview1' ) {
-        _dockerfileHelper.addEntrypointCommand('["dotnet", "run"]');
-    } else {
-        _dockerfileHelper.addEntrypointCommand('["dnx", "-p", "project.json", "web"]');
-    }
-
-    return _dockerfileHelper.createDockerfileContents();
 }
 
 /**
@@ -60,53 +40,11 @@ AspNetHelper.prototype.createDockerignoreFile = function () {
 }
 
 /**
- * Creates docker-compose file contents.
- * @returns {string}
-*/
-AspNetHelper.prototype.createDockerComposeFile = function (isDebug) {
-    var _dockerComposeHelper = new DockerComposeHelper();
-    _dockerComposeHelper.addAppName(this._imageName);
-
-    if (isDebug) {
-        _dockerComposeHelper.addDockerfile('Dockerfile.debug');
-    } else {
-        _dockerComposeHelper.addDockerfile('Dockerfile.release');
-    }
-
-    _dockerComposeHelper.addBuildContext('.');
-    _dockerComposeHelper.addPort(this._portNumber + ':' + this._portNumber);
-
-    if (isDebug) {
-        _dockerComposeHelper.addLabel('com.' + this._imageName + '.environment: "debug"');
-    } else {
-        _dockerComposeHelper.addLabel('com.' + this._imageName + '.environment: "release"');
-    }
-
-    return _dockerComposeHelper.createContents();
-}
-
-/**
  * Gets the Docker image name.
  * @returns {string}
  */
 AspNetHelper.prototype.getDockerImageName = function () {
     return 'microsoft/' + this._baseImageName;
-}
-
-/**
- * Gets the port number.
- * @returns {int}
- */
-AspNetHelper.prototype.getPortNumber = function () {
-    return this._portNumber;
-}
-
-/**
- * Gets the app image name.
- * @returns {string}
- */
-AspNetHelper.prototype.getImageName = function () {
-    return this._imageName;
 }
 
 /**
@@ -201,6 +139,22 @@ AspNetHelper.prototype.configureUrls = function (cb) {
  */
 AspNetHelper.prototype.getTemplateScriptName = function () {
     return util.isWindows() ? '_dockerTaskGeneric.ps1' : '_dockerTaskGeneric.sh';
+}
+
+/**
+ * Gets the template docker-compose file name.
+ * @returns {string}
+ */
+AspNetHelper.prototype.getTemplateDockerComposeFileName = function () {
+    return 'docker-compose.yml';
+}
+
+/**
+ * Gets the template dockerfile name.
+ * @returns {string}
+ */
+AspNetHelper.prototype.getTemplateDockerFileName = function () {
+    return path.join(this._templateFolder, 'Dockerfile');
 }
 
 module.exports = AspNetHelper;
