@@ -23,6 +23,8 @@ var AspNetHelper = function (baseImageName, portNumber) {
             this._templateFolder = 'dnx';
             break;
         case 'dotnet:1.0.0-preview1':
+            this._templateFolder = 'dotnet';
+            break;
         default:
             this._templateFolder = 'dotnet';
             break;
