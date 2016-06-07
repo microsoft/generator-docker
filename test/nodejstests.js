@@ -39,6 +39,7 @@ describe('Node.js project file creation', function () {
     it('web project variable is set correctly in script file', function (done) {
         assert.fileContent('dockerTask.ps1', '$isWebProject=$true');
         assert.fileContent('dockerTask.sh', 'isWebProject=true');
+        done();
     });
 
     it('correct dockerfile contents (debug)', function (done) {
