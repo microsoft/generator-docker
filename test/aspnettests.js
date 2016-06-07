@@ -302,7 +302,7 @@ describe('ASP.NET RC2 project file creation when UseUrls exists', function () {
             createTestProgramCSWithUseUrls(dir); })
         .withLocalConfig(function() {
             return { "appInsightsOptIn": false, "runningTests": true }; })
-        .withPrompts({ projectType: 'aspnet', baseImageName: 'aspnet:1.0.0-rc1-update1' })
+        .withPrompts({ projectType: 'aspnet', baseImageName: 'dotnet:1.0.0-preview1' })
         .on('end', done);
     });
 

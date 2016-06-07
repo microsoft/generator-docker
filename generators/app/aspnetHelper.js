@@ -79,7 +79,7 @@ AspNetHelper.prototype.configureUrls = function (cb) {
                 return;
             }
             
-            if (data.indexOf('.UseUrls(' < 0)) {
+            if (data.indexOf('.UseUrls(') < 0) {
                 self._backupFile(fileName, backupFile);
                 data = data.replace('new WebHostBuilder()', 'new WebHostBuilder().UseUrls("http://*:' + port + '")');
                 fs.writeFile(fileName, data, function (err) {
