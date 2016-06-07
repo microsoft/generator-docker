@@ -36,7 +36,7 @@ describe('Golang project file creation (non Web project)', function () {
         done();
     });
 
-    it('OpenSite is not included in script file', function (done) {
+    it('web project variable is set correctly in script file', function (done) {
         assert.fileContent('dockerTask.ps1', '$isWebProject=$false');
         assert.fileContent('dockerTask.sh', 'isWebProject=false');
         done();
@@ -100,7 +100,7 @@ describe('Golang project file creation (Web project)', function () {
         done();
     });
 
-    it('OpenSite is included in script file', function (done) {
+    it('web project variable is set correctly in script file', function (done) {
         assert.fileContent('dockerTask.ps1', '$isWebProject=$true');
         assert.fileContent('dockerTask.sh', 'isWebProject=true');
         done();

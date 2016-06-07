@@ -131,10 +131,9 @@ describe('ASP.NET RC1 project file creation', function () {
         done();
     });
 
-    it('OpenSite is included in script file', function (done) {
-        assert.fileContent('dockerTask.ps1', 'OpenSite');
-        assert.fileContent('dockerTask.sh', 'openSite');
-        done();
+    it('web project variable is set correctly in script file', function (done) {
+        assert.fileContent('dockerTask.ps1', '$isWebProject=$true');
+        assert.fileContent('dockerTask.sh', 'isWebProject=true');
     });
 
     it('correct dockerfile contents (debug)', function (done) {
@@ -209,10 +208,9 @@ describe('ASP.NET RC2 project file creation', function () {
         done();
     });
 
-    it('OpenSite is included in script file', function (done) {
-        assert.fileContent('dockerTask.ps1', 'OpenSite');
-        assert.fileContent('dockerTask.sh', 'openSite');
-        done();
+    it('web project variable is set correctly in script file', function (done) {
+        assert.fileContent('dockerTask.ps1', '$isWebProject=$true');
+        assert.fileContent('dockerTask.sh', 'isWebProject=true');
     });
 
     it('correct dockerfile contents (debug)', function (done) {
