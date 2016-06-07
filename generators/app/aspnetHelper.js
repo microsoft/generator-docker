@@ -134,14 +134,6 @@ AspNetHelper.prototype.configureUrls = function (cb) {
 }
 
 /**
- * Gets the template script name.
- * @returns {string}
- */
-AspNetHelper.prototype.getTemplateScriptName = function () {
-    return util.isWindows() ? '_dockerTaskGeneric.ps1' : '_dockerTaskGeneric.sh';
-}
-
-/**
  * Gets the template docker-compose file name.
  * @returns {string}
  */

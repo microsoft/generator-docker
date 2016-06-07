@@ -4,7 +4,7 @@
 [![CI Status][ciStatusBadge]][ciLink]
 [![Downloads][npmDownloadsBadge]][npmLink]
 
-This generator creates a Dockerfile and a script (`dockerTask.sh` or `dockerTask.ps1`) that helps you build and run your project inside of a Docker container. The following project types are currently supported:
+This generator creates a Dockerfile and scripts (`dockerTask.sh` and `dockerTask.ps1`) that helps you build and run your project inside of a Docker container. The following project types are currently supported:
 - ASP.NET 5.0
 - Go
 - Node.js
