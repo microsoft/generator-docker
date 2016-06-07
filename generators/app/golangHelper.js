@@ -21,15 +21,6 @@ var GolangHelper = function () {
 GolangHelper.prototype.getDockerImageName = function () {
     return 'golang';
 }
-
-/**
- * Gets the template script name.
- * @returns {string}
- */
-GolangHelper.prototype.getTemplateScriptName = function () {
-    return util.isWindows() ? '_dockerTaskGeneric.ps1' : '_dockerTaskGeneric.sh';
-}
-
 /**
  * Gets the template docker-compose file name.
  * @returns {string}

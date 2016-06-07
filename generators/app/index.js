@@ -215,8 +215,13 @@ function handleCommmonTemplates(yo, helper, templateData) {
         releaseTemplateData);
 
     yo.fs.copyTpl(
-        yo.templatePath(helper.getTemplateScriptName()),
-        yo.destinationPath(util.getDestinationScriptName()),
+        yo.templatePath('_dockerTaskGeneric.ps1'),
+        yo.destinationPath('dockerTask.ps1'),
+        templateData);
+
+    yo.fs.copyTpl(
+        yo.templatePath('_dockerTaskGeneric.sh'),
+        yo.destinationPath('dockerTask.sh'),
         templateData);
 }
 

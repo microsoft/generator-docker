@@ -31,16 +31,14 @@ describe('Node.js project file creation', function () {
     });
 
     it('generates dockertask file', function (done) {
-        assert.file(os.platform() === 'win32' ? 'dockerTask.ps1' : 'dockerTask.sh');
+        assert.file('dockerTask.ps1');
+        assert.file('dockerTask.sh');
         done();
     });
 
-    it('web project variable is set correctly in script file', function (done) {
-        if (os.platform() === 'win32') {
-            assert.fileContent('dockerTask.ps1', '$isWebProject=$true');
-        } else {
-            assert.fileContent('dockerTask.sh', 'isWebProject=true');
-        }
+    it('OpenSite is included in script file', function (done) {
+        assert.fileContent('dockerTask.ps1', 'OpenSite');
+        assert.fileContent('dockerTask.sh', 'openSite');
         done();
     });
 
