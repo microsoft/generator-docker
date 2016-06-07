@@ -131,6 +131,11 @@ describe('ASP.NET RC1 project file creation', function () {
         done();
     });
 
+    it('generates tasks.json file', function (done) {
+        assert.file('.vscode/tasks.json');
+        done();
+    });
+
     it('web project variable is set correctly in script file', function (done) {
         assert.fileContent('dockerTask.ps1', '$isWebProject=$true');
         assert.fileContent('dockerTask.sh', 'isWebProject=true');
@@ -206,6 +211,11 @@ describe('ASP.NET RC2 project file creation', function () {
     it('generates dockertask file', function (done) {
         assert.file('dockerTask.ps1');
         assert.file('dockerTask.sh');
+        done();
+    });
+
+    it('generates tasks.json file', function (done) {
+        assert.file('.vscode/tasks.json');
         done();
     });
 
