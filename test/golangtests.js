@@ -36,6 +36,11 @@ describe('Golang project file creation (non Web project)', function () {
         done();
     });
 
+    it('generates tasks.json file', function (done) {
+        assert.file('.vscode/tasks.json');
+        done();
+    });
+
     it('web project variable is set correctly in script file', function (done) {
         assert.fileContent('dockerTask.ps1', '$isWebProject=$false');
         assert.fileContent('dockerTask.sh', 'isWebProject=false');
@@ -97,6 +102,11 @@ describe('Golang project file creation (Web project)', function () {
     it('generates dockertask file', function (done) {
         assert.file('dockerTask.ps1');
         assert.file('dockerTask.sh');
+        done();
+    });
+
+    it('generates tasks.json file', function (done) {
+        assert.file('.vscode/tasks.json');
         done();
     });
 

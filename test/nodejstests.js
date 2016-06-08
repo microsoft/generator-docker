@@ -36,6 +36,11 @@ describe('Node.js project file creation', function () {
         done();
     });
 
+    it('generates tasks.json file', function (done) {
+        assert.file('.vscode/tasks.json');
+        done();
+    });
+
     it('web project variable is set correctly in script file', function (done) {
         assert.fileContent('dockerTask.ps1', '$isWebProject=$true');
         assert.fileContent('dockerTask.sh', 'isWebProject=true');

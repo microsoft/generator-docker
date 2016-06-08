@@ -223,6 +223,11 @@ function handleCommmonTemplates(yo, helper, templateData) {
         yo.templatePath('_dockerTaskGeneric.sh'),
         yo.destinationPath('dockerTask.sh'),
         templateData);
+
+    yo.fs.copyTpl(
+        yo.templatePath('tasks.json'),
+        yo.destinationPath('.vscode/tasks.json'),
+        templateData);
 }
 
 /**
