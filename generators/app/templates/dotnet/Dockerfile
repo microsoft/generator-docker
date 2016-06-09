@@ -5,4 +5,4 @@ RUN ["dotnet", "restore"]
 COPY . /app
 RUN ["dotnet", "build", "-c", "<%= environment %>"]
 EXPOSE <%= portNumber %>
-ENTRYPOINT ["dotnet", "run"]
+ENTRYPOINT ["dotnet", "run", "-c", "<%= environment %>"]

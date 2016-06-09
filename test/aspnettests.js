@@ -228,16 +228,18 @@ describe('ASP.NET RC2 project file creation', function () {
     it('correct dockerfile contents (debug)', function (done) {
         assert.fileContent('Dockerfile.debug', 'FROM microsoft/dotnet:1.0.0-preview1');
         assert.fileContent('Dockerfile.debug', 'RUN ["dotnet", "restore"]');
+        assert.fileContent('Dockerfile.debug', 'RUN ["dotnet", "build", "-c", "debug"]');
         assert.fileContent('Dockerfile.debug', 'EXPOSE 5000');
-        assert.fileContent('Dockerfile.release', 'ENTRYPOINT ["dotnet", "run"');
+        assert.fileContent('Dockerfile.debug', 'ENTRYPOINT ["dotnet", "run", "-c", "debug"]');
         done();
     });
 
     it('correct dockerfile contents (release)', function (done) {
         assert.fileContent('Dockerfile.release', 'FROM microsoft/dotnet:1.0.0-preview1');
-        assert.fileContent('Dockerfile.debug', 'RUN ["dotnet", "restore"]');
+        assert.fileContent('Dockerfile.release', 'RUN ["dotnet", "restore"]');
+        assert.fileContent('Dockerfile.release', 'RUN ["dotnet", "build", "-c", "release"]');
         assert.fileContent('Dockerfile.release', 'EXPOSE 5000');
-        assert.fileContent('Dockerfile.release', 'ENTRYPOINT ["dotnet", "run"');
+        assert.fileContent('Dockerfile.release', 'ENTRYPOINT ["dotnet", "run", "-c", "release"]');
         done();
     });
 
