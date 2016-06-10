@@ -34,7 +34,7 @@ $isWebProject=$<%= isWebProject %>
 # Kills all running containers of an image and then removes them.
 function CleanAll () {
     # List all running containers that use $imageName, kill them and then remove them.
-    docker ps -a | select-string -pattern $imageName | foreach { $containerId =  $_.ToString().split()[0]; docker kill $containerId *>&1 | Out-Null; docker rm $containerId *>&1 | Out-Null }
+    docker ps -a | select-string -pattern $serviceName | foreach { $containerId =  $_.ToString().split()[0]; docker kill $containerId *>&1 | Out-Null; docker rm $containerId *>&1 | Out-Null }
 }
 
 # Builds the Docker image.
@@ -42,8 +42,13 @@ function BuildImage () {
     $dockerFileName="Dockerfile.$Environment"
 
     if (Test-Path $dockerFileName) {
+        $taggedImageName = $imageName
+        if ($Environment -ne "Release") {
+            $taggedImageName = "<%- '${imageName}:$Environment' %>"
+        }
+
         Write-Host "Building the image $imageName ($Environment)."
-        docker build -f $dockerFileName -t $imageName .
+        docker build -f $dockerFileName -t $taggedImageName .
     }
     else {
         Write-Error -Message "$Environment is not a valid parameter. File '$dockerFileName' does not exist." -Category InvalidArgument

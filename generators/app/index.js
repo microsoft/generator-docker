@@ -25,6 +25,7 @@ var error = false;
 // Docker variables
 var portNumber = 3000;
 var imageName = '';
+var serviceName = '';
 var DOCKERIGNORE_NAME = '.dockerignore';
 var DEBUG_DOCKERFILE_NAME = 'Dockerfile.debug';
 var DEBUG_DOCKERCOMPOSE_NAME = 'docker-compose.debug.yml';
@@ -101,13 +102,19 @@ function showPrompts() {
             type: 'input',
             name: 'imageName',
             message: 'What do you want to name your image?',
-            default: process.cwd().split(path.sep).pop().toLowerCase() + '_image',
+            default: process.cwd().split(path.sep).pop().toLowerCase() + '_image'
+        }, {
+            type: 'input',
+            name: 'serviceName',
+            message: 'What do you want to name your service?',
+            default: process.cwd().split(path.sep).pop().toLowerCase()
         }];
 
     this.prompt(prompts, function (props) {
         projectType = props.projectType;
         portNumber = props.portNumber;
         imageName = props.imageName;
+        serviceName = props.serviceName;
         isGoWeb = props.isGoWeb;
         baseImageName = props.baseImageName;
         done();
@@ -126,6 +133,7 @@ function handleNodeJs(yo) {
 
     var templateData = {
             imageName: imageName,
+            serviceName: serviceName,
             portNumber: portNumber,
             isWebProject: true,
             volumeMap: '.:/src'
@@ -142,6 +150,7 @@ function handleGolang(yo) {
 
     var templateData = {
             imageName: imageName,
+            serviceName: serviceName,
             projectName: golang.getProjectName(),
             portNumber: portNumber,
             isWebProject: isGoWeb,
@@ -171,6 +180,7 @@ function handleAspNet(yo) {
     var templateData = {
             baseImageName: aspNet.getDockerImageName(),
             imageName: imageName,
+            serviceName: serviceName,
             portNumber: portNumber,
             isWebProject: true,
             volumeMap: null

@@ -14,7 +14,7 @@ describe('Golang project file creation (non Web project)', function () {
         helpers.run(path.join( __dirname, '../generators/app'))
         .withLocalConfig(function() {
             return { "appInsightsOptIn": false, "runningTests": true }; })
-        .withPrompts({ projectType: 'golang', isGoWeb: false })
+        .withPrompts({ projectType: 'golang', isGoWeb: false, imageName: 'testimagename' })
         .on('end', done);
     });
 
@@ -52,29 +52,29 @@ describe('Golang project file creation (non Web project)', function () {
         assert.fileContent('Dockerfile.debug', 'COPY . /go/src/github.com/' + currentFolder);
         assert.fileContent('Dockerfile.debug', 'RUN go install github.com/' + currentFolder);
         assert.fileContent('Dockerfile.debug', 'ENTRYPOINT /go/bin/' + currentFolder);
-        done(); 
+        done();
     });
-    
+
     it('correct dockerfile contents (release)', function (done) {
         var currentFolder = process.cwd().split(path.sep).pop();
         assert.fileContent('Dockerfile.release', 'COPY . /go/src/github.com/' + currentFolder);
         assert.fileContent('Dockerfile.release', 'RUN go install github.com/' + currentFolder);
         assert.fileContent('Dockerfile.release', 'ENTRYPOINT /go/bin/' + currentFolder);
-        done(); 
+        done();
     });
 
     it('correct compose file contents (debug)', function (done) {
-        assert.fileContent('docker-compose.debug.yml', 'dockerfile: Dockerfile.debug');
+        assert.fileContent('docker-compose.debug.yml', 'image: testimagename:debug');
         assert.noFileContent('docker-compose.debug.yml', '"3000:3000"');
-        assert.fileContent('docker-compose.debug.yml', '"debug"');
-        done(); 
+        assert.fileContent('docker-compose.debug.yml', 'com.testimagename.environment: "debug"');
+        done();
     });
 
     it('correct compose file contents (release)', function (done) {
-        assert.fileContent('docker-compose.release.yml', 'dockerfile: Dockerfile.release');
-        assert.noFileContent('docker-compose.debug.yml', '"3000:3000"');
-        assert.fileContent('docker-compose.release.yml', '"release"');
-        done(); 
+        assert.fileContent('docker-compose.release.yml', 'image: testimagename');
+        assert.noFileContent('docker-compose.release.yml', '"3000:3000"');
+        assert.fileContent('docker-compose.release.yml', 'com.testimagename.environment: "release"');
+        done();
     });
 });
 
@@ -83,7 +83,7 @@ describe('Golang project file creation (Web project)', function () {
         helpers.run(path.join( __dirname, '../generators/app'))
         .withLocalConfig(function() {
             return { "appInsightsOptIn": false, "runningTests": true }; })
-        .withPrompts({ projectType: 'golang' })
+        .withPrompts({ projectType: 'golang', imageName: 'testimagename' })
         .on('end', done);
     });
 
@@ -121,28 +121,28 @@ describe('Golang project file creation (Web project)', function () {
         assert.fileContent('Dockerfile.debug', 'COPY . /go/src/github.com/' + currentFolder);
         assert.fileContent('Dockerfile.debug', 'RUN go install github.com/' + currentFolder);
         assert.fileContent('Dockerfile.debug', 'ENTRYPOINT /go/bin/' + currentFolder);
-        done(); 
+        done();
     });
-    
+
     it('correct dockerfile contents (release)', function (done) {
         var currentFolder = process.cwd().split(path.sep).pop();
         assert.fileContent('Dockerfile.release', 'COPY . /go/src/github.com/' + currentFolder);
         assert.fileContent('Dockerfile.release', 'RUN go install github.com/' + currentFolder);
         assert.fileContent('Dockerfile.release', 'ENTRYPOINT /go/bin/' + currentFolder);
-        done(); 
+        done();
     });
 
     it('correct compose file contents (debug)', function (done) {
-        assert.fileContent('docker-compose.debug.yml', 'dockerfile: Dockerfile.debug');
-        assert.fileContent('docker-compose.debug.yml', '"debug"');
+        assert.fileContent('docker-compose.debug.yml', 'com.testimagename.environment: "debug"');
+        assert.fileContent('docker-compose.debug.yml', 'image: testimagename:debug');
         assert.fileContent('docker-compose.debug.yml', '"3000:3000"');
-        done(); 
+        done();
     });
 
     it('correct compose file contents (release)', function (done) {
-        assert.fileContent('docker-compose.release.yml', 'dockerfile: Dockerfile.release');
-        assert.fileContent('docker-compose.release.yml', '"release"');
+        assert.fileContent('docker-compose.release.yml', 'image: testimagename');
+        assert.fileContent('docker-compose.release.yml', 'com.testimagename.environment: "release"');
         assert.fileContent('docker-compose.release.yml', '"3000:3000"');
-        done(); 
+        done();
     });
 });
