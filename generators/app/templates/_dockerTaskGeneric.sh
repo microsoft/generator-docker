@@ -4,7 +4,7 @@ isWebProject=<%= isWebProject %>
 
 # Kills all running containers of an image and then removes them.
 cleanAll () {
-    # List all running containers that use $serviceName, kill them and then remove them.
+    # List all running containers that use $imageName, kill them and then remove them.
     docker kill $(docker ps -a | awk '{ print $1,$2 }' | grep $imageName | awk '{ print $1}') > /dev/null 2>&1;
     docker rm $(docker ps -a | awk '{ print $1,$2 }' | grep $imageName | awk '{ print $1}') > /dev/null 2>&1;
 }
