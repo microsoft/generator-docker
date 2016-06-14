@@ -26,6 +26,7 @@ var error = false;
 var portNumber = 3000;
 var imageName = '';
 var serviceName = '';
+var composeProjectName = '';
 var DOCKERIGNORE_NAME = '.dockerignore';
 var DEBUG_DOCKERFILE_NAME = 'Dockerfile.debug';
 var DEBUG_DOCKERCOMPOSE_NAME = 'docker-compose.debug.yml';
@@ -108,6 +109,11 @@ function showPrompts() {
             name: 'serviceName',
             message: 'What do you want to name your service?',
             default: process.cwd().split(path.sep).pop().toLowerCase()
+        }, {
+            type: 'input',
+            name: 'composeProjectName',
+            message: 'What do you want to name your compose project?',
+            default: process.cwd().split(path.sep).pop().toLowerCase()
         }];
 
     this.prompt(prompts, function (props) {
@@ -117,6 +123,7 @@ function showPrompts() {
         serviceName = props.serviceName;
         isGoWeb = props.isGoWeb;
         baseImageName = props.baseImageName;
+        composeProjectName = props.composeProjectName;
         done();
     }.bind(this));
 }
@@ -132,13 +139,20 @@ function handleNodeJs(yo) {
     }
 
     var templateData = {
+            projectType: projectType,
+            composeProjectName: composeProjectName,
             imageName: imageName,
             serviceName: serviceName,
             portNumber: portNumber,
             isWebProject: true,
             volumeMap: '.:/src'
         };
-        
+
+    yo.fs.copyTpl(
+        yo.templatePath('node/launch.json'),
+        yo.destinationPath('.vscode/launch.json'),
+        templateData);
+
     handleCommmonTemplates(yo, nodeJs, templateData);
 }
 
@@ -149,6 +163,8 @@ function handleGolang(yo) {
     var golang = new GolangHelper();
 
     var templateData = {
+            projectType: projectType,
+            composeProjectName: composeProjectName,
             imageName: imageName,
             serviceName: serviceName,
             projectName: golang.getProjectName(),
@@ -178,6 +194,8 @@ function handleAspNet(yo) {
     }.bind(yo));
 
     var templateData = {
+            projectType: projectType,
+            composeProjectName: composeProjectName,
             baseImageName: aspNet.getDockerImageName(),
             imageName: imageName,
             serviceName: serviceName,
@@ -188,6 +206,11 @@ function handleAspNet(yo) {
 
     var dockerignoreFileContents = aspNet.createDockerignoreFile();
     yo.fs.write(yo.destinationPath(DOCKERIGNORE_NAME), new Buffer(dockerignoreFileContents));
+
+    yo.fs.copyTpl(
+        yo.templatePath('dotnet/launch.json'),
+        yo.destinationPath('.vscode/launch.json'),
+        templateData);
 
     handleCommmonTemplates(yo, aspNet, templateData);
 }

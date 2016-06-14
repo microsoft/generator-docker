@@ -23,7 +23,15 @@
                 "isBuildCommand": false,
                 "showOutput": "always",
                 "echoCommand": true
-            }
+            }<% if (projectType === 'nodejs' || projectType === 'aspnet') { %>,
+            {
+                "taskName": "composeForDebug",
+                "suppressTaskName": true,
+                "args": ["-ExecutionPolicy", "RemoteSigned", ".\\dockerTask.ps1", "-ComposeForDebug", "-Environment", "debug" ],
+                "isBuildCommand": false,
+                "showOutput": "always",
+                "echoCommand": true
+            }<% } %>
         ]
     },
     "osx": {
@@ -45,7 +53,14 @@
                 "args": [ "-c", "./dockerTask.sh compose debug" ],
                 "isBuildCommand": false,
                 "showOutput": "always"
-            }
+            }<% if (projectType === 'nodejs' || projectType === 'aspnet') { %>,
+            {
+                "taskName": "composeForDebug",
+                "suppressTaskName": true,
+                "args": [ "-c", "./dockerTask.sh composeForDebug debug" ],
+                "isBuildCommand": false,
+                "showOutput": "always"
+            }<% } %>
         ]
     }
 }

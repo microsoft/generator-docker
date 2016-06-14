@@ -1,4 +1,7 @@
 imageName="<%= imageName %>"
+projectName="<%= composeProjectName %>"<% if (projectType === 'nodejs' || projectType === 'aspnet') { %>
+serviceName="<%= serviceName %>"<% } %><% if (projectType === 'aspnet') { %>
+containerName="<%= '${projectName}_${serviceName}' %>_1"<% } %>
 publicPort=<%= portNumber %>
 isWebProject=<%= isWebProject %>
 
@@ -42,14 +45,22 @@ compose () {
     echo "$ENVIRONMENT is not a valid parameter. File '$composeFileName' does not exist."
   else
     echo "Running compose file $composeFileName"
-    docker-compose -f $composeFileName kill
-    docker-compose -f $composeFileName up -d
-
-    if [[ $isWebProject = true ]]; then
-      openSite
-    fi
+    docker-compose -f $composeFileName -p $projectName kill
+    docker-compose -f $composeFileName -p $projectName up -d
   fi
-}
+}<% if (projectType === 'aspnet') { %>
+
+startDebugging () {
+    echo "Running on http://$(docker-machine ip $(docker-machine active)):$publicPort"
+
+    containerId=$(docker ps -f "name=$containerName" -q -n=1)
+    if [[ z $containerId ]]; then
+      echo "Could not find a container named $containerName"
+    else
+      docker exec -i $containerId /clrdbg/clrdbg --interpreter=mi
+    fi
+
+}<% } %>
 
 openSite () {
     printf 'Opening site'
@@ -69,8 +80,10 @@ showUsage () {
     echo ""
     echo "Commands:"
     echo "    build: Builds a Docker image ('$imageName')."
-    echo "    compose: Builds the images and runs docker-compose. Images are re-built when using release environment, while debug environment uses a cached version of the image."
-    echo "    clean: Removes the image '$imageName' and kills all containers based on that image."
+    echo "    compose: Runs docker-compose."
+    echo "    clean: Removes the image '$imageName' and kills all containers based on that image."<% if (projectType === 'nodejs' || projectType === 'aspnet') { %>
+    echo "    composeForDebug: Builds the image and runs docker-compose."<% } %><% if (projectType === 'aspnet') { %>
+    echo "    startDebugging: Finds the running container and starts the debugger inside of it."<% } %>
     echo ""
     echo "Environments:"
     echo "    debug: Uses debug environment for build and/or compose."
@@ -90,7 +103,19 @@ else
       "compose")
              ENVIRONMENT=$2
              compose
-             ;;
+             if [[ $isWebProject = true ]]; then
+               openSite
+             fi
+             ;;<% if (projectType === 'nodejs' || projectType === 'aspnet') { %>
+      "composeForDebug")
+             ENVIRONMENT=$2
+             export REMOTE_DEBUGGING=1
+             buildImage
+             compose
+             ;;<% } %><% if (projectType === 'aspnet') { %>
+      "startDebugging")
+             startDebugging
+             ;;<% } %>
       "build")
              ENVIRONMENT=$2
              buildImage
