@@ -113,7 +113,7 @@ function showPrompts() {
             type: 'input',
             name: 'composeProjectName',
             message: 'What do you want to name your compose project?',
-            default: process.cwd().split(path.sep).pop().toLowerCase()
+            default: process.cwd().split(path.sep).pop().toLowerCase().replace(/[^a-zA-Z0-9]/g, '')
         }];
 
     this.prompt(prompts, function (props) {
