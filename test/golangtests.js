@@ -66,6 +66,7 @@ describe('Golang project file creation (non Web project)', function () {
     it('correct compose file contents (debug)', function (done) {
         assert.fileContent('docker-compose.debug.yml', 'image: testimagename:debug');
         assert.noFileContent('docker-compose.debug.yml', '"3000:3000"');
+        assert.noFileContent('docker-compose.debug.yml', '- REMOTE_DEBUGGING');
         assert.fileContent('docker-compose.debug.yml', 'com.testimagename.environment: "debug"');
         done();
     });
@@ -73,6 +74,7 @@ describe('Golang project file creation (non Web project)', function () {
     it('correct compose file contents (release)', function (done) {
         assert.fileContent('docker-compose.release.yml', 'image: testimagename');
         assert.noFileContent('docker-compose.release.yml', '"3000:3000"');
+        assert.noFileContent('docker-compose.release.yml', '- REMOTE_DEBUGGING');
         assert.fileContent('docker-compose.release.yml', 'com.testimagename.environment: "release"');
         done();
     });
@@ -136,6 +138,7 @@ describe('Golang project file creation (Web project)', function () {
         assert.fileContent('docker-compose.debug.yml', 'com.testimagename.environment: "debug"');
         assert.fileContent('docker-compose.debug.yml', 'image: testimagename:debug');
         assert.fileContent('docker-compose.debug.yml', '"3000:3000"');
+        assert.noFileContent('docker-compose.debug.yml', '- REMOTE_DEBUGGING');
         done();
     });
 
@@ -143,6 +146,7 @@ describe('Golang project file creation (Web project)', function () {
         assert.fileContent('docker-compose.release.yml', 'image: testimagename');
         assert.fileContent('docker-compose.release.yml', 'com.testimagename.environment: "release"');
         assert.fileContent('docker-compose.release.yml', '"3000:3000"');
+        assert.noFileContent('docker-compose.release.yml', '- REMOTE_DEBUGGING');
         done();
     });
 });

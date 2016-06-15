@@ -65,6 +65,7 @@ describe('Node.js project file creation', function () {
         assert.fileContent('docker-compose.debug.yml', '.:/src');
         assert.fileContent('docker-compose.debug.yml', 'com.testimagename.environment: "debug"');
         assert.fileContent('docker-compose.debug.yml', '"3000:3000"');
+        assert.noFileContent('docker-compose.debug.yml', '- REMOTE_DEBUGGING');
         done();
     });
 
@@ -73,6 +74,7 @@ describe('Node.js project file creation', function () {
         assert.noFileContent('docker-compose.release.yml', '.:/src');
         assert.fileContent('docker-compose.release.yml', 'com.testimagename.environment: "release"');
         assert.fileContent('docker-compose.release.yml', '"3000:3000"');
+        assert.noFileContent('docker-compose.release.yml', '- REMOTE_DEBUGGING');
         done();
     });
 });
