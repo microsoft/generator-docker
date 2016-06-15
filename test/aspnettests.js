@@ -149,6 +149,7 @@ describe('ASP.NET RC1 project file creation', function () {
         assert.fileContent('Dockerfile.debug', 'ENTRYPOINT ["dnx", "-p", "project.json", "web"');
         done();
     });
+
     it('correct dockerfile contents (release)', function (done) {
         assert.fileContent('Dockerfile.release', 'FROM microsoft/aspnet:1.0.0-rc1-update1');
         assert.fileContent('Dockerfile.debug', 'RUN ["dnu", "restore"');
