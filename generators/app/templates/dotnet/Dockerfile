@@ -12,4 +12,4 @@ COPY . /app
 RUN ["dotnet", "build", "-c", "<%= environment %>"]
 EXPOSE <%= portNumber %><% if (environment === 'debug') { %>
 ENTRYPOINT ["/bin/bash", "-c", "if [ -z \"$REMOTE_DEBUGGING\" ]; then dotnet run -c <%= environment %>; else sleep infinity; fi"]<% } else { %>
-ENTRYPOINT ["dotnet", "run"]<% } %>
+ENTRYPOINT ["dotnet", "run", "-c", "<%= environment %>"]<% } %>
