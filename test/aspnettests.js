@@ -63,7 +63,7 @@ namespace WebApplication1\
 }'
 
     var outputFile = dir + path.sep + 'Program.cs';
-    
+
     fs.writeFileSync(outputFile, contents);
 }
 
@@ -96,20 +96,20 @@ namespace WebApplication1\
 }'
 
     var outputFile = dir + path.sep + 'Program.cs';
-    
+
     fs.writeFileSync(outputFile, contents);
 }
 
 describe('ASP.NET RC1 project file creation', function () {
     // On windows this test takes longer than the default 2s
-    this.timeout(10000);
+    this.timeout(15000);
     before(function (done) {
         helpers.run(path.join( __dirname, '../generators/app'))
         .inTmpDir(function(dir) {
             createTestProjectJson(dir); })
         .withLocalConfig(function() {
             return { "appInsightsOptIn": false, "runningTests": true }; })
-        .withPrompts({ projectType: 'aspnet', baseImageName: 'aspnet:1.0.0-rc1-update1' })
+        .withPrompts({ projectType: 'aspnet', baseImageName: 'aspnet:1.0.0-rc1-update1', imageName: 'testimagename' })
         .on('end', done);
     });
 
@@ -159,15 +159,15 @@ describe('ASP.NET RC1 project file creation', function () {
     });
 
     it('correct compose file contents (debug)', function (done) {
-        assert.fileContent('docker-compose.debug.yml', 'dockerfile: Dockerfile.debug');
-        assert.fileContent('docker-compose.debug.yml', '"debug"');
+        assert.fileContent('docker-compose.debug.yml', 'image: testimagename:debug');
+        assert.fileContent('docker-compose.debug.yml', 'com.testimagename.environment: "debug"');
         assert.fileContent('docker-compose.debug.yml', '"5000:5000"');
         done();
     });
 
     it('correct compose file contents (release)', function (done) {
-        assert.fileContent('docker-compose.release.yml', 'dockerfile: Dockerfile.release');
-        assert.fileContent('docker-compose.release.yml', '"release"');
+        assert.fileContent('docker-compose.release.yml', 'image: testimagename');
+        assert.fileContent('docker-compose.release.yml', 'com.testimagename.environment: "release"');
         assert.fileContent('docker-compose.release.yml', '"5000:5000"');
         done();
     });
@@ -192,7 +192,7 @@ describe('ASP.NET RC2 project file creation', function () {
             createTestProgramCS(dir); })
         .withLocalConfig(function() {
             return { "appInsightsOptIn": false, "runningTests": true }; })
-        .withPrompts({ projectType: 'aspnet', baseImageName: 'dotnet:1.0.0-preview1' })
+        .withPrompts({ projectType: 'aspnet', baseImageName: 'dotnet:1.0.0-preview1', imageName: 'testimagename' })
         .on('end', done);
     });
 
@@ -244,15 +244,15 @@ describe('ASP.NET RC2 project file creation', function () {
     });
 
     it('correct compose file contents (debug)', function (done) {
-        assert.fileContent('docker-compose.debug.yml', 'dockerfile: Dockerfile.debug');
-        assert.fileContent('docker-compose.debug.yml', '"debug"');
+        assert.fileContent('docker-compose.debug.yml', 'image: testimagename:debug');
+        assert.fileContent('docker-compose.debug.yml', 'com.testimagename.environment: "debug"');
         assert.fileContent('docker-compose.debug.yml', '"5000:5000"');
         done();
     });
 
     it('correct compose file contents (release)', function (done) {
-        assert.fileContent('docker-compose.release.yml', 'dockerfile: Dockerfile.release');
-        assert.fileContent('docker-compose.release.yml', '"release"');
+        assert.fileContent('docker-compose.release.yml', 'image: testimagename');
+        assert.fileContent('docker-compose.release.yml', 'com.testimagename.environment: "release"');
         assert.fileContent('docker-compose.release.yml', '"5000:5000"');
         done();
     });

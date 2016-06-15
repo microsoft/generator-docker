@@ -14,16 +14,16 @@ describe('Node.js project file creation', function () {
         helpers.run(path.join( __dirname, '../generators/app'))
         .withLocalConfig(function() {
             return { "appInsightsOptIn": false, "runningTests": true }; })
-        .withPrompts({ projectType: 'nodejs' })
+        .withPrompts({ projectType: 'nodejs', imageName: 'testimagename' })
         .on('end', done);
     });
-    
+
     it('generates dockerfiles', function (done) {
         assert.file('Dockerfile.debug');
         assert.file('Dockerfile.release');
         done();
     });
-    
+
     it('generates compose files', function (done) {
         assert.file('docker-compose.debug.yml');
         assert.file('docker-compose.release.yml');
@@ -51,26 +51,28 @@ describe('Node.js project file creation', function () {
         assert.fileContent('Dockerfile.debug', 'RUN npm install nodemon -g');
         assert.fileContent('Dockerfile.debug', 'RUN npm install');
         assert.fileContent('Dockerfile.debug', 'CMD ["nodemon"]');
-        done(); 
+        done();
     });
-    
+
     it('correct dockerfile contents (release)', function (done) {
         assert.noFileContent('Dockerfile.release', 'RUN npm install nodemon -g');
         assert.fileContent('Dockerfile.release', 'CMD ["node", "./bin/www"]');
-        done(); 
+        done();
     });
-    
+
     it('correct compose file contents (debug)', function (done) {
-        assert.fileContent('docker-compose.debug.yml', 'dockerfile: Dockerfile.debug');
+        assert.fileContent('docker-compose.debug.yml', 'image: testimagename:debug');
         assert.fileContent('docker-compose.debug.yml', '.:/src');
-        assert.fileContent('docker-compose.debug.yml', '"debug"');
-        done(); 
+        assert.fileContent('docker-compose.debug.yml', 'com.testimagename.environment: "debug"');
+        assert.fileContent('docker-compose.debug.yml', '"3000:3000"');
+        done();
     });
-    
+
     it('correct compose file contents (release)', function (done) {
-        assert.fileContent('docker-compose.release.yml', 'dockerfile: Dockerfile.release');
+        assert.fileContent('docker-compose.release.yml', 'image: testimagename');
         assert.noFileContent('docker-compose.release.yml', '.:/src');
-        assert.fileContent('docker-compose.release.yml', '"release"');
-        done(); 
+        assert.fileContent('docker-compose.release.yml', 'com.testimagename.environment: "release"');
+        assert.fileContent('docker-compose.release.yml', '"3000:3000"');
+        done();
     });
 });

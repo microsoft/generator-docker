@@ -42,8 +42,13 @@ function BuildImage () {
     $dockerFileName="Dockerfile.$Environment"
 
     if (Test-Path $dockerFileName) {
+        $taggedImageName = $imageName
+        if ($Environment -ne "Release") {
+            $taggedImageName = "<%- '${imageName}:$Environment' %>".ToLowerInvariant()
+        }
+
         Write-Host "Building the image $imageName ($Environment)."
-        docker build -f $dockerFileName -t $imageName .
+        docker build -f $dockerFileName -t $taggedImageName .
     }
     else {
         Write-Error -Message "$Environment is not a valid parameter. File '$dockerFileName' does not exist." -Category InvalidArgument

@@ -20,8 +20,13 @@ buildImage () {
     if [[ ! -f $dockerFileName ]]; then
       echo "$ENVIRONMENT is not a valid parameter. File '$dockerFileName' does not exist."
     else
+      taggedImageName="$imageName"
+      if [[ $ENVIRONMENT != "release" ]]; then
+        taggedImageName="$imageName:$ENVIRONMENT"
+      fi
+
       echo "Building the image $imageName ($ENVIRONMENT)."
-      docker build -f $dockerFileName -t $imageName .
+      docker build -f $dockerFileName -t $taggedImageName .
     fi
 }
 
@@ -38,11 +43,6 @@ compose () {
   else
     echo "Running compose file $composeFileName"
     docker-compose -f $composeFileName kill
-
-    if [[ $ENVIRONMENT = "release" ]]; then
-      docker-compose -f $composeFileName build
-    fi
-
     docker-compose -f $composeFileName up -d
 
     if [[ $isWebProject = true ]]; then
