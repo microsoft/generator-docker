@@ -6,9 +6,9 @@ Runs docker-compose.
 .PARAMETER Build
 Builds a Docker image.
 .PARAMETER Clean
-Removes the image <%= imageName %> and kills all containers based on that image.<% if (projectType === 'nodejs' || projectType === 'aspnet') { %>
+Removes the image <%= imageName %> and kills all containers based on that image.<% if (projectType === 'aspnet') { %>
 .PARAMETER ComposeForDebug
-Builds the image and runs docker-compose.<% } %><% if (projectType === 'aspnet') { %>
+Builds the image and runs docker-compose.
 .PARAMETER StartDebugging
 Finds the running container and starts the debugger inside of it.<% } %>
 .PARAMETER Environment
@@ -20,16 +20,16 @@ Build a Docker image named <%= imageName %>
 
 Param(
     [Parameter(Mandatory=$True,ParameterSetName="Compose")]
-    [switch]$Compose,<% if (projectType === 'nodejs' || projectType === 'aspnet') { %>
+    [switch]$Compose,<% if (projectType === 'aspnet') { %>
     [Parameter(Mandatory=$True,ParameterSetName="ComposeForDebug")]
-    [switch]$ComposeForDebug,<% } %><% if (projectType === 'aspnet') { %>
+    [switch]$ComposeForDebug,
     [Parameter(Mandatory=$True,ParameterSetName="StartDebugging")]
     [switch]$StartDebugging,<% } %>
     [Parameter(Mandatory=$True,ParameterSetName="Build")]
     [switch]$Build,
     [Parameter(Mandatory=$True,ParameterSetName="Clean")]
     [switch]$Clean,
-    [parameter(ParameterSetName="Compose")]<% if (projectType === 'nodejs' || projectType === 'aspnet') { %>
+    [parameter(ParameterSetName="Compose")]<% if (projectType === 'aspnet') { %>
     [Parameter(ParameterSetName="ComposeForDebug")]<% } %>
     [parameter(ParameterSetName="Build")]
     [ValidateNotNullOrEmpty()]
@@ -37,8 +37,8 @@ Param(
 )
 
 $imageName="<%= imageName %>"
-$projectName="<%= composeProjectName %>"<% if (projectType === 'nodejs' || projectType === 'aspnet') { %>
-$serviceName="<%= serviceName %>"<% } %><% if (projectType === 'aspnet') { %>
+$projectName="<%= composeProjectName %>"<% if (projectType === 'aspnet') { %>
+$serviceName="<%= serviceName %>"
 $containerName="<%= '${projectName}_${serviceName}' %>_1"<% } %>
 $publicPort=<%= portNumber %>
 $isWebProject=$<%= isWebProject %>
@@ -121,12 +121,12 @@ if($Compose) {
     if ($isWebProject) {
         OpenSite
     }
-}<% if (projectType === 'nodejs' || projectType === 'aspnet') { %>
+}<% if (projectType === 'aspnet') { %>
 elseif($ComposeForDebug) {
     $env:REMOTE_DEBUGGING = 1
     BuildImage
     Compose
-}<% } %><% if (projectType === 'nodejs' || projectType === 'aspnet') { %>
+}
 elseif($StartDebugging) {
     StartDebugging
 }<% } %>

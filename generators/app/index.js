@@ -148,11 +148,6 @@ function handleNodeJs(yo) {
             volumeMap: '.:/src'
         };
 
-    yo.fs.copyTpl(
-        yo.templatePath('node/launch.json'),
-        yo.destinationPath('.vscode/launch.json'),
-        templateData);
-
     handleCommmonTemplates(yo, nodeJs, templateData);
 }
 
