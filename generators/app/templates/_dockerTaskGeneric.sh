@@ -54,7 +54,7 @@ startDebugging () {
     echo "Running on http://$(docker-machine ip $(docker-machine active)):$publicPort"
 
     containerId=$(docker ps -f "name=$containerName" -q -n=1)
-    if [[ z $containerId ]]; then
+    if [[ -z $containerId ]]; then
       echo "Could not find a container named $containerName"
     else
       docker exec -i $containerId /clrdbg/clrdbg --interpreter=mi
