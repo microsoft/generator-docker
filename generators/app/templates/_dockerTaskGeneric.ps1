@@ -53,10 +53,10 @@ function CleanAll () {
 function BuildImage () {
     $dockerFileName = $Null
     if ($Environment -eq "Release") {
-        $dockerFileName = "docker"
+        $dockerFileName = "dockerfile"
     }
     else {
-        $dockerFileName = "docker.$Environment"
+        $dockerFileName = "dockerfile.$Environment"
     }
 
     if (Test-Path $dockerFileName) {
