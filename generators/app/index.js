@@ -58,7 +58,7 @@ function showPrompts() {
         name: 'projectType',
         message: 'What language is your project using?',
         choices: [{
-            name: 'ASP.NET 5',
+            name: 'ASP.NET Core',
             value: 'aspnet'
         }, {
                 name: 'Golang',
@@ -70,7 +70,7 @@ function showPrompts() {
     }, {
             type: 'list',
             name: 'baseImageName',
-            message: 'Which version of ASP.NET 5 is your project using?',
+            message: 'Which version of ASP.NET Core is your project using?',
             choices: [{
                 name: 'rc2',
                 value: 'dotnet:1.0.0-preview1'
@@ -113,7 +113,7 @@ function showPrompts() {
             type: 'input',
             name: 'composeProjectName',
             message: 'What do you want to name your compose project?',
-            default: process.cwd().split(path.sep).pop().toLowerCase()
+            default: process.cwd().split(path.sep).pop().toLowerCase().replace(/[^a-zA-Z0-9]/g, '')
         }];
 
     this.prompt(prompts, function (props) {
