@@ -42,7 +42,6 @@ $serviceName="<%= serviceName %>"
 $containerName="<%= '${projectName}_${serviceName}' %>_1"<% } %>
 $publicPort=<%= portNumber %>
 $isWebProject=$<%= isWebProject %>
-$url="http://docker:$publicPort"
 
 # Kills all running containers of an image and then removes them.
 function CleanAll () {
@@ -94,7 +93,7 @@ function Compose () {
 }<% if (projectType === 'aspnet') { %>
 
 function StartDebugging () {
-    Write-Host "Running on $url"
+    Write-Host "Running on http://$(docker-machine ip $(docker-machine active)):$publicPort"
 
     $containerId = (docker ps -f "name=$containerName" -q -n=1)
     if ([System.String]::IsNullOrWhiteSpace($containerId)) {
@@ -112,7 +111,7 @@ function OpenSite () {
     #Check if the site is available
     while($status -ne 200) {
         try {
-            $response = Invoke-WebRequest -Uri $url -Headers @{"Cache-Control"="no-cache";"Pragma"="no-cache"} -UseBasicParsing
+            $response = Invoke-WebRequest -Uri "http://$(docker-machine ip $(docker-machine active)):$publicPort" -Headers @{"Cache-Control"="no-cache";"Pragma"="no-cache"} -UseBasicParsing
             $status = [int]$response.StatusCode
         }
         catch [System.Net.WebException] { }
@@ -124,7 +123,7 @@ function OpenSite () {
 
     Write-Host
     # Open the site.
-    Start-Process $url
+    Start-Process "http://$(docker-machine ip $(docker-machine active)):$publicPort"
 }
 
 # Call the correct function for the parameter that was used

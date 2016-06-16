@@ -4,7 +4,6 @@ serviceName="<%= serviceName %>"
 containerName="<%= '${projectName}_${serviceName}' %>_1"<% } %>
 publicPort=<%= portNumber %>
 isWebProject=<%= isWebProject %>
-url="http://localhost:$publicPort"
 
 # Kills all running containers of an image and then removes them.
 cleanAll () {
@@ -62,7 +61,7 @@ compose () {
 }<% if (projectType === 'aspnet') { %>
 
 startDebugging () {
-    echo "Running on $url"
+    echo "Running on http://$(docker-machine ip $(docker-machine active)):$publicPort"
 
     containerId=$(docker ps -f "name=$containerName" -q -n=1)
     if [[ -z $containerId ]]; then
@@ -75,13 +74,13 @@ startDebugging () {
 
 openSite () {
     printf 'Opening site'
-    until $(curl --output /dev/null --silent --head --fail $url); do
+    until $(curl --output /dev/null --silent --head --fail http://$(docker-machine ip $(docker-machine active)):$publicPort); do
       printf '.'
       sleep 1
     done
 
     # Open the site.
-    open $url
+    open "http://$(docker-machine ip $(docker-machine active)):$publicPort"
 }
 
 # Shows the usage for the script.
