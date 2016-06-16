@@ -37,8 +37,8 @@ Param(
 )
 
 $imageName="<%= imageName %>"
-$projectName="<%= composeProjectName %>"<% if (projectType === 'nodejs' || projectType === 'aspnet') { %>
-$serviceName="<%= serviceName %>"<% } %><% if (projectType === 'aspnet') { %>
+$projectName="<%= composeProjectName %>"<% if (projectType === 'aspnet') { %>
+$serviceName="<%= serviceName %>"
 $containerName="<%= '${projectName}_${serviceName}' %>_1"<% } %>
 $publicPort=<%= portNumber %>
 $isWebProject=$<%= isWebProject %>
@@ -126,7 +126,7 @@ elseif($ComposeForDebug) {
     $env:REMOTE_DEBUGGING = 1
     BuildImage
     Compose
-}<% } %><% if (projectType === 'nodejs' || projectType === 'aspnet') { %>
+}<% } %><% if (projectType === 'aspnet') { %>
 elseif($StartDebugging) {
     StartDebugging
 }<% } %>
