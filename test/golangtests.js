@@ -19,14 +19,14 @@ describe('Golang project file creation (non Web project)', function () {
     });
 
     it('generates dockerfiles', function (done) {
-        assert.file('Dockerfile.debug');
-        assert.file('Dockerfile.release');
+        assert.file('dockerfile.debug');
+        assert.file('dockerfile');
         done();
     });
 
     it('generates compose files', function (done) {
         assert.file('docker-compose.debug.yml');
-        assert.file('docker-compose.release.yml');
+        assert.file('docker-compose.yml');
         done();
     });
 
@@ -49,17 +49,17 @@ describe('Golang project file creation (non Web project)', function () {
 
     it('correct dockerfile contents (debug)', function (done) {
         var currentFolder = process.cwd().split(path.sep).pop();
-        assert.fileContent('Dockerfile.debug', 'COPY . /go/src/github.com/' + currentFolder);
-        assert.fileContent('Dockerfile.debug', 'RUN go install github.com/' + currentFolder);
-        assert.fileContent('Dockerfile.debug', 'ENTRYPOINT /go/bin/' + currentFolder);
+        assert.fileContent('dockerfile.debug', 'COPY . /go/src/github.com/' + currentFolder);
+        assert.fileContent('dockerfile.debug', 'RUN go install github.com/' + currentFolder);
+        assert.fileContent('dockerfile.debug', 'ENTRYPOINT /go/bin/' + currentFolder);
         done();
     });
 
     it('correct dockerfile contents (release)', function (done) {
         var currentFolder = process.cwd().split(path.sep).pop();
-        assert.fileContent('Dockerfile.release', 'COPY . /go/src/github.com/' + currentFolder);
-        assert.fileContent('Dockerfile.release', 'RUN go install github.com/' + currentFolder);
-        assert.fileContent('Dockerfile.release', 'ENTRYPOINT /go/bin/' + currentFolder);
+        assert.fileContent('dockerfile', 'COPY . /go/src/github.com/' + currentFolder);
+        assert.fileContent('dockerfile', 'RUN go install github.com/' + currentFolder);
+        assert.fileContent('dockerfile', 'ENTRYPOINT /go/bin/' + currentFolder);
         done();
     });
 
@@ -72,10 +72,10 @@ describe('Golang project file creation (non Web project)', function () {
     });
 
     it('correct compose file contents (release)', function (done) {
-        assert.fileContent('docker-compose.release.yml', 'image: testimagename');
-        assert.noFileContent('docker-compose.release.yml', '"3000:3000"');
-        assert.noFileContent('docker-compose.release.yml', '- REMOTE_DEBUGGING');
-        assert.fileContent('docker-compose.release.yml', 'com.testimagename.environment: "release"');
+        assert.fileContent('docker-compose.yml', 'image: testimagename');
+        assert.noFileContent('docker-compose.yml', '"3000:3000"');
+        assert.noFileContent('docker-compose.yml', '- REMOTE_DEBUGGING');
+        assert.fileContent('docker-compose.yml', 'com.testimagename.environment: "release"');
         done();
     });
 });
@@ -90,14 +90,14 @@ describe('Golang project file creation (Web project)', function () {
     });
 
     it('generates dockerfiles', function (done) {
-        assert.file('Dockerfile.debug');
-        assert.file('Dockerfile.release');
+        assert.file('dockerfile.debug');
+        assert.file('dockerfile');
         done();
     });
 
     it('generates compose files', function (done) {
         assert.file('docker-compose.debug.yml');
-        assert.file('docker-compose.release.yml');
+        assert.file('docker-compose.yml');
         done();
     });
 
@@ -120,17 +120,17 @@ describe('Golang project file creation (Web project)', function () {
 
     it('correct dockerfile contents (debug)', function (done) {
         var currentFolder = process.cwd().split(path.sep).pop();
-        assert.fileContent('Dockerfile.debug', 'COPY . /go/src/github.com/' + currentFolder);
-        assert.fileContent('Dockerfile.debug', 'RUN go install github.com/' + currentFolder);
-        assert.fileContent('Dockerfile.debug', 'ENTRYPOINT /go/bin/' + currentFolder);
+        assert.fileContent('dockerfile.debug', 'COPY . /go/src/github.com/' + currentFolder);
+        assert.fileContent('dockerfile.debug', 'RUN go install github.com/' + currentFolder);
+        assert.fileContent('dockerfile.debug', 'ENTRYPOINT /go/bin/' + currentFolder);
         done();
     });
 
     it('correct dockerfile contents (release)', function (done) {
         var currentFolder = process.cwd().split(path.sep).pop();
-        assert.fileContent('Dockerfile.release', 'COPY . /go/src/github.com/' + currentFolder);
-        assert.fileContent('Dockerfile.release', 'RUN go install github.com/' + currentFolder);
-        assert.fileContent('Dockerfile.release', 'ENTRYPOINT /go/bin/' + currentFolder);
+        assert.fileContent('dockerfile', 'COPY . /go/src/github.com/' + currentFolder);
+        assert.fileContent('dockerfile', 'RUN go install github.com/' + currentFolder);
+        assert.fileContent('dockerfile', 'ENTRYPOINT /go/bin/' + currentFolder);
         done();
     });
 
@@ -143,10 +143,10 @@ describe('Golang project file creation (Web project)', function () {
     });
 
     it('correct compose file contents (release)', function (done) {
-        assert.fileContent('docker-compose.release.yml', 'image: testimagename');
-        assert.fileContent('docker-compose.release.yml', 'com.testimagename.environment: "release"');
-        assert.fileContent('docker-compose.release.yml', '"3000:3000"');
-        assert.noFileContent('docker-compose.release.yml', '- REMOTE_DEBUGGING');
+        assert.fileContent('docker-compose.yml', 'image: testimagename');
+        assert.fileContent('docker-compose.yml', 'com.testimagename.environment: "release"');
+        assert.fileContent('docker-compose.yml', '"3000:3000"');
+        assert.noFileContent('docker-compose.yml', '- REMOTE_DEBUGGING');
         done();
     });
 });

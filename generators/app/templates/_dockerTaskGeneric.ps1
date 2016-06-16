@@ -51,7 +51,13 @@ function CleanAll () {
 
 # Builds the Docker image.
 function BuildImage () {
-    $dockerFileName="Dockerfile.$Environment"
+    $dockerFileName = $Null
+    if ($Environment -eq "Release") {
+        $dockerFileName = "docker"
+    }
+    else {
+        $dockerFileName = "docker.$Environment"
+    }
 
     if (Test-Path $dockerFileName) {
         $taggedImageName = $imageName
@@ -69,7 +75,12 @@ function BuildImage () {
 
 # Runs docker-compose.
 function Compose () {
-    $composeFileName="docker-compose.$Environment.yml"
+    $composeFileName = $Null
+    if ($Environment -eq "Release") {
+        $composeFileName = "docker-compose.yml"
+    } else {
+        $composeFileName = "docker-compose.$Environment.yml"
+    }
 
     if (Test-Path $composeFileName) {
         Write-Host "Running compose file $composeFileName"

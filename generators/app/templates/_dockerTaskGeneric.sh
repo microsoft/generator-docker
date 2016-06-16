@@ -18,7 +18,12 @@ buildImage () {
        ENVIRONMENT="debug"
     fi
 
-    dockerFileName="Dockerfile.$ENVIRONMENT"
+    dockerFileName=""
+    if [[ $ENVIRONMENT == "release" ]]; then
+        dockerFileName="dockerfile"
+    else
+        dockerFileName="dockerfile.$ENVIRONMENT"
+    fi
 
     if [[ ! -f $dockerFileName ]]; then
       echo "$ENVIRONMENT is not a valid parameter. File '$dockerFileName' does not exist."
@@ -39,7 +44,12 @@ compose () {
     ENVIRONMENT="debug"
   fi
 
-  composeFileName="docker-compose.$ENVIRONMENT.yml"
+  composeFileName=""
+  if [[ $ENVIRONMENT == "release" ]]; then
+      composeFileName="docker-compose.yml"
+  else
+      composeFileName="docker-compose.$ENVIRONMENT.yml"
+  fi
 
   if [[ ! -f $composeFileName ]]; then
     echo "$ENVIRONMENT is not a valid parameter. File '$composeFileName' does not exist."

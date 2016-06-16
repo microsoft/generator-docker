@@ -27,7 +27,7 @@ NodejsHelper.prototype.getTemplateDockerComposeFileName = function () {
  * @returns {string}
  */
 NodejsHelper.prototype.getTemplateDockerFileName = function () {
-    return path.join('node', 'Dockerfile');
+    return path.join('node', 'dockerfile');
 }
 
 /**

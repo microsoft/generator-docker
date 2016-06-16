@@ -146,7 +146,7 @@ AspNetHelper.prototype.getTemplateDockerComposeFileName = function () {
  * @returns {string}
  */
 AspNetHelper.prototype.getTemplateDockerFileName = function () {
-    return path.join(this._templateFolder, 'Dockerfile');
+    return path.join(this._templateFolder, 'dockerfile');
 }
 
 module.exports = AspNetHelper;

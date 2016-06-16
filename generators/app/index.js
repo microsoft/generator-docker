@@ -28,10 +28,10 @@ var imageName = '';
 var serviceName = '';
 var composeProjectName = '';
 var DOCKERIGNORE_NAME = '.dockerignore';
-var DEBUG_DOCKERFILE_NAME = 'Dockerfile.debug';
+var DEBUG_DOCKERFILE_NAME = 'dockerfile.debug';
 var DEBUG_DOCKERCOMPOSE_NAME = 'docker-compose.debug.yml';
-var RELEASE_DOCKERFILE_NAME = 'Dockerfile.release';
-var RELEASE_DOCKERCOMPOSE_NAME = 'docker-compose.release.yml';
+var RELEASE_DOCKERFILE_NAME = 'dockerfile';
+var RELEASE_DOCKERCOMPOSE_NAME = 'docker-compose.yml';
 
 // Golang variables
 var isGoWeb = false;
