@@ -9,15 +9,15 @@ var process = require('process');
 var fs = require('fs');
 
 /**
- * Represents a helper for ASP.NET projects.
+ * Represents a helper for .NET projects.
  * @constructor
- * @param {string} baseImageName - ASP.NET base image to use.
+ * @param {string} baseImageName - .NET base image to use.
  * @param {int} portNumber - Port number.
  */
-var AspNetHelper = function (baseImageName, portNumber) {
+var DotNetHelper = function (baseImageName, portNumber) {
     this._baseImageName = baseImageName;
     this._portNumber = portNumber
-    
+
     switch (baseImageName) {
         case 'aspnet:1.0.0-rc1-update1':
             this._templateFolder = 'dnx';
@@ -35,7 +35,7 @@ var AspNetHelper = function (baseImageName, portNumber) {
  * Creates dockerIgnore contents.
  * @returns {string}
  */
-AspNetHelper.prototype.createDockerignoreFile = function () {
+DotNetHelper.prototype.createDockerignoreFile = function () {
     return 'project.lock.json';
 }
 
@@ -43,7 +43,7 @@ AspNetHelper.prototype.createDockerignoreFile = function () {
  * Gets the Docker image name.
  * @returns {string}
  */
-AspNetHelper.prototype.getDockerImageName = function () {
+DotNetHelper.prototype.getDockerImageName = function () {
     return 'microsoft/' + this._baseImageName;
 }
 
@@ -52,7 +52,7 @@ AspNetHelper.prototype.getDockerImageName = function () {
  * @param {string} sourceFile - Source file.
  * @param {string} targetFile - Target file.
  */
-AspNetHelper.prototype._backupFile = function (sourceFile, targetFile) {
+DotNetHelper.prototype._backupFile = function (sourceFile, targetFile) {
     fs.readFile(sourceFile, 'utf8', function (err, data) {
         if (err) {
             console.log('Error reading file: ' + err);
@@ -66,7 +66,7 @@ AspNetHelper.prototype._backupFile = function (sourceFile, targetFile) {
  * Checks if  'web' command is in the  project.json and adds it if command is not there yet.
  * @returns {string}
  */
-AspNetHelper.prototype.configureUrls = function (cb) {
+DotNetHelper.prototype.configureUrls = function (cb) {
     if (this._baseImageName === 'dotnet:1.0.0-preview1' ) {
         var rootFolder = process.cwd() + path.sep;
         var fileName = rootFolder + 'Program.cs';
@@ -78,7 +78,7 @@ AspNetHelper.prototype.configureUrls = function (cb) {
                 cb(new Error('Can\'t read Program.cs file. Make sure Program.cs file exists.'));
                 return;
             }
-            
+
             if (data.indexOf('.UseUrls(') < 0) {
                 self._backupFile(fileName, backupFile);
                 data = data.replace('new WebHostBuilder()', 'new WebHostBuilder().UseUrls("http://*:' + port + '")');
@@ -137,7 +137,7 @@ AspNetHelper.prototype.configureUrls = function (cb) {
  * Gets the template docker-compose file name.
  * @returns {string}
  */
-AspNetHelper.prototype.getTemplateDockerComposeFileName = function () {
+DotNetHelper.prototype.getTemplateDockerComposeFileName = function () {
     return 'docker-compose.yml';
 }
 
@@ -145,8 +145,8 @@ AspNetHelper.prototype.getTemplateDockerComposeFileName = function () {
  * Gets the template dockerfile name.
  * @returns {string}
  */
-AspNetHelper.prototype.getTemplateDockerFileName = function () {
-    return path.join(this._templateFolder, 'dockerfile');
+DotNetHelper.prototype.getTemplateDockerFileName = function () {
+    return path.join(this._templateFolder, 'Dockerfile');
 }
 
-module.exports = AspNetHelper;
+module.exports = DotNetHelper;

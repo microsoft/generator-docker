@@ -23,7 +23,7 @@
                 "isBuildCommand": false,
                 "showOutput": "always",
                 "echoCommand": true
-            }<% if (projectType === 'aspnet') { %>,
+            }<% if (projectType === 'dotnet') { %>,
             {
                 "taskName": "composeForDebug",
                 "suppressTaskName": true,
@@ -53,7 +53,7 @@
                 "args": [ "-c", "./dockerTask.sh compose debug" ],
                 "isBuildCommand": false,
                 "showOutput": "always"
-            }<% if (projectType === 'aspnet') { %>,
+            }<% if (projectType === 'dotnet') { %>,
             {
                 "taskName": "composeForDebug",
                 "suppressTaskName": true,

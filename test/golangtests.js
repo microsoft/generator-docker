@@ -19,8 +19,8 @@ describe('Golang project file creation (non Web project)', function () {
     });
 
     it('generates dockerfiles', function (done) {
-        assert.file('dockerfile.debug');
-        assert.file('dockerfile');
+        assert.file('Dockerfile.debug');
+        assert.file('Dockerfile');
         done();
     });
 
@@ -49,17 +49,17 @@ describe('Golang project file creation (non Web project)', function () {
 
     it('correct dockerfile contents (debug)', function (done) {
         var currentFolder = process.cwd().split(path.sep).pop();
-        assert.fileContent('dockerfile.debug', 'COPY . /go/src/github.com/' + currentFolder);
-        assert.fileContent('dockerfile.debug', 'RUN go install github.com/' + currentFolder);
-        assert.fileContent('dockerfile.debug', 'ENTRYPOINT /go/bin/' + currentFolder);
+        assert.fileContent('Dockerfile.debug', 'COPY . /go/src/github.com/' + currentFolder);
+        assert.fileContent('Dockerfile.debug', 'RUN go install github.com/' + currentFolder);
+        assert.fileContent('Dockerfile.debug', 'ENTRYPOINT /go/bin/' + currentFolder);
         done();
     });
 
     it('correct dockerfile contents (release)', function (done) {
         var currentFolder = process.cwd().split(path.sep).pop();
-        assert.fileContent('dockerfile', 'COPY . /go/src/github.com/' + currentFolder);
-        assert.fileContent('dockerfile', 'RUN go install github.com/' + currentFolder);
-        assert.fileContent('dockerfile', 'ENTRYPOINT /go/bin/' + currentFolder);
+        assert.fileContent('Dockerfile', 'COPY . /go/src/github.com/' + currentFolder);
+        assert.fileContent('Dockerfile', 'RUN go install github.com/' + currentFolder);
+        assert.fileContent('Dockerfile', 'ENTRYPOINT /go/bin/' + currentFolder);
         done();
     });
 
@@ -90,8 +90,8 @@ describe('Golang project file creation (Web project)', function () {
     });
 
     it('generates dockerfiles', function (done) {
-        assert.file('dockerfile.debug');
-        assert.file('dockerfile');
+        assert.file('Dockerfile.debug');
+        assert.file('Dockerfile');
         done();
     });
 
@@ -120,17 +120,17 @@ describe('Golang project file creation (Web project)', function () {
 
     it('correct dockerfile contents (debug)', function (done) {
         var currentFolder = process.cwd().split(path.sep).pop();
-        assert.fileContent('dockerfile.debug', 'COPY . /go/src/github.com/' + currentFolder);
-        assert.fileContent('dockerfile.debug', 'RUN go install github.com/' + currentFolder);
-        assert.fileContent('dockerfile.debug', 'ENTRYPOINT /go/bin/' + currentFolder);
+        assert.fileContent('Dockerfile.debug', 'COPY . /go/src/github.com/' + currentFolder);
+        assert.fileContent('Dockerfile.debug', 'RUN go install github.com/' + currentFolder);
+        assert.fileContent('Dockerfile.debug', 'ENTRYPOINT /go/bin/' + currentFolder);
         done();
     });
 
     it('correct dockerfile contents (release)', function (done) {
         var currentFolder = process.cwd().split(path.sep).pop();
-        assert.fileContent('dockerfile', 'COPY . /go/src/github.com/' + currentFolder);
-        assert.fileContent('dockerfile', 'RUN go install github.com/' + currentFolder);
-        assert.fileContent('dockerfile', 'ENTRYPOINT /go/bin/' + currentFolder);
+        assert.fileContent('Dockerfile', 'COPY . /go/src/github.com/' + currentFolder);
+        assert.fileContent('Dockerfile', 'RUN go install github.com/' + currentFolder);
+        assert.fileContent('Dockerfile', 'ENTRYPOINT /go/bin/' + currentFolder);
         done();
     });
 

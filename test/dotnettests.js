@@ -11,9 +11,9 @@ var helpers = require('yeoman-test');
 var process = require('process');
 var fs = require('fs-extra');
 
-function createAspNetPrompts(baseImageName, portNumber, imageName) {
+function createDotNetPrompts(baseImageName, portNumber, imageName) {
     return {
-        projectType: 'aspnet',
+        projectType: 'dotnet',
         baseImageName: baseImageName,
         portNumber: portNumber,
         imageName: imageName,
@@ -100,7 +100,7 @@ namespace WebApplication1\
     fs.writeFileSync(outputFile, contents);
 }
 
-describe('ASP.NET RC1 project file creation', function () {
+describe('.NET RC1 project file creation', function () {
     // On windows this test takes longer than the default 2s
     this.timeout(15000);
     before(function (done) {
@@ -109,7 +109,7 @@ describe('ASP.NET RC1 project file creation', function () {
             createTestProjectJson(dir); })
         .withLocalConfig(function() {
             return { "appInsightsOptIn": false, "runningTests": true }; })
-        .withPrompts({ projectType: 'aspnet', baseImageName: 'aspnet:1.0.0-rc1-update1', imageName: 'testimagename' })
+        .withPrompts({ projectType: 'dotnet', baseImageName: 'aspnet:1.0.0-rc1-update1', imageName: 'testimagename' })
         .on('end', done);
     });
 
@@ -143,25 +143,25 @@ describe('ASP.NET RC1 project file creation', function () {
     });
 
     it('correct dockerfile contents (debug)', function (done) {
-        assert.fileContent('dockerfile.debug', 'FROM microsoft/aspnet:1.0.0-rc1-update1');
-        assert.fileContent('dockerfile.debug', 'RUN ["dnu", "restore"');
-        assert.fileContent('dockerfile.debug', 'EXPOSE 5000');
-        assert.fileContent('dockerfile.debug', 'ENTRYPOINT ["dnx", "-p", "project.json", "web"');
+        assert.fileContent('Dockerfile.debug', 'FROM microsoft/aspnet:1.0.0-rc1-update1');
+        assert.fileContent('Dockerfile.debug', 'RUN ["dnu", "restore"');
+        assert.fileContent('Dockerfile.debug', 'EXPOSE 80');
+        assert.fileContent('Dockerfile.debug', 'ENTRYPOINT ["dnx", "-p", "project.json", "web"');
         done();
     });
 
     it('correct dockerfile contents (release)', function (done) {
-        assert.fileContent('dockerfile', 'FROM microsoft/aspnet:1.0.0-rc1-update1');
-        assert.fileContent('dockerfile', 'RUN ["dnu", "restore"');
-        assert.fileContent('dockerfile', 'EXPOSE 5000');
-        assert.fileContent('dockerfile', 'ENTRYPOINT ["dnx", "-p", "project.json", "web"');
+        assert.fileContent('Dockerfile', 'FROM microsoft/aspnet:1.0.0-rc1-update1');
+        assert.fileContent('Dockerfile', 'RUN ["dnu", "restore"');
+        assert.fileContent('Dockerfile', 'EXPOSE 80');
+        assert.fileContent('Dockerfile', 'ENTRYPOINT ["dnx", "-p", "project.json", "web"');
         done();
     });
 
     it('correct compose file contents (debug)', function (done) {
         assert.fileContent('docker-compose.debug.yml', 'image: testimagename:debug');
         assert.fileContent('docker-compose.debug.yml', 'com.testimagename.environment: "debug"');
-        assert.fileContent('docker-compose.debug.yml', '"5000:5000"');
+        assert.fileContent('docker-compose.debug.yml', '"80:80"');
         assert.noFileContent('docker-compose.debug.yml', '- REMOTE_DEBUGGING');
         done();
     });
@@ -181,12 +181,12 @@ describe('ASP.NET RC1 project file creation', function () {
 
     it('update project.json and adds the web command if it doesn\'t exist', function (done) {
         assert.file('project.json');
-        assert.fileContent('project.json', 'Microsoft.AspNet.Server.Kestrel --server.urls http://*:5000');
+        assert.fileContent('project.json', 'Microsoft.AspNet.Server.Kestrel --server.urls http://*:80');
         done();
     });
 });
 
-describe('ASP.NET RC2 project file creation', function () {
+describe('.NET RC2 project file creation', function () {
     before(function (done) {
         helpers.run(path.join( __dirname, '../generators/app'))
         .inTmpDir(function(dir) {
@@ -194,7 +194,7 @@ describe('ASP.NET RC2 project file creation', function () {
             createTestProgramCS(dir); })
         .withLocalConfig(function() {
             return { "appInsightsOptIn": false, "runningTests": true }; })
-        .withPrompts({ projectType: 'aspnet', baseImageName: 'dotnet:1.0.0-preview1', imageName: 'testimagename' })
+        .withPrompts({ projectType: 'dotnet', baseImageName: 'dotnet:1.0.0-preview1', imageName: 'testimagename' })
         .on('end', done);
     });
 
@@ -228,27 +228,27 @@ describe('ASP.NET RC2 project file creation', function () {
     });
 
     it('correct dockerfile contents (debug)', function (done) {
-        assert.fileContent('dockerfile.debug', 'FROM microsoft/dotnet:1.0.0-preview1');
-        assert.fileContent('dockerfile.debug', 'RUN ["dotnet", "restore"]');
-        assert.fileContent('dockerfile.debug', 'RUN ["dotnet", "build", "-c", "debug"]');
-        assert.fileContent('dockerfile.debug', 'EXPOSE 5000');
-        assert.fileContent('dockerfile.debug', 'ENTRYPOINT ["/bin/bash", "-c", "if [ -z \\"$REMOTE_DEBUGGING\\" ]; then dotnet run -c debug; else sleep infinity; fi"]');
+        assert.fileContent('Dockerfile.debug', 'FROM microsoft/dotnet:1.0.0-preview1');
+        assert.fileContent('Dockerfile.debug', 'RUN ["dotnet", "restore"]');
+        assert.fileContent('Dockerfile.debug', 'RUN ["dotnet", "build", "-c", "debug"]');
+        assert.fileContent('Dockerfile.debug', 'EXPOSE 80');
+        assert.fileContent('Dockerfile.debug', 'ENTRYPOINT ["/bin/bash", "-c", "if [ -z \\"$REMOTE_DEBUGGING\\" ]; then dotnet run -c debug; else sleep infinity; fi"]');
         done();
     });
 
     it('correct dockerfile contents (release)', function (done) {
-        assert.fileContent('dockerfile', 'FROM microsoft/dotnet:1.0.0-preview1');
-        assert.fileContent('dockerfile', 'RUN ["dotnet", "restore"]');
-        assert.fileContent('dockerfile', 'RUN ["dotnet", "build", "-c", "release"]');
-        assert.fileContent('dockerfile', 'EXPOSE 5000');
-        assert.fileContent('dockerfile', 'ENTRYPOINT ["dotnet", "run", "-c", "release"]');
+        assert.fileContent('Dockerfile', 'FROM microsoft/dotnet:1.0.0-preview1');
+        assert.fileContent('Dockerfile', 'RUN ["dotnet", "restore"]');
+        assert.fileContent('Dockerfile', 'RUN ["dotnet", "build", "-c", "release"]');
+        assert.fileContent('Dockerfile', 'EXPOSE 5000');
+        assert.fileContent('Dockerfile', 'ENTRYPOINT ["dotnet", "run", "-c", "release"]');
         done();
     });
 
     it('correct compose file contents (debug)', function (done) {
         assert.fileContent('docker-compose.debug.yml', 'image: testimagename:debug');
         assert.fileContent('docker-compose.debug.yml', 'com.testimagename.environment: "debug"');
-        assert.fileContent('docker-compose.debug.yml', '"5000:5000"');
+        assert.fileContent('docker-compose.debug.yml', '"80:80"');
         assert.fileContent('docker-compose.debug.yml', '- REMOTE_DEBUGGING');
         done();
     });
@@ -268,7 +268,7 @@ describe('ASP.NET RC2 project file creation', function () {
 
     it('doesn\'t update project.json to add the web command if it doesn\'t exist', function (done) {
         assert.file('project.json');
-        assert.noFileContent('project.json', 'Microsoft.AspNet.Server.Kestrel --server.urls http://*:5000');
+        assert.noFileContent('project.json', 'Microsoft.AspNet.Server.Kestrel --server.urls http://*:80');
         done();
     });
 
@@ -279,19 +279,19 @@ describe('ASP.NET RC2 project file creation', function () {
 
     it('update Program.cs and adds UseUrls if it doesn\'t exist', function (done) {
         assert.file('Program.cs');
-        assert.fileContent('Program.cs', '.UseUrls("http://*:5000")');
+        assert.fileContent('Program.cs', '.UseUrls("http://*:80")');
         done();
     });
 });
 
-describe('ASP.NET RC1 project file creation when web command exists', function () {
+describe('.NET RC1 project file creation when web command exists', function () {
     before(function (done) {
         helpers.run(path.join( __dirname, '../generators/app'))
         .inTmpDir(function(dir) {
             createTestProjectJson(dir, 'EXISTING_WEB_COMMAND'); })
         .withLocalConfig(function() {
             return { "appInsightsOptIn": false, "runningTests": true }; })
-        .withPrompts({ projectType: 'aspnet', baseImageName: 'aspnet:1.0.0-rc1-update1' })
+        .withPrompts({ projectType: 'dotnet', baseImageName: 'aspnet:1.0.0-rc1-update1' })
         .on('end', done);
     });
 
@@ -306,7 +306,7 @@ describe('ASP.NET RC1 project file creation when web command exists', function (
     });
 });
 
-describe('ASP.NET RC2 project file creation when UseUrls exists', function () {
+describe('.NET RC2 project file creation when UseUrls exists', function () {
     before(function (done) {
         helpers.run(path.join( __dirname, '../generators/app'))
         .inTmpDir(function(dir) {
@@ -314,7 +314,7 @@ describe('ASP.NET RC2 project file creation when UseUrls exists', function () {
             createTestProgramCSWithUseUrls(dir); })
         .withLocalConfig(function() {
             return { "appInsightsOptIn": false, "runningTests": true }; })
-        .withPrompts({ projectType: 'aspnet', baseImageName: 'dotnet:1.0.0-preview1' })
+        .withPrompts({ projectType: 'dotnet', baseImageName: 'dotnet:1.0.0-preview1' })
         .on('end', done);
     });
 
@@ -324,7 +324,7 @@ describe('ASP.NET RC2 project file creation when UseUrls exists', function () {
     });
 
     it('Program.cs not modified', function (done) {
-        assert.noFileContent('Program.cs', '.UseUrls("http://*:5000")');
+        assert.noFileContent('Program.cs', '.UseUrls("http://*:80")');
         done();
     });
 });

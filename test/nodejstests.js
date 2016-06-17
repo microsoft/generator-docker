@@ -19,8 +19,8 @@ describe('Node.js project file creation', function () {
     });
 
     it('generates dockerfiles', function (done) {
-        assert.file('dockerfile.debug');
-        assert.file('dockerfile');
+        assert.file('Dockerfile.debug');
+        assert.file('Dockerfile');
         done();
     });
 
@@ -48,15 +48,15 @@ describe('Node.js project file creation', function () {
     });
 
     it('correct dockerfile contents (debug)', function (done) {
-        assert.fileContent('dockerfile.debug', 'RUN npm install nodemon -g');
-        assert.fileContent('dockerfile.debug', 'RUN npm install');
-        assert.fileContent('dockerfile.debug', 'CMD ["nodemon"]');
+        assert.fileContent('Dockerfile.debug', 'RUN npm install nodemon -g');
+        assert.fileContent('Dockerfile.debug', 'RUN npm install');
+        assert.fileContent('Dockerfile.debug', 'CMD ["nodemon"]');
         done();
     });
 
     it('correct dockerfile contents (release)', function (done) {
-        assert.noFileContent('dockerfile', 'RUN npm install nodemon -g');
-        assert.fileContent('dockerfile', 'CMD ["node", "./bin/www"]');
+        assert.noFileContent('Dockerfile', 'RUN npm install nodemon -g');
+        assert.fileContent('Dockerfile', 'CMD ["node", "./bin/www"]');
         done();
     });
 

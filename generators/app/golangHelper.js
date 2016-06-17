@@ -34,11 +34,11 @@ GolangHelper.prototype.getTemplateDockerComposeFileName = function () {
  * @returns {string}
  */
 GolangHelper.prototype.getTemplateDockerFileName = function () {
-    return path.join('go', 'dockerfile');
+    return path.join('go', 'Dockerfile');
 }
 
 /**
- * Gets the project name (this is used in the dockerfile).
+ * Gets the project name (this is used in the Dockerfile).
  * @returns {string}
  */
 GolangHelper.prototype.getProjectName = function () {
