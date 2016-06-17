@@ -19,11 +19,9 @@ buildImage () {
        ENVIRONMENT="debug"
     fi
 
-    dockerFileName=""
+    dockerFileName="Dockerfile"
     taggedImageName="$imageName"
-    if [[ $ENVIRONMENT == "release" ]]; then
-        dockerFileName="Dockerfile"
-    else
+    if [[ $ENVIRONMENT != "release" ]]; then
         dockerFileName="Dockerfile.$ENVIRONMENT"
         taggedImageName="$imageName:$ENVIRONMENT"
     fi
@@ -42,10 +40,8 @@ compose () {
     ENVIRONMENT="debug"
   fi
 
-  composeFileName=""
-  if [[ $ENVIRONMENT == "release" ]]; then
-      composeFileName="docker-compose.yml"
-  else
+  composeFileName="docker-compose.yml"
+  if [[ $ENVIRONMENT != "release" ]]; then
       composeFileName="docker-compose.$ENVIRONMENT.yml"
   fi
 
