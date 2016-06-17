@@ -115,13 +115,13 @@ describe('.NET RC1 project file creation', function () {
 
     it('generates dockerfiles', function (done) {
         assert.file('Dockerfile.debug');
-        assert.file('Dockerfile.release');
+        assert.file('Dockerfile');
         done();
         });
 
     it('generates compose files', function (done) {
         assert.file('docker-compose.debug.yml');
-        assert.file('docker-compose.release.yml');
+        assert.file('docker-compose.yml');
         done();
     });
 
@@ -161,10 +161,10 @@ describe('.NET RC1 project file creation', function () {
     });
 
     it('correct dockerfile contents (release)', function (done) {
-        assert.fileContent('Dockerfile.release', 'FROM microsoft/aspnet:1.0.0-rc1-update1');
-        assert.fileContent('Dockerfile.debug', 'RUN ["dnu", "restore"');
-        assert.fileContent('Dockerfile.release', 'EXPOSE 80');
-        assert.fileContent('Dockerfile.release', 'ENTRYPOINT ["dnx", "-p", "project.json", "web"');
+        assert.fileContent('Dockerfile', 'FROM microsoft/aspnet:1.0.0-rc1-update1');
+        assert.fileContent('Dockerfile', 'RUN ["dnu", "restore"');
+        assert.fileContent('Dockerfile', 'EXPOSE 80');
+        assert.fileContent('Dockerfile', 'ENTRYPOINT ["dnx", "-p", "project.json", "web"');
         done();
     });
 
@@ -177,10 +177,10 @@ describe('.NET RC1 project file creation', function () {
     });
 
     it('correct compose file contents (release)', function (done) {
-        assert.fileContent('docker-compose.release.yml', 'image: testimagename');
-        assert.fileContent('docker-compose.release.yml', 'com.testimagename.environment: "release"');
-        assert.fileContent('docker-compose.release.yml', '"80:80"');
-        assert.noFileContent('docker-compose.release.yml', '- REMOTE_DEBUGGING');
+        assert.fileContent('docker-compose.yml', 'image: testimagename');
+        assert.fileContent('docker-compose.yml', 'com.testimagename.environment: "release"');
+        assert.fileContent('docker-compose.yml', '"80:80"');
+        assert.noFileContent('docker-compose.yml', '- REMOTE_DEBUGGING');
         done();
     });
 
@@ -210,13 +210,13 @@ describe('.NET RC2 project file creation', function () {
 
     it('generates dockerfiles', function (done) {
         assert.file('Dockerfile.debug');
-        assert.file('Dockerfile.release');
+        assert.file('Dockerfile');
         done();
     });
 
     it('generates compose files', function (done) {
         assert.file('docker-compose.debug.yml');
-        assert.file('docker-compose.release.yml');
+        assert.file('docker-compose.yml');
         done();
     });
 
@@ -258,12 +258,12 @@ describe('.NET RC2 project file creation', function () {
     });
 
     it('correct dockerfile contents (release)', function (done) {
-        assert.fileContent('Dockerfile.release', 'FROM microsoft/dotnet:1.0.0-rc2-core');
-        assert.fileContent('Dockerfile.release', 'COPY . /app');
-        assert.noFileContent('Dockerfile.release', 'RUN ["dotnet", "restore"]');
-        assert.noFileContent('Dockerfile.release', 'RUN ["dotnet", "build", "-c", "release"]');
-        assert.fileContent('Dockerfile.release', 'EXPOSE 80');
-        assert.fileContent('Dockerfile.release', 'ENTRYPOINT ["dotnet", "' + process.cwd().split(path.sep).pop() + '.dll"]');
+        assert.fileContent('Dockerfile', 'FROM microsoft/dotnet:1.0.0-rc2-core');
+        assert.fileContent('Dockerfile', 'COPY . /app');
+        assert.noFileContent('Dockerfile', 'RUN ["dotnet", "restore"]');
+        assert.noFileContent('Dockerfile', 'RUN ["dotnet", "build", "-c", "release"]');
+        assert.fileContent('Dockerfile', 'EXPOSE 80');
+        assert.fileContent('Dockerfile', 'ENTRYPOINT ["dotnet", "' + process.cwd().split(path.sep).pop() + '.dll"]');
         done();
     });
 
@@ -276,10 +276,10 @@ describe('.NET RC2 project file creation', function () {
     });
 
     it('correct compose file contents (release)', function (done) {
-        assert.fileContent('docker-compose.release.yml', 'image: testimagename');
-        assert.fileContent('docker-compose.release.yml', 'com.testimagename.environment: "release"');
-        assert.fileContent('docker-compose.release.yml', '"80:80"');
-        assert.noFileContent('docker-compose.release.yml', '- REMOTE_DEBUGGING');
+        assert.fileContent('docker-compose.yml', 'image: testimagename');
+        assert.fileContent('docker-compose.yml', 'com.testimagename.environment: "release"');
+        assert.fileContent('docker-compose.yml', '"80:80"');
+        assert.noFileContent('docker-compose.yml', '- REMOTE_DEBUGGING');
         done();
     });
 

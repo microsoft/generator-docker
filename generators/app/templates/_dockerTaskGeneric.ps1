@@ -54,21 +54,20 @@ function CleanAll () {
 
 # Builds the Docker image.
 function BuildImage () {
-    $dockerFileName="Dockerfile.$Environment"
+    $dockerFileName = "Dockerfile"
+    $taggedImageName = $imageName
+    if ($Environment -ne "Release") {
+        $dockerFileName = "Dockerfile.$Environment"
+        $taggedImageName = "<%- '${imageName}:$Environment' %>".ToLowerInvariant()
+    }
 
-    if (Test-Path $dockerFileName) {
-        $taggedImageName = $imageName
-        if ($Environment -ne "Release") {
-            $taggedImageName = "<%- '${imageName}:$Environment' %>".ToLowerInvariant()
-        }<% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
-
+    if (Test-Path $dockerFileName) {<% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
         Write-Host "Building the project ($ENVIRONMENT)."
         $pubFolder = "bin\$Environment\$framework\publish"
         dotnet publish -f $framework -r $runtimeID -c $Environment -o $pubFolder
 
         Write-Host "Building the image $imageName ($Environment)."
         docker build -f "$pubFolder\$dockerFileName" -t $taggedImageName $pubFolder<% } else { %>
-
         Write-Host "Building the image $imageName ($Environment)."
         docker build -f $dockerFileName -t $taggedImageName .<% } %>
     }
@@ -79,7 +78,10 @@ function BuildImage () {
 
 # Runs docker-compose.
 function Compose () {
-    $composeFileName="docker-compose.$Environment.yml"
+    $composeFileName = "docker-compose.yml"
+    if ($Environment -ne "Release") {
+        $composeFileName = "docker-compose.$Environment.yml"
+    }
 
     if (Test-Path $composeFileName) {
         Write-Host "Running compose file $composeFileName"
