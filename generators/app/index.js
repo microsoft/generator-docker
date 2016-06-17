@@ -12,7 +12,7 @@ var exec = require('child_process').exec;
 var util = require('./utils.js');
 var NodejsHelper = require('./nodejsHelper.js');
 var GolangHelper = require('./golangHelper.js');
-var AspNetHelper = require('./aspnetHelper.js');
+var DotNetHelper = require('./dotnetHelper.js');
 var Configstore = require('configstore');
 var appInsights = require('applicationinsights');
 var os = require('os');
@@ -36,7 +36,7 @@ var RELEASE_DOCKERCOMPOSE_NAME = 'docker-compose.release.yml';
 // Golang variables
 var isGoWeb = false;
 
-// ASP.NET variables
+// .NET variables
 var baseImageName = '';
 var configureUrlsNoteForUser = null;
 
@@ -58,8 +58,8 @@ function showPrompts() {
         name: 'projectType',
         message: 'What language is your project using?',
         choices: [{
-            name: 'ASP.NET Core',
-            value: 'aspnet'
+            name: '.NET Core',
+            value: 'dotnet'
         }, {
                 name: 'Golang',
                 value: 'golang'
@@ -70,7 +70,7 @@ function showPrompts() {
     }, {
             type: 'list',
             name: 'baseImageName',
-            message: 'Which version of ASP.NET Core is your project using?',
+            message: 'Which version of .NET Core is your project using?',
             choices: [{
                 name: 'rc2',
                 value: 'dotnet:1.0.0-preview1'
@@ -79,7 +79,7 @@ function showPrompts() {
                     value: 'aspnet:1.0.0-rc1-update1'
                 }],
             when: function (answers) {
-                return answers.projectType === 'aspnet';
+                return answers.projectType === 'dotnet';
             }
         }, {
             type: 'confirm',
@@ -93,11 +93,11 @@ function showPrompts() {
             name: 'portNumber',
             message: 'Which port is your app listening to?',
             default: function (answers) {
-                return answers.projectType === 'aspnet' ? 80 : 3000;
+                return answers.projectType === 'dotnet' ? 80 : 3000;
             },
             when: function (answers) {
-                // Show this answer if user picked ASP.NET, Node.js or Golang that's using a web server.
-                return answers.projectType === 'aspnet' || answers.projectType === 'nodejs' || (answers.projectType === 'golang' && answers.isGoWeb);
+                // Show this answer if user picked .NET, Node.js or Golang that's using a web server.
+                return answers.projectType === 'dotnet' || answers.projectType === 'nodejs' || (answers.projectType === 'golang' && answers.isGoWeb);
             }
         }, {
             type: 'input',
@@ -172,13 +172,13 @@ function handleGolang(yo) {
 }
 
 /**
- * Handles ASP.NET option.
+ * Handles .NET option.
  */
-function handleAspNet(yo) {
-    var aspNet = new AspNetHelper(baseImageName, portNumber);
+function handleDotNet(yo) {
+    var dotNet = new DotNetHelper(baseImageName, portNumber);
 
     var done = yo.async();
-    aspNet.configureUrls(function (err, noteForUser) {
+    dotNet.configureUrls(function (err, noteForUser) {
         if (err) {
             error = true;
             yo.log.error(err);
@@ -191,7 +191,7 @@ function handleAspNet(yo) {
     var templateData = {
             projectType: projectType,
             composeProjectName: composeProjectName,
-            baseImageName: aspNet.getDockerImageName(),
+            baseImageName: dotNet.getDockerImageName(),
             imageName: imageName,
             serviceName: serviceName,
             portNumber: portNumber,
@@ -199,7 +199,7 @@ function handleAspNet(yo) {
             volumeMap: null
         };
 
-    var dockerignoreFileContents = aspNet.createDockerignoreFile();
+    var dockerignoreFileContents = dotNet.createDockerignoreFile();
     yo.fs.write(yo.destinationPath(DOCKERIGNORE_NAME), new Buffer(dockerignoreFileContents));
 
     yo.fs.copyTpl(
@@ -207,7 +207,7 @@ function handleAspNet(yo) {
         yo.destinationPath('.vscode/launch.json'),
         templateData);
 
-    handleCommmonTemplates(yo, aspNet, templateData);
+    handleCommmonTemplates(yo, dotNet, templateData);
 }
 
 
@@ -402,9 +402,9 @@ var DockerGenerator = yeoman.generators.Base.extend({
                     handleGolang(this);
                     break;
                 }
-            case 'aspnet':
+            case 'dotnet':
                 {
-                    handleAspNet(this);
+                    handleDotNet(this);
                     break;
                 }
             default:
