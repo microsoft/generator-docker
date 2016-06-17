@@ -11,9 +11,9 @@ var helpers = require('yeoman-test');
 var process = require('process');
 var fs = require('fs-extra');
 
-function createAspNetPrompts(baseImageName, portNumber, imageName) {
+function createDotNetPrompts(baseImageName, portNumber, imageName) {
     return {
-        projectType: 'aspnet',
+        projectType: 'dotnet',
         baseImageName: baseImageName,
         portNumber: portNumber,
         imageName: imageName,
@@ -100,7 +100,7 @@ namespace WebApplication1\
     fs.writeFileSync(outputFile, contents);
 }
 
-describe('ASP.NET RC1 project file creation', function () {
+describe('.NET RC1 project file creation', function () {
     // On windows this test takes longer than the default 2s
     this.timeout(15000);
     before(function (done) {
@@ -109,7 +109,7 @@ describe('ASP.NET RC1 project file creation', function () {
             createTestProjectJson(dir); })
         .withLocalConfig(function() {
             return { "appInsightsOptIn": false, "runningTests": true }; })
-        .withPrompts({ projectType: 'aspnet', baseImageName: 'aspnet:1.0.0-rc1-update1', imageName: 'testimagename' })
+        .withPrompts({ projectType: 'dotnet', baseImageName: 'aspnet:1.0.0-rc1-update1', imageName: 'testimagename' })
         .on('end', done);
     });
 
@@ -186,7 +186,7 @@ describe('ASP.NET RC1 project file creation', function () {
     });
 });
 
-describe('ASP.NET RC2 project file creation', function () {
+describe('.NET RC2 project file creation', function () {
     before(function (done) {
         helpers.run(path.join( __dirname, '../generators/app'))
         .inTmpDir(function(dir) {
@@ -194,7 +194,7 @@ describe('ASP.NET RC2 project file creation', function () {
             createTestProgramCS(dir); })
         .withLocalConfig(function() {
             return { "appInsightsOptIn": false, "runningTests": true }; })
-        .withPrompts({ projectType: 'aspnet', baseImageName: 'dotnet:1.0.0-preview1', imageName: 'testimagename' })
+        .withPrompts({ projectType: 'dotnet', baseImageName: 'dotnet:1.0.0-preview1', imageName: 'testimagename' })
         .on('end', done);
     });
 
@@ -284,14 +284,14 @@ describe('ASP.NET RC2 project file creation', function () {
     });
 });
 
-describe('ASP.NET RC1 project file creation when web command exists', function () {
+describe('.NET RC1 project file creation when web command exists', function () {
     before(function (done) {
         helpers.run(path.join( __dirname, '../generators/app'))
         .inTmpDir(function(dir) {
             createTestProjectJson(dir, 'EXISTING_WEB_COMMAND'); })
         .withLocalConfig(function() {
             return { "appInsightsOptIn": false, "runningTests": true }; })
-        .withPrompts({ projectType: 'aspnet', baseImageName: 'aspnet:1.0.0-rc1-update1' })
+        .withPrompts({ projectType: 'dotnet', baseImageName: 'aspnet:1.0.0-rc1-update1' })
         .on('end', done);
     });
 
@@ -306,7 +306,7 @@ describe('ASP.NET RC1 project file creation when web command exists', function (
     });
 });
 
-describe('ASP.NET RC2 project file creation when UseUrls exists', function () {
+describe('.NET RC2 project file creation when UseUrls exists', function () {
     before(function (done) {
         helpers.run(path.join( __dirname, '../generators/app'))
         .inTmpDir(function(dir) {
@@ -314,7 +314,7 @@ describe('ASP.NET RC2 project file creation when UseUrls exists', function () {
             createTestProgramCSWithUseUrls(dir); })
         .withLocalConfig(function() {
             return { "appInsightsOptIn": false, "runningTests": true }; })
-        .withPrompts({ projectType: 'aspnet', baseImageName: 'dotnet:1.0.0-preview1' })
+        .withPrompts({ projectType: 'dotnet', baseImageName: 'dotnet:1.0.0-preview1' })
         .on('end', done);
     });
 
