@@ -21,23 +21,22 @@ buildImage () {
        ENVIRONMENT="debug"
     fi
 
-    dockerFileName="Dockerfile.$ENVIRONMENT"
+    dockerFileName="Dockerfile"
+    taggedImageName="$imageName"
+    if [[ $ENVIRONMENT != "release" ]]; then
+        dockerFileName="Dockerfile.$ENVIRONMENT"
+        taggedImageName="$imageName:$ENVIRONMENT"
+    fi
 
     if [[ ! -f $dockerFileName ]]; then
       echo "$ENVIRONMENT is not a valid parameter. File '$dockerFileName' does not exist."
-    else
-      taggedImageName="$imageName"
-      if [[ $ENVIRONMENT != "release" ]]; then
-        taggedImageName="$imageName:$ENVIRONMENT"
-      fi<% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
-
+    else<% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
       echo "Building the project ($ENVIRONMENT)."
       pubFolder="bin/$ENVIRONMENT/$framework/publish"
       dotnet publish -f $framework -r $runtimeID -c $ENVIRONMENT -o $pubFolder
 
       echo "Building the image $imageName ($ENVIRONMENT)."
       docker build -f "$pubFolder/$dockerFileName" -t $taggedImageName $pubFolder<% } else { %>
-
       echo "Building the image $imageName ($ENVIRONMENT)."
       docker build -f $dockerFileName -t $taggedImageName .<% } %>
     fi
@@ -49,7 +48,10 @@ compose () {
     ENVIRONMENT="debug"
   fi
 
-  composeFileName="docker-compose.$ENVIRONMENT.yml"
+  composeFileName="docker-compose.yml"
+  if [[ $ENVIRONMENT != "release" ]]; then
+      composeFileName="docker-compose.$ENVIRONMENT.yml"
+  fi
 
   if [[ ! -f $composeFileName ]]; then
     echo "$ENVIRONMENT is not a valid parameter. File '$composeFileName' does not exist."
