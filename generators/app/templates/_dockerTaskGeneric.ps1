@@ -61,11 +61,7 @@ function BuildImage () {
         $taggedImageName = "<%- '${imageName}:$Environment' %>".ToLowerInvariant()
     }
 
-    if (Test-Path $dockerFileName) {
-        $taggedImageName = $imageName
-        if ($Environment -ne "Release") {
-            $taggedImageName = "<%- '${imageName}:$Environment' %>".ToLowerInvariant()
-        }<% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
+    if (Test-Path $dockerFileName) {<% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
 
         Write-Host "Building the project ($ENVIRONMENT)."
         $pubFolder = "bin\$Environment\$framework\publish"
