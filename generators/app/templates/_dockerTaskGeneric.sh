@@ -1,5 +1,5 @@
 imageName="<%= imageName %>"
-projectName="<%= composeProjectName %>"<% if (projectType === 'aspnet') { %>
+projectName="<%= composeProjectName %>"<% if (projectType === 'dotnet') { %>
 serviceName="<%= serviceName %>"
 containerName="<%= '${projectName}_${serviceName}' %>_1"<% } %>
 publicPort=<%= portNumber %>
@@ -49,7 +49,7 @@ compose () {
     docker-compose -f $composeFileName -p $projectName kill
     docker-compose -f $composeFileName -p $projectName up -d
   fi
-}<% if (projectType === 'aspnet') { %>
+}<% if (projectType === 'dotnet') { %>
 
 startDebugging () {
     echo "Running on $url"
@@ -82,7 +82,7 @@ showUsage () {
     echo "Commands:"
     echo "    build: Builds a Docker image ('$imageName')."
     echo "    compose: Runs docker-compose."
-    echo "    clean: Removes the image '$imageName' and kills all containers based on that image."<% if (projectType === 'aspnet') { %>
+    echo "    clean: Removes the image '$imageName' and kills all containers based on that image."<% if (projectType === 'dotnet') { %>
     echo "    composeForDebug: Builds the image and runs docker-compose."
     echo "    startDebugging: Finds the running container and starts the debugger inside of it."<% } %>
     echo ""
@@ -107,7 +107,7 @@ else
              if [[ $isWebProject = true ]]; then
                openSite
              fi
-             ;;<% if (projectType === 'aspnet') { %>
+             ;;<% if (projectType === 'dotnet') { %>
       "composeForDebug")
              ENVIRONMENT=$2
              export REMOTE_DEBUGGING=1
