@@ -9,12 +9,12 @@ var process = require('process');
 var fs = require('fs');
 
 /**
- * Represents a helper for ASP.NET projects.
+ * Represents a helper for .NET projects.
  * @constructor
- * @param {string} baseImageName - ASP.NET base image to use.
+ * @param {string} baseImageName - .NET base image to use.
  * @param {int} portNumber - Port number.
  */
-var AspNetHelper = function (baseImageName, portNumber) {
+var DotNetHelper = function (baseImageName, portNumber) {
     this._baseImageName = baseImageName;
     this._portNumber = portNumber
 
@@ -38,7 +38,7 @@ var AspNetHelper = function (baseImageName, portNumber) {
  * Creates dockerIgnore contents.
  * @returns {string}
  */
-AspNetHelper.prototype.createDockerignoreFile = function () {
+DotNetHelper.prototype.createDockerignoreFile = function () {
     return 'project.lock.json';
 }
 
@@ -46,7 +46,7 @@ AspNetHelper.prototype.createDockerignoreFile = function () {
  * Gets the Docker image name.
  * @returns {string}
  */
-AspNetHelper.prototype.getDockerImageName = function (isDebug) {
+DotNetHelper.prototype.getDockerImageName = function (isDebug) {
     if (this._dotnetVersion === 'RC2' && !isDebug ) {
         return 'microsoft/dotnet:1.0.0-rc2-core';
     } else {
@@ -58,7 +58,7 @@ AspNetHelper.prototype.getDockerImageName = function (isDebug) {
  * Gets the Dotnet version (RC1 or RC2).
  * @returns {string}
  */
-AspNetHelper.prototype.getDotnetVersion = function (isDebug) {
+DotNetHelper.prototype.getDotnetVersion = function (isDebug) {
     return this._dotnetVersion;
 }
 
@@ -67,7 +67,7 @@ AspNetHelper.prototype.getDotnetVersion = function (isDebug) {
  * @param {string} sourceFile - Source file.
  * @param {string} targetFile - Target file.
  */
-AspNetHelper.prototype._backupFile = function (sourceFile, targetFile, cb) {
+DotNetHelper.prototype._backupFile = function (sourceFile, targetFile, cb) {
     fs.readFile(sourceFile, 'utf8', function (err, data) {
         if (err) {
             cb('Error reading file: ' + err);
@@ -88,7 +88,7 @@ AspNetHelper.prototype._backupFile = function (sourceFile, targetFile, cb) {
  * Checks if  'UseUrls' is called in Program.cs, and adds it to any existing new WebHostBuilder call if it is not there yet.
  * @returns {string}
  */
-AspNetHelper.prototype.updateProgramCS = function (cb) {
+DotNetHelper.prototype.updateProgramCS = function (cb) {
     var rootFolder = process.cwd() + path.sep;
     var fileName = rootFolder + 'Program.cs';
     var backupFile = rootFolder + 'Program.cs.backup';
@@ -130,7 +130,7 @@ AspNetHelper.prototype.updateProgramCS = function (cb) {
  * RC2: Ensures buildOptions is using debugType portable and publishOptions includes the dockerfiles
  * @returns {string}
  */
-AspNetHelper.prototype.updateProjectJson = function (cb) {
+DotNetHelper.prototype.updateProjectJson = function (cb) {
     var rootFolder = process.cwd() + path.sep;
     var fileName = rootFolder + 'project.json';
     var backupFile = rootFolder + 'project.json.backup';
@@ -225,7 +225,7 @@ AspNetHelper.prototype.updateProjectJson = function (cb) {
  * Gets the template docker-compose file name.
  * @returns {string}
  */
-AspNetHelper.prototype.getTemplateDockerComposeFileName = function () {
+DotNetHelper.prototype.getTemplateDockerComposeFileName = function () {
     return 'docker-compose.yml';
 }
 
@@ -233,8 +233,8 @@ AspNetHelper.prototype.getTemplateDockerComposeFileName = function () {
  * Gets the template dockerfile name.
  * @returns {string}
  */
-AspNetHelper.prototype.getTemplateDockerFileName = function () {
+DotNetHelper.prototype.getTemplateDockerFileName = function () {
     return path.join(this._templateFolder, 'Dockerfile');
 }
 
-module.exports = AspNetHelper;
+module.exports = DotNetHelper;

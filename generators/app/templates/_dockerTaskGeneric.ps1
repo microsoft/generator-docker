@@ -6,7 +6,7 @@ Runs docker-compose.
 .PARAMETER Build
 Builds a Docker image.
 .PARAMETER Clean
-Removes the image <%= imageName %> and kills all containers based on that image.<% if (projectType === 'aspnet' && dotnetVersion === 'RC2') { %>
+Removes the image <%= imageName %> and kills all containers based on that image.<% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
 .PARAMETER ComposeForDebug
 Builds the image and runs docker-compose.
 .PARAMETER StartDebugging
@@ -20,7 +20,7 @@ Build a Docker image named <%= imageName %>
 
 Param(
     [Parameter(Mandatory=$True,ParameterSetName="Compose")]
-    [switch]$Compose,<% if (projectType === 'aspnet' && dotnetVersion === 'RC2') { %>
+    [switch]$Compose,<% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
     [Parameter(Mandatory=$True,ParameterSetName="ComposeForDebug")]
     [switch]$ComposeForDebug,
     [Parameter(Mandatory=$True,ParameterSetName="StartDebugging")]
@@ -29,7 +29,7 @@ Param(
     [switch]$Build,
     [Parameter(Mandatory=$True,ParameterSetName="Clean")]
     [switch]$Clean,
-    [parameter(ParameterSetName="Compose")]<% if (projectType === 'aspnet' && dotnetVersion === 'RC2') { %>
+    [parameter(ParameterSetName="Compose")]<% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
     [Parameter(ParameterSetName="ComposeForDebug")]<% } %>
     [parameter(ParameterSetName="Build")]
     [ValidateNotNullOrEmpty()]
@@ -37,11 +37,12 @@ Param(
 )
 
 $imageName="<%= imageName %>"
-$projectName="<%= composeProjectName %>"<% if (projectType === 'aspnet' && dotnetVersion === 'RC2') { %>
+$projectName="<%= composeProjectName %>"<% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
 $serviceName="<%= serviceName %>"
 $containerName="<%= '${projectName}_${serviceName}' %>_1"<% } %>
 $publicPort=<%= portNumber %>
 $isWebProject=$<%= isWebProject %>
+$url="http://docker:$publicPort"
 
 # Kills all running containers of an image and then removes them.
 function CleanAll () {
@@ -57,7 +58,7 @@ function BuildImage () {
         $taggedImageName = $imageName
         if ($Environment -ne "Release") {
             $taggedImageName = "<%- '${imageName}:$Environment' %>".ToLowerInvariant()
-        }<% if (projectType === 'aspnet' && dotnetVersion === 'RC2') { %>
+        }<% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
 
         Write-Host "Building the project ($ENVIRONMENT)."
         $pubFolder = "bin\$Environment\netcoreapp1.0\publish"
@@ -87,10 +88,10 @@ function Compose () {
     else {
         Write-Error -Message "$Environment is not a valid parameter. File '$dockerFileName' does not exist." -Category InvalidArgument
     }
-}<% if (projectType === 'aspnet' && dotnetVersion === 'RC2') { %>
+}<% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
 
 function StartDebugging () {
-    Write-Host "Running on http://$(docker-machine ip $(docker-machine active)):$publicPort"
+    Write-Host "Running on $url"
 
     $containerId = (docker ps -f "name=$containerName" -q -n=1)
     if ([System.String]::IsNullOrWhiteSpace($containerId)) {
@@ -108,7 +109,7 @@ function OpenSite () {
     #Check if the site is available
     while($status -ne 200) {
         try {
-            $response = Invoke-WebRequest -Uri "http://$(docker-machine ip $(docker-machine active)):$publicPort" -Headers @{"Cache-Control"="no-cache";"Pragma"="no-cache"} -UseBasicParsing
+            $response = Invoke-WebRequest -Uri $url -Headers @{"Cache-Control"="no-cache";"Pragma"="no-cache"} -UseBasicParsing
             $status = [int]$response.StatusCode
         }
         catch [System.Net.WebException] { }
@@ -120,7 +121,7 @@ function OpenSite () {
 
     Write-Host
     # Open the site.
-    Start-Process "http://$(docker-machine ip $(docker-machine active)):$publicPort"
+    Start-Process $url
 }
 
 # Call the correct function for the parameter that was used
@@ -129,7 +130,7 @@ if($Compose) {
     if ($isWebProject) {
         OpenSite
     }
-}<% if (projectType === 'aspnet' && dotnetVersion === 'RC2') { %>
+}<% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
 elseif($ComposeForDebug) {
     $env:REMOTE_DEBUGGING = 1
     BuildImage

@@ -7,7 +7,7 @@ services:
     ports:
       - "<%= portNumber %>:<%= portNumber %>"<% } %><% if (environment === 'debug') { %><% if (volumeMap !== null) { %>
     volumes:
-      - <%= volumeMap %><% } %><% if (projectType === 'aspnet' && dotnetVersion === 'RC2') { %>
+      - <%= volumeMap %><% } %><% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
     environment:
       - REMOTE_DEBUGGING<% } %><% } %>
     labels:
