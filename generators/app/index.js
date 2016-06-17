@@ -93,7 +93,7 @@ function showPrompts() {
             name: 'portNumber',
             message: 'Which port is your app listening to?',
             default: function (answers) {
-                return answers.projectType === 'aspnet' ? 5000 : 3000;
+                return answers.projectType === 'aspnet' ? 80 : 3000;
             },
             when: function (answers) {
                 // Show this answer if user picked ASP.NET, Node.js or Golang that's using a web server.
