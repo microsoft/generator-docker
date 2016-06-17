@@ -12,8 +12,7 @@
             "outDir": null,
             "localRoot": "<%- '${workspaceRoot}' %>",
             "remoteRoot": "/src",
-            "timeout": 10000,
-            "preLaunchTask": "composeForDebug"
+            "timeout": 10000
         }
     ]
 }
