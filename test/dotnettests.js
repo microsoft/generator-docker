@@ -145,7 +145,7 @@ describe('.NET RC1 project file creation', function () {
     it('correct dockerfile contents (debug)', function (done) {
         assert.fileContent('Dockerfile.debug', 'FROM microsoft/aspnet:1.0.0-rc1-update1');
         assert.fileContent('Dockerfile.debug', 'RUN ["dnu", "restore"');
-        assert.fileContent('Dockerfile.debug', 'EXPOSE 5000');
+        assert.fileContent('Dockerfile.debug', 'EXPOSE 80');
         assert.fileContent('Dockerfile.debug', 'ENTRYPOINT ["dnx", "-p", "project.json", "web"');
         done();
     });
@@ -153,7 +153,7 @@ describe('.NET RC1 project file creation', function () {
     it('correct dockerfile contents (release)', function (done) {
         assert.fileContent('Dockerfile.release', 'FROM microsoft/aspnet:1.0.0-rc1-update1');
         assert.fileContent('Dockerfile.debug', 'RUN ["dnu", "restore"');
-        assert.fileContent('Dockerfile.release', 'EXPOSE 5000');
+        assert.fileContent('Dockerfile.release', 'EXPOSE 80');
         assert.fileContent('Dockerfile.release', 'ENTRYPOINT ["dnx", "-p", "project.json", "web"');
         done();
     });
@@ -161,7 +161,7 @@ describe('.NET RC1 project file creation', function () {
     it('correct compose file contents (debug)', function (done) {
         assert.fileContent('docker-compose.debug.yml', 'image: testimagename:debug');
         assert.fileContent('docker-compose.debug.yml', 'com.testimagename.environment: "debug"');
-        assert.fileContent('docker-compose.debug.yml', '"5000:5000"');
+        assert.fileContent('docker-compose.debug.yml', '"80:80"');
         assert.noFileContent('docker-compose.debug.yml', '- REMOTE_DEBUGGING');
         done();
     });
@@ -169,7 +169,7 @@ describe('.NET RC1 project file creation', function () {
     it('correct compose file contents (release)', function (done) {
         assert.fileContent('docker-compose.release.yml', 'image: testimagename');
         assert.fileContent('docker-compose.release.yml', 'com.testimagename.environment: "release"');
-        assert.fileContent('docker-compose.release.yml', '"5000:5000"');
+        assert.fileContent('docker-compose.release.yml', '"80:80"');
         assert.noFileContent('docker-compose.release.yml', '- REMOTE_DEBUGGING');
         done();
     });
@@ -181,7 +181,7 @@ describe('.NET RC1 project file creation', function () {
 
     it('update project.json and adds the web command if it doesn\'t exist', function (done) {
         assert.file('project.json');
-        assert.fileContent('project.json', 'Microsoft.AspNet.Server.Kestrel --server.urls http://*:5000');
+        assert.fileContent('project.json', 'Microsoft.AspNet.Server.Kestrel --server.urls http://*:80');
         done();
     });
 });
@@ -231,7 +231,7 @@ describe('.NET RC2 project file creation', function () {
         assert.fileContent('Dockerfile.debug', 'FROM microsoft/dotnet:1.0.0-preview1');
         assert.fileContent('Dockerfile.debug', 'RUN ["dotnet", "restore"]');
         assert.fileContent('Dockerfile.debug', 'RUN ["dotnet", "build", "-c", "debug"]');
-        assert.fileContent('Dockerfile.debug', 'EXPOSE 5000');
+        assert.fileContent('Dockerfile.debug', 'EXPOSE 80');
         assert.fileContent('Dockerfile.debug', 'ENTRYPOINT ["/bin/bash", "-c", "if [ -z \\"$REMOTE_DEBUGGING\\" ]; then dotnet run -c debug; else sleep infinity; fi"]');
         done();
     });
@@ -240,7 +240,7 @@ describe('.NET RC2 project file creation', function () {
         assert.fileContent('Dockerfile.release', 'FROM microsoft/dotnet:1.0.0-preview1');
         assert.fileContent('Dockerfile.release', 'RUN ["dotnet", "restore"]');
         assert.fileContent('Dockerfile.release', 'RUN ["dotnet", "build", "-c", "release"]');
-        assert.fileContent('Dockerfile.release', 'EXPOSE 5000');
+        assert.fileContent('Dockerfile.release', 'EXPOSE 80');
         assert.fileContent('Dockerfile.release', 'ENTRYPOINT ["dotnet", "run", "-c", "release"]');
         done();
     });
@@ -248,7 +248,7 @@ describe('.NET RC2 project file creation', function () {
     it('correct compose file contents (debug)', function (done) {
         assert.fileContent('docker-compose.debug.yml', 'image: testimagename:debug');
         assert.fileContent('docker-compose.debug.yml', 'com.testimagename.environment: "debug"');
-        assert.fileContent('docker-compose.debug.yml', '"5000:5000"');
+        assert.fileContent('docker-compose.debug.yml', '"80:80"');
         assert.fileContent('docker-compose.debug.yml', '- REMOTE_DEBUGGING');
         done();
     });
@@ -256,7 +256,7 @@ describe('.NET RC2 project file creation', function () {
     it('correct compose file contents (release)', function (done) {
         assert.fileContent('docker-compose.release.yml', 'image: testimagename');
         assert.fileContent('docker-compose.release.yml', 'com.testimagename.environment: "release"');
-        assert.fileContent('docker-compose.release.yml', '"5000:5000"');
+        assert.fileContent('docker-compose.release.yml', '"80:80"');
         assert.noFileContent('docker-compose.release.yml', '- REMOTE_DEBUGGING');
         done();
     });
@@ -268,7 +268,7 @@ describe('.NET RC2 project file creation', function () {
 
     it('doesn\'t update project.json to add the web command if it doesn\'t exist', function (done) {
         assert.file('project.json');
-        assert.noFileContent('project.json', 'Microsoft.AspNet.Server.Kestrel --server.urls http://*:5000');
+        assert.noFileContent('project.json', 'Microsoft.AspNet.Server.Kestrel --server.urls http://*:80');
         done();
     });
 
@@ -279,7 +279,7 @@ describe('.NET RC2 project file creation', function () {
 
     it('update Program.cs and adds UseUrls if it doesn\'t exist', function (done) {
         assert.file('Program.cs');
-        assert.fileContent('Program.cs', '.UseUrls("http://*:5000")');
+        assert.fileContent('Program.cs', '.UseUrls("http://*:80")');
         done();
     });
 });
@@ -324,7 +324,7 @@ describe('.NET RC2 project file creation when UseUrls exists', function () {
     });
 
     it('Program.cs not modified', function (done) {
-        assert.noFileContent('Program.cs', '.UseUrls("http://*:5000")');
+        assert.noFileContent('Program.cs', '.UseUrls("http://*:80")');
         done();
     });
 });
