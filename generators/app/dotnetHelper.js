@@ -152,7 +152,7 @@ DotNetHelper.prototype.updateProjectJson = function (cb) {
 
         if (dotnetVersion === 'RC2' ) {
             var changed = false;
-            if (data.buildOptions === undefined) {
+            if (!data.buildOptions) {
                 data.buildOptions = { };
                 changed = true;
             }
@@ -160,11 +160,11 @@ DotNetHelper.prototype.updateProjectJson = function (cb) {
                 data.buildOptions.debugType = "portable";
                 changed = true;
             }
-            if (data.publishOptions === undefined) {
+            if (!data.publishOptions) {
                 data.publishOptions = { };
                 changed = true;
             }
-            if (data.publishOptions.include === undefined) {
+            if (!data.publishOptions.include) {
                 data.publishOptions.include = [ ];
                 changed = true;
             }

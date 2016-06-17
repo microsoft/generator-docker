@@ -42,7 +42,9 @@ $serviceName="<%= serviceName %>"
 $containerName="<%= '${projectName}_${serviceName}' %>_1"<% } %>
 $publicPort=<%= portNumber %>
 $isWebProject=$<%= isWebProject %>
-$url="http://docker:$publicPort"
+$url="http://docker:$publicPort"<% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
+$runtimeID = "debian.8-x64"
+$framework = "netcoreapp1.0"<% } %>
 
 # Kills all running containers of an image and then removes them.
 function CleanAll () {
@@ -61,9 +63,8 @@ function BuildImage () {
         }<% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
 
         Write-Host "Building the project ($ENVIRONMENT)."
-        $pubFolder = "bin\$Environment\netcoreapp1.0\publish"
-        dotnet build -c $Environment
-        dotnet publish -c $Environment -o $pubFolder
+        $pubFolder = "bin\$Environment\$framework\publish"
+        dotnet publish -f $framework -r $runtimeID -c $Environment -o $pubFolder
 
         Write-Host "Building the image $imageName ($Environment)."
         docker build -f "$pubFolder\$dockerFileName" -t $taggedImageName $pubFolder<% } else { %>
