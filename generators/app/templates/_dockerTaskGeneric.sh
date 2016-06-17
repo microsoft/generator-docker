@@ -19,20 +19,17 @@ buildImage () {
     fi
 
     dockerFileName=""
+    taggedImageName="$imageName"
     if [[ $ENVIRONMENT == "release" ]]; then
         dockerFileName="dockerfile"
     else
         dockerFileName="dockerfile.$ENVIRONMENT"
+        taggedImageName="$imageName:$ENVIRONMENT"
     fi
 
     if [[ ! -f $dockerFileName ]]; then
       echo "$ENVIRONMENT is not a valid parameter. File '$dockerFileName' does not exist."
     else
-      taggedImageName="$imageName"
-      if [[ $ENVIRONMENT != "release" ]]; then
-        taggedImageName="$imageName:$ENVIRONMENT"
-      fi
-
       echo "Building the image $imageName ($ENVIRONMENT)."
       docker build -f $dockerFileName -t $taggedImageName .
     fi

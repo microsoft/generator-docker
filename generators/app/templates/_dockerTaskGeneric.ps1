@@ -52,19 +52,16 @@ function CleanAll () {
 # Builds the Docker image.
 function BuildImage () {
     $dockerFileName = $Null
+    $taggedImageName = $imageName
     if ($Environment -eq "Release") {
         $dockerFileName = "dockerfile"
     }
     else {
         $dockerFileName = "dockerfile.$Environment"
+        $taggedImageName = "<%- '${imageName}:$Environment' %>".ToLowerInvariant()
     }
 
     if (Test-Path $dockerFileName) {
-        $taggedImageName = $imageName
-        if ($Environment -ne "Release") {
-            $taggedImageName = "<%- '${imageName}:$Environment' %>".ToLowerInvariant()
-        }
-
         Write-Host "Building the image $imageName ($Environment)."
         docker build -f $dockerFileName -t $taggedImageName .
     }
