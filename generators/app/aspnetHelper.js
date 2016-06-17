@@ -17,16 +17,19 @@ var fs = require('fs');
 var AspNetHelper = function (baseImageName, portNumber) {
     this._baseImageName = baseImageName;
     this._portNumber = portNumber
-    
+
     switch (baseImageName) {
         case 'aspnet:1.0.0-rc1-update1':
             this._templateFolder = 'dnx';
+            this._dotnetVersion = 'RC1';
             break;
         case 'dotnet:1.0.0-preview1':
             this._templateFolder = 'dotnet';
+            this._dotnetVersion = 'RC2';
             break;
         default:
             this._templateFolder = 'dotnet';
+            this._dotnetVersion = 'RC2';
             break;
     }
 }
@@ -43,8 +46,20 @@ AspNetHelper.prototype.createDockerignoreFile = function () {
  * Gets the Docker image name.
  * @returns {string}
  */
-AspNetHelper.prototype.getDockerImageName = function () {
-    return 'microsoft/' + this._baseImageName;
+AspNetHelper.prototype.getDockerImageName = function (isDebug) {
+    if (this._dotnetVersion === 'RC2' && !isDebug ) {
+        return 'microsoft/dotnet:1.0.0-rc2-core';
+    } else {
+        return 'microsoft/' + this._baseImageName;
+    }
+}
+
+/**
+ * Gets the Dotnet version (RC1 or RC2).
+ * @returns {string}
+ */
+AspNetHelper.prototype.getDotnetVersion = function (isDebug) {
+    return this._dotnetVersion;
 }
 
 /**
@@ -52,35 +67,46 @@ AspNetHelper.prototype.getDockerImageName = function () {
  * @param {string} sourceFile - Source file.
  * @param {string} targetFile - Target file.
  */
-AspNetHelper.prototype._backupFile = function (sourceFile, targetFile) {
+AspNetHelper.prototype._backupFile = function (sourceFile, targetFile, cb) {
     fs.readFile(sourceFile, 'utf8', function (err, data) {
         if (err) {
-            console.log('Error reading file: ' + err);
+            cb('Error reading file: ' + err);
             return;
         }
-        fs.writeFile(targetFile, data);
+        fs.writeFile(targetFile, data, function (err) {
+            if (err) {
+                cb('Error writing file: ' + err);
+                return;
+            }
+            cb(null);
+            return;
+        });
     });
 }
 
 /**
- * Checks if  'web' command is in the  project.json and adds it if command is not there yet.
+ * Checks if  'UseUrls' is called in Program.cs, and adds it to any existing new WebHostBuilder call if it is not there yet.
  * @returns {string}
  */
-AspNetHelper.prototype.configureUrls = function (cb) {
-    if (this._baseImageName === 'dotnet:1.0.0-preview1' ) {
-        var rootFolder = process.cwd() + path.sep;
-        var fileName = rootFolder + 'Program.cs';
-        var backupFile = rootFolder + 'Program.cs.backup';
-        var port = this._portNumber;
-        var self = this;
-        fs.readFile(fileName, 'utf8', function (err, data) {
-            if (err) {
-                cb(new Error('Can\'t read Program.cs file. Make sure Program.cs file exists.'));
-                return;
-            }
-            
-            if (data.indexOf('.UseUrls(') < 0) {
-                self._backupFile(fileName, backupFile);
+AspNetHelper.prototype.updateProgramCS = function (cb) {
+    var rootFolder = process.cwd() + path.sep;
+    var fileName = rootFolder + 'Program.cs';
+    var backupFile = rootFolder + 'Program.cs.backup';
+    var port = this._portNumber;
+    var self = this;
+    fs.readFile(fileName, 'utf8', function (err, data) {
+        if (err) {
+            cb(new Error('Can\'t read Program.cs file. Make sure Program.cs file exists.'));
+            return;
+        }
+
+        if (data.indexOf('.UseUrls(') < 0) {
+            self._backupFile(fileName, backupFile, function(err)
+            {
+                if (err) {
+                    cb(new Error('Can\'t backup Program.cs file.'));
+                    return;
+                }
                 data = data.replace('new WebHostBuilder()', 'new WebHostBuilder().UseUrls("http://*:' + port + '")');
                 fs.writeFile(fileName, data, function (err) {
                     if (err) {
@@ -91,46 +117,108 @@ AspNetHelper.prototype.configureUrls = function (cb) {
                     return;
                 });
                 return;
-            }
-            cb(null, null);
+            });
             return;
-        });
-    } else {
-        var rootFolder = process.cwd() + path.sep;
-        var fileName = rootFolder + 'project.json';
-        var backupFile = rootFolder + 'project.json.backup';
-        var port = this._portNumber;
-        var self = this;
-        fs.readFile(fileName, 'utf8', function (err, data) {
-            if (err) {
-                cb(new Error('Can\'t read project.json file. Make sure project.json file exists.'));
-                return;
+        }
+        cb(null, null);
+        return;
+    });
+}
+
+/**
+ * RC1: Checks if  'web' command is in the  project.json and adds it if command is not there yet.
+ * RC2: Ensures buildOptions is using debugType portable and publishOptions includes the dockerfiles
+ * @returns {string}
+ */
+AspNetHelper.prototype.updateProjectJson = function (cb) {
+    var rootFolder = process.cwd() + path.sep;
+    var fileName = rootFolder + 'project.json';
+    var backupFile = rootFolder + 'project.json.backup';
+    var port = this._portNumber;
+    var dotnetVersion = this._dotnetVersion;
+    var self = this;
+    fs.readFile(fileName, 'utf8', function (err, data) {
+        if (err) {
+            cb(new Error('Can\'t read project.json file. Make sure project.json file exists.'));
+            return;
+        }
+
+        // Remove BOM.
+        if (data.charCodeAt(0) === 0xFEFF) {
+            data = data.replace(/^\uFEFF/, '');
+        }
+
+        data = JSON.parse(data);
+
+        if (dotnetVersion === 'RC2' ) {
+            var changed = false;
+            if (data.buildOptions === undefined) {
+                data.buildOptions = { };
+                changed = true;
+            }
+            if (data.buildOptions !== "portable") {
+                data.buildOptions.debugType = "portable";
+                changed = true;
+            }
+            if (data.publishOptions === undefined) {
+                data.publishOptions = { };
+                changed = true;
+            }
+            if (data.publishOptions.include === undefined) {
+                data.publishOptions.include = [ ];
+                changed = true;
+            }
+            if (data.publishOptions.include.indexOf('dockerfile.debug') < 0) {
+                data.publishOptions.include.push('dockerfile.debug');
+                changed = true;
+            }
+            if (data.publishOptions.include.indexOf('dockerfile.release') < 0) {
+                data.publishOptions.include.push('dockerfile.release');
+                changed = true;
             }
 
-            // Remove BOM.
-            if (data.charCodeAt(0) === 0xFEFF) {
-                data = data.replace(/^\uFEFF/, '');
-            }
-
-            data = JSON.parse(data);
-
-            if (data.commands.web === undefined) {
-                self._backupFile(fileName, backupFile);
-                data.commands.web = 'Microsoft.AspNet.Server.Kestrel --server.urls http://*:' + port;
-                fs.writeFile(fileName, JSON.stringify(data), function (err) {
+            if (changed) {
+                self._backupFile(fileName, backupFile, function (err) {
                     if (err) {
-                        cb(new Error('Can\'t write to project.json file.'));
+                        cb(new Error('Can\'t backup project.json file.'));
                         return;
                     }
-                    cb(null, 'We noticed your project.json file didn\'t know how to start the kestrel web server. We\'ve fixed that for you.');
+                    fs.writeFile(fileName, JSON.stringify(data, null, 2), function (err) {
+                        if (err) {
+                            cb(new Error('Can\'t write to project.json file.'));
+                            return;
+                        }
+                        cb(null, 'We noticed your project.json file didn\'t use portable .pdb files. We\'ve fixed that for you.');
+                        return;
+                    });
                     return;
                 });
                 return;
             }
-            cb(null, null);
-            return;
-        });
-    }
+        } else {
+            if (data.commands.web === undefined) {
+                self._backupFile(fileName, backupFile, function (err) {
+                    if (err) {
+                        cb(new Error('Can\'t backup project.json file.'));
+                        return;
+                    }
+                    data.commands.web = 'Microsoft.AspNet.Server.Kestrel --server.urls http://*:' + port;
+                    fs.writeFile(fileName, JSON.stringify(data, null, 2), function (err) {
+                        if (err) {
+                            cb(new Error('Can\'t write to project.json file.'));
+                            return;
+                        }
+                        cb(null, 'We noticed your project.json file didn\'t know how to start the kestrel web server. We\'ve fixed that for you.');
+                        return;
+                    });
+                    return;
+                });
+                return;
+            }
+        }
+        cb(null, null);
+        return;
+    });
 }
 
 /**

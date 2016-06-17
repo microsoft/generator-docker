@@ -38,7 +38,8 @@ var isGoWeb = false;
 
 // ASP.NET variables
 var baseImageName = '';
-var configureUrlsNoteForUser = null;
+var updateProjectJsonNoteForUser = null;
+var updateProgramCSNoteForUser = null;
 
 // Application insights variables.
 var pkg = require(__dirname + '/../../package.json');
@@ -178,20 +179,40 @@ function handleAspNet(yo) {
     var aspNet = new AspNetHelper(baseImageName, portNumber);
 
     var done = yo.async();
-    aspNet.configureUrls(function (err, noteForUser) {
+    aspNet.updateProjectJson(function (err, projectJsonNote) {
         if (err) {
             error = true;
             yo.log.error(err);
+            done();
             return;
         }
-        configureUrlsNoteForUser = noteForUser;
-        done();
+        updateProjectJsonNoteForUser = projectJsonNote;
+
+        if (aspNet.getDotnetVersion() == 'RC2') {
+            aspNet.updateProgramCS(function (err, programCSNode) {
+                if (err) {
+                    error = true;
+                    yo.log.error(err);
+                    done();
+                    return;
+                }
+                updateProgramCSNoteForUser = programCSNode;
+                done();
+                return;
+            });
+        } else {
+            done();
+        }
+        return;
     }.bind(yo));
 
     var templateData = {
             projectType: projectType,
             composeProjectName: composeProjectName,
-            baseImageName: aspNet.getDockerImageName(),
+            outputName: process.cwd().split(path.sep).pop() + '.dll',
+            dotnetVersion: aspNet.getDotnetVersion(),
+            debugBaseImageName: aspNet.getDockerImageName(true),
+            releaseBaseImageName: aspNet.getDockerImageName(false),
             imageName: imageName,
             serviceName: serviceName,
             portNumber: portNumber,
@@ -199,8 +220,10 @@ function handleAspNet(yo) {
             volumeMap: null
         };
 
-    var dockerignoreFileContents = aspNet.createDockerignoreFile();
-    yo.fs.write(yo.destinationPath(DOCKERIGNORE_NAME), new Buffer(dockerignoreFileContents));
+        if (aspNet.getDotnetVersion() == 'RC2') {
+            var dockerignoreFileContents = aspNet.createDockerignoreFile();
+            yo.fs.write(yo.destinationPath(DOCKERIGNORE_NAME), new Buffer(dockerignoreFileContents));
+        }
 
     yo.fs.copyTpl(
         yo.templatePath('dotnet/launch.json'),
@@ -279,8 +302,12 @@ function end() {
         }.bind(this));
     }
 
-    if (configureUrlsNoteForUser !== null) {
-        this.log(configureUrlsNoteForUser);
+    if (updateProgramCSNoteForUser !== null) {
+        this.log(updateProgramCSNoteForUser);
+    }
+
+    if (updateProjectJsonNoteForUser !== null) {
+        this.log(updateProjectJsonNoteForUser);
     }
 
     logData();

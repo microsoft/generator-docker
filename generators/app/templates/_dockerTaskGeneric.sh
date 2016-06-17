@@ -1,5 +1,5 @@
 imageName="<%= imageName %>"
-projectName="<%= composeProjectName %>"<% if (projectType === 'aspnet') { %>
+projectName="<%= composeProjectName %>"<% if (projectType === 'aspnet' && dotnetVersion === 'RC2') { %>
 serviceName="<%= serviceName %>"
 containerName="<%= '${projectName}_${serviceName}' %>_1"<% } %>
 publicPort=<%= portNumber %>
@@ -26,10 +26,18 @@ buildImage () {
       taggedImageName="$imageName"
       if [[ $ENVIRONMENT != "release" ]]; then
         taggedImageName="$imageName:$ENVIRONMENT"
-      fi
+      fi<% if (projectType === 'aspnet' && dotnetVersion === 'RC2') { %>
+
+      echo "Building the project ($ENVIRONMENT)."
+      pubFolder="bin/$Environment/netcoreapp1.0/publish"
+      dotnet build -c $Environment
+      dotnet publish -c $Environment -o $pubFolder
 
       echo "Building the image $imageName ($ENVIRONMENT)."
-      docker build -f $dockerFileName -t $taggedImageName .
+      docker build -f "$pubFolder/$dockerFileName" -t $taggedImageName $pubFolder<% } else { %>
+
+      echo "Building the image $imageName ($ENVIRONMENT)."
+      docker build -f $dockerFileName -t $taggedImageName .<% } %>
     fi
 }
 
@@ -48,7 +56,7 @@ compose () {
     docker-compose -f $composeFileName -p $projectName kill
     docker-compose -f $composeFileName -p $projectName up -d
   fi
-}<% if (projectType === 'aspnet') { %>
+}<% if (projectType === 'aspnet' && dotnetVersion === 'RC2') { %>
 
 startDebugging () {
     echo "Running on http://$(docker-machine ip $(docker-machine active)):$publicPort"
@@ -81,7 +89,7 @@ showUsage () {
     echo "Commands:"
     echo "    build: Builds a Docker image ('$imageName')."
     echo "    compose: Runs docker-compose."
-    echo "    clean: Removes the image '$imageName' and kills all containers based on that image."<% if (projectType === 'aspnet') { %>
+    echo "    clean: Removes the image '$imageName' and kills all containers based on that image."<% if (projectType === 'aspnet' && dotnetVersion === 'RC2') { %>
     echo "    composeForDebug: Builds the image and runs docker-compose."
     echo "    startDebugging: Finds the running container and starts the debugger inside of it."<% } %>
     echo ""
@@ -106,7 +114,7 @@ else
              if [[ $isWebProject = true ]]; then
                openSite
              fi
-             ;;<% if (projectType === 'aspnet') { %>
+             ;;<% if (projectType === 'aspnet' && dotnetVersion === 'RC2') { %>
       "composeForDebug")
              ENVIRONMENT=$2
              export REMOTE_DEBUGGING=1

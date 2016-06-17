@@ -6,7 +6,7 @@ Runs docker-compose.
 .PARAMETER Build
 Builds a Docker image.
 .PARAMETER Clean
-Removes the image <%= imageName %> and kills all containers based on that image.<% if (projectType === 'aspnet') { %>
+Removes the image <%= imageName %> and kills all containers based on that image.<% if (projectType === 'aspnet' && dotnetVersion === 'RC2') { %>
 .PARAMETER ComposeForDebug
 Builds the image and runs docker-compose.
 .PARAMETER StartDebugging
@@ -20,7 +20,7 @@ Build a Docker image named <%= imageName %>
 
 Param(
     [Parameter(Mandatory=$True,ParameterSetName="Compose")]
-    [switch]$Compose,<% if (projectType === 'aspnet') { %>
+    [switch]$Compose,<% if (projectType === 'aspnet' && dotnetVersion === 'RC2') { %>
     [Parameter(Mandatory=$True,ParameterSetName="ComposeForDebug")]
     [switch]$ComposeForDebug,
     [Parameter(Mandatory=$True,ParameterSetName="StartDebugging")]
@@ -29,7 +29,7 @@ Param(
     [switch]$Build,
     [Parameter(Mandatory=$True,ParameterSetName="Clean")]
     [switch]$Clean,
-    [parameter(ParameterSetName="Compose")]<% if (projectType === 'aspnet') { %>
+    [parameter(ParameterSetName="Compose")]<% if (projectType === 'aspnet' && dotnetVersion === 'RC2') { %>
     [Parameter(ParameterSetName="ComposeForDebug")]<% } %>
     [parameter(ParameterSetName="Build")]
     [ValidateNotNullOrEmpty()]
@@ -37,7 +37,7 @@ Param(
 )
 
 $imageName="<%= imageName %>"
-$projectName="<%= composeProjectName %>"<% if (projectType === 'aspnet') { %>
+$projectName="<%= composeProjectName %>"<% if (projectType === 'aspnet' && dotnetVersion === 'RC2') { %>
 $serviceName="<%= serviceName %>"
 $containerName="<%= '${projectName}_${serviceName}' %>_1"<% } %>
 $publicPort=<%= portNumber %>
@@ -57,10 +57,18 @@ function BuildImage () {
         $taggedImageName = $imageName
         if ($Environment -ne "Release") {
             $taggedImageName = "<%- '${imageName}:$Environment' %>".ToLowerInvariant()
-        }
+        }<% if (projectType === 'aspnet' && dotnetVersion === 'RC2') { %>
+
+        Write-Host "Building the project ($ENVIRONMENT)."
+        $pubFolder = "bin\$Environment\netcoreapp1.0\publish"
+        dotnet build -c $Environment
+        dotnet publish -c $Environment -o $pubFolder
 
         Write-Host "Building the image $imageName ($Environment)."
-        docker build -f $dockerFileName -t $taggedImageName .
+        docker build -f "$pubFolder\$dockerFileName" -t $taggedImageName $pubFolder<% } else { %>
+
+        Write-Host "Building the image $imageName ($Environment)."
+        docker build -f $dockerFileName -t $taggedImageName .<% } %>
     }
     else {
         Write-Error -Message "$Environment is not a valid parameter. File '$dockerFileName' does not exist." -Category InvalidArgument
@@ -79,7 +87,7 @@ function Compose () {
     else {
         Write-Error -Message "$Environment is not a valid parameter. File '$dockerFileName' does not exist." -Category InvalidArgument
     }
-}<% if (projectType === 'aspnet') { %>
+}<% if (projectType === 'aspnet' && dotnetVersion === 'RC2') { %>
 
 function StartDebugging () {
     Write-Host "Running on http://$(docker-machine ip $(docker-machine active)):$publicPort"
@@ -121,7 +129,7 @@ if($Compose) {
     if ($isWebProject) {
         OpenSite
     }
-}<% if (projectType === 'aspnet') { %>
+}<% if (projectType === 'aspnet' && dotnetVersion === 'RC2') { %>
 elseif($ComposeForDebug) {
     $env:REMOTE_DEBUGGING = 1
     BuildImage
