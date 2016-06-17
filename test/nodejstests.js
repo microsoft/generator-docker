@@ -41,9 +41,19 @@ describe('Node.js project file creation', function () {
         done();
     });
 
-    it('web project variable is set correctly in script file', function (done) {
+    it('Correct script file contents (powershell)', function (done) {
         assert.fileContent('dockerTask.ps1', '$isWebProject=$true');
+        assert.noFileContent('dockerTask.ps1', 'dotnet publish');
+        assert.noFileContent('dockerTask.ps1', 'ComposeForDebug');
+        assert.noFileContent('dockerTask.ps1', 'startDebugging');
+        done();
+    });
+
+    it('Correct script file contents (bash)', function (done) {
         assert.fileContent('dockerTask.sh', 'isWebProject=true');
+        assert.noFileContent('dockerTask.sh', 'dotnet publish');
+        assert.noFileContent('dockerTask.sh', 'composeForDebug');
+        assert.noFileContent('dockerTask.sh', 'startDebugging');
         done();
     });
 
