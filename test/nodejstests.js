@@ -20,13 +20,13 @@ describe('Node.js project file creation', function () {
 
     it('generates dockerfiles', function (done) {
         assert.file('Dockerfile.debug');
-        assert.file('Dockerfile.release');
+        assert.file('Dockerfile');
         done();
     });
 
     it('generates compose files', function (done) {
         assert.file('docker-compose.debug.yml');
-        assert.file('docker-compose.release.yml');
+        assert.file('docker-compose.yml');
         done();
     });
 
@@ -41,9 +41,19 @@ describe('Node.js project file creation', function () {
         done();
     });
 
-    it('web project variable is set correctly in script file', function (done) {
+    it('Correct script file contents (powershell)', function (done) {
         assert.fileContent('dockerTask.ps1', '$isWebProject=$true');
+        assert.noFileContent('dockerTask.ps1', 'dotnet publish');
+        assert.noFileContent('dockerTask.ps1', 'ComposeForDebug');
+        assert.noFileContent('dockerTask.ps1', 'startDebugging');
+        done();
+    });
+
+    it('Correct script file contents (bash)', function (done) {
         assert.fileContent('dockerTask.sh', 'isWebProject=true');
+        assert.noFileContent('dockerTask.sh', 'dotnet publish');
+        assert.noFileContent('dockerTask.sh', 'composeForDebug');
+        assert.noFileContent('dockerTask.sh', 'startDebugging');
         done();
     });
 
@@ -55,8 +65,8 @@ describe('Node.js project file creation', function () {
     });
 
     it('correct dockerfile contents (release)', function (done) {
-        assert.noFileContent('Dockerfile.release', 'RUN npm install nodemon -g');
-        assert.fileContent('Dockerfile.release', 'CMD ["node", "./bin/www"]');
+        assert.noFileContent('Dockerfile', 'RUN npm install nodemon -g');
+        assert.fileContent('Dockerfile', 'CMD ["node", "./bin/www"]');
         done();
     });
 
@@ -70,11 +80,11 @@ describe('Node.js project file creation', function () {
     });
 
     it('correct compose file contents (release)', function (done) {
-        assert.fileContent('docker-compose.release.yml', 'image: testimagename');
-        assert.noFileContent('docker-compose.release.yml', '.:/src');
-        assert.fileContent('docker-compose.release.yml', 'com.testimagename.environment: "release"');
-        assert.fileContent('docker-compose.release.yml', '"3000:3000"');
-        assert.noFileContent('docker-compose.release.yml', '- REMOTE_DEBUGGING');
+        assert.fileContent('docker-compose.yml', 'image: testimagename');
+        assert.noFileContent('docker-compose.yml', '.:/src');
+        assert.fileContent('docker-compose.yml', 'com.testimagename.environment: "release"');
+        assert.fileContent('docker-compose.yml', '"3000:3000"');
+        assert.noFileContent('docker-compose.yml', '- REMOTE_DEBUGGING');
         done();
     });
 });
