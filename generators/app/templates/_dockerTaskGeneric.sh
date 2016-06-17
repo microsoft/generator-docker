@@ -29,9 +29,9 @@ buildImage () {
       fi<% if (projectType === 'aspnet' && dotnetVersion === 'RC2') { %>
 
       echo "Building the project ($ENVIRONMENT)."
-      pubFolder="bin/$Environment/netcoreapp1.0/publish"
-      dotnet build -c $Environment
-      dotnet publish -c $Environment -o $pubFolder
+      pubFolder="bin/$ENVIRONMENT/netcoreapp1.0/publish"
+      dotnet build -c $ENVIRONMENT
+      dotnet publish -c $ENVIRONMENT -o $pubFolder
 
       echo "Building the image $imageName ($ENVIRONMENT)."
       docker build -f "$pubFolder/$dockerFileName" -t $taggedImageName $pubFolder<% } else { %>
