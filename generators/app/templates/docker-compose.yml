@@ -5,9 +5,10 @@ services:
     image: <%= imageName %>:debug<% } else { %>
     image: <%= imageName %><% } %><% if (isWebProject && portNumber) { %>
     ports:
-      - "<%= portNumber %>:<%= portNumber %>"<% } %><% if (environment === 'debug') { %><% if (volumeMap !== null) { %>
+      - "<%= portNumber %>:<%= portNumber %>"<% } %><% if (environment === 'debug') { %><% if (projectType === 'nodejs') { %>
+      - "5858:5858"<% } %><% if (volumeMap !== null) { %>
     volumes:
-      - <%= volumeMap %><% } %><% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
+      - <%= volumeMap %><% } %><% if (projectType === 'nodejs' || (projectType === 'dotnet' && dotnetVersion === 'RC2')) { %>
     environment:
       - REMOTE_DEBUGGING<% } %><% } %>
     labels:

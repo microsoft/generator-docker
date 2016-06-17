@@ -93,8 +93,8 @@ showUsage () {
     echo "Commands:"
     echo "    build: Builds a Docker image ('$imageName')."
     echo "    compose: Runs docker-compose."
-    echo "    clean: Removes the image '$imageName' and kills all containers based on that image."<% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
-    echo "    composeForDebug: Builds the image and runs docker-compose."
+    echo "    clean: Removes the image '$imageName' and kills all containers based on that image."<% if (projectType === 'nodejs' || (projectType === 'dotnet' && dotnetVersion === 'RC2')) { %>
+    echo "    composeForDebug: Builds the image and runs docker-compose."<% } %><% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
     echo "    startDebugging: Finds the running container and starts the debugger inside of it."<% } %>
     echo ""
     echo "Environments:"
@@ -118,13 +118,13 @@ else
              if [[ $isWebProject = true ]]; then
                openSite
              fi
-             ;;<% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
+             ;;<% if (projectType === 'nodejs' || (projectType === 'dotnet' && dotnetVersion === 'RC2')) { %>
       "composeForDebug")
              ENVIRONMENT=$2
              export REMOTE_DEBUGGING=1
              buildImage
              compose
-             ;;
+             ;;<% } %><% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
       "startDebugging")
              startDebugging
              ;;<% } %>

@@ -6,5 +6,6 @@ RUN npm install
 COPY . /src
 WORKDIR /src
 EXPOSE <%= portNumber %><% if (environment === 'debug') { %>
-CMD ["nodemon"]<% } else { %>
+EXPOSE 5858
+ENTRYPOINT ["/bin/bash", "-c", "if [ -z \"$REMOTE_DEBUGGING\" ]; then nodemon -L --debug; else nodemon -L --debug-brk; fi"]<% } else { %>
 CMD ["node", "./bin/www"]<% } %>

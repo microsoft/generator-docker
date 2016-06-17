@@ -6,9 +6,9 @@ Runs docker-compose.
 .PARAMETER Build
 Builds a Docker image.
 .PARAMETER Clean
-Removes the image <%= imageName %> and kills all containers based on that image.<% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
+Removes the image <%= imageName %> and kills all containers based on that image.<% if (projectType === 'nodejs' || (projectType === 'dotnet' && dotnetVersion === 'RC2')) { %>
 .PARAMETER ComposeForDebug
-Builds the image and runs docker-compose.
+Builds the image and runs docker-compose.<% } %><% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
 .PARAMETER StartDebugging
 Finds the running container and starts the debugger inside of it.<% } %>
 .PARAMETER Environment
@@ -20,16 +20,16 @@ Build a Docker image named <%= imageName %>
 
 Param(
     [Parameter(Mandatory=$True,ParameterSetName="Compose")]
-    [switch]$Compose,<% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
+    [switch]$Compose,<% if (projectType === 'nodejs' || (projectType === 'dotnet' && dotnetVersion === 'RC2')) { %>
     [Parameter(Mandatory=$True,ParameterSetName="ComposeForDebug")]
-    [switch]$ComposeForDebug,
+    [switch]$ComposeForDebug,<% } %><% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
     [Parameter(Mandatory=$True,ParameterSetName="StartDebugging")]
     [switch]$StartDebugging,<% } %>
     [Parameter(Mandatory=$True,ParameterSetName="Build")]
     [switch]$Build,
     [Parameter(Mandatory=$True,ParameterSetName="Clean")]
     [switch]$Clean,
-    [parameter(ParameterSetName="Compose")]<% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
+    [parameter(ParameterSetName="Compose")]<% if (projectType === 'nodejs' || (projectType === 'dotnet' && dotnetVersion === 'RC2')) { %>
     [Parameter(ParameterSetName="ComposeForDebug")]<% } %>
     [parameter(ParameterSetName="Build")]
     [ValidateNotNullOrEmpty()]
@@ -133,12 +133,12 @@ if($Compose) {
     if ($isWebProject) {
         OpenSite
     }
-}<% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
+}<% if (projectType === 'nodejs' || (projectType === 'dotnet' && dotnetVersion === 'RC2')) { %>
 elseif($ComposeForDebug) {
     $env:REMOTE_DEBUGGING = 1
     BuildImage
     Compose
-}
+}<% } %><% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
 elseif($StartDebugging) {
     StartDebugging
 }<% } %>

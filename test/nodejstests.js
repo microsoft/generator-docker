@@ -44,7 +44,7 @@ describe('Node.js project file creation', function () {
     it('Correct script file contents (powershell)', function (done) {
         assert.fileContent('dockerTask.ps1', '$isWebProject=$true');
         assert.noFileContent('dockerTask.ps1', 'dotnet publish');
-        assert.noFileContent('dockerTask.ps1', 'ComposeForDebug');
+        assert.fileContent('dockerTask.ps1', 'ComposeForDebug');
         assert.noFileContent('dockerTask.ps1', 'startDebugging');
         done();
     });
@@ -52,7 +52,7 @@ describe('Node.js project file creation', function () {
     it('Correct script file contents (bash)', function (done) {
         assert.fileContent('dockerTask.sh', 'isWebProject=true');
         assert.noFileContent('dockerTask.sh', 'dotnet publish');
-        assert.noFileContent('dockerTask.sh', 'composeForDebug');
+        assert.fileContent('dockerTask.sh', 'composeForDebug');
         assert.noFileContent('dockerTask.sh', 'startDebugging');
         done();
     });
@@ -60,12 +60,12 @@ describe('Node.js project file creation', function () {
     it('correct dockerfile contents (debug)', function (done) {
         assert.fileContent('Dockerfile.debug', 'RUN npm install nodemon -g');
         assert.fileContent('Dockerfile.debug', 'RUN npm install');
-        assert.fileContent('Dockerfile.debug', 'CMD ["nodemon"]');
+        assert.fileContent('Dockerfile.debug', 'ENTRYPOINT ["/bin/bash", "-c", "if [ -z \\"$REMOTE_DEBUGGING\\" ]; then nodemon -L --debug; else nodemon -L --debug-brk; fi"]');
         done();
     });
 
     it('correct dockerfile contents (release)', function (done) {
-        assert.noFileContent('Dockerfile', 'RUN npm install nodemon -g');
+        assert.noFileContent('Dockerfile', 'nodemon');
         assert.fileContent('Dockerfile', 'CMD ["node", "./bin/www"]');
         done();
     });
@@ -75,7 +75,7 @@ describe('Node.js project file creation', function () {
         assert.fileContent('docker-compose.debug.yml', '.:/src');
         assert.fileContent('docker-compose.debug.yml', 'com.testimagename.environment: "debug"');
         assert.fileContent('docker-compose.debug.yml', '"3000:3000"');
-        assert.noFileContent('docker-compose.debug.yml', '- REMOTE_DEBUGGING');
+        assert.fileContent('docker-compose.debug.yml', '- REMOTE_DEBUGGING');
         done();
     });
 
