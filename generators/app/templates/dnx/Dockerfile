@@ -1,4 +1,4 @@
-FROM <%= baseImageName %>
+FROM <%= environment === 'debug' ? debugBaseImageName : releaseBaseImageName %>
 COPY project.json /app/
 WORKDIR /app
 RUN ["dnu", "restore"]
