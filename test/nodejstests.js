@@ -60,12 +60,12 @@ describe('Node.js project file creation', function () {
     it('correct dockerfile contents (debug)', function (done) {
         assert.fileContent('Dockerfile.debug', 'RUN npm install nodemon -g');
         assert.fileContent('Dockerfile.debug', 'RUN npm install');
-        assert.fileContent('Dockerfile.debug', 'ENTRYPOINT ["/bin/bash", "-c", "if [ -z \\"$REMOTE_DEBUGGING\\" ]; then nodemon --debug; else nodemon --debug-brk; fi"]');
+        assert.fileContent('Dockerfile.debug', 'ENTRYPOINT ["/bin/bash", "-c", "if [ -z \\"$REMOTE_DEBUGGING\\" ]; then nodemon -L --debug; else nodemon -L --debug-brk; fi"]');
         done();
     });
 
     it('correct dockerfile contents (release)', function (done) {
-        assert.noFileContent('Dockerfile', 'RUN npm install nodemon -g');
+        assert.noFileContent('Dockerfile', 'nodemon');
         assert.fileContent('Dockerfile', 'CMD ["node", "./bin/www"]');
         done();
     });
