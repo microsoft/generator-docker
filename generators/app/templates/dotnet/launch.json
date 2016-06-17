@@ -7,7 +7,7 @@
             "request": "launch",
             "preLaunchTask": "composeForDebug",
             "cwd": "/app",
-            "program": "/app/bin/debug/netcoreapp1.0/app.dll",
+            "program": "/app/<%= outputName %>",
             "sourceFileMap": {
                 "/app": "<%- '${workspaceRoot}' %>"
             },
