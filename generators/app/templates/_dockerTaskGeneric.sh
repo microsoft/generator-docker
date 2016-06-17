@@ -31,14 +31,12 @@ buildImage () {
     if [[ ! -f $dockerFileName ]]; then
       echo "$ENVIRONMENT is not a valid parameter. File '$dockerFileName' does not exist."
     else<% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
-
       echo "Building the project ($ENVIRONMENT)."
       pubFolder="bin/$ENVIRONMENT/$framework/publish"
       dotnet publish -f $framework -r $runtimeID -c $ENVIRONMENT -o $pubFolder
 
       echo "Building the image $imageName ($ENVIRONMENT)."
       docker build -f "$pubFolder/$dockerFileName" -t $taggedImageName $pubFolder<% } else { %>
-
       echo "Building the image $imageName ($ENVIRONMENT)."
       docker build -f $dockerFileName -t $taggedImageName .<% } %>
     fi
