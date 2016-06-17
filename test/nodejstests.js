@@ -44,7 +44,7 @@ describe('Node.js project file creation', function () {
     it('Correct script file contents (powershell)', function (done) {
         assert.fileContent('dockerTask.ps1', '$isWebProject=$true');
         assert.noFileContent('dockerTask.ps1', 'dotnet publish');
-        assert.noFileContent('dockerTask.ps1', 'ComposeForDebug');
+        assert.fileContent('dockerTask.ps1', 'ComposeForDebug');
         assert.noFileContent('dockerTask.ps1', 'startDebugging');
         done();
     });
@@ -52,7 +52,7 @@ describe('Node.js project file creation', function () {
     it('Correct script file contents (bash)', function (done) {
         assert.fileContent('dockerTask.sh', 'isWebProject=true');
         assert.noFileContent('dockerTask.sh', 'dotnet publish');
-        assert.noFileContent('dockerTask.sh', 'composeForDebug');
+        assert.fileContent('dockerTask.sh', 'composeForDebug');
         assert.noFileContent('dockerTask.sh', 'startDebugging');
         done();
     });
@@ -60,7 +60,7 @@ describe('Node.js project file creation', function () {
     it('correct dockerfile contents (debug)', function (done) {
         assert.fileContent('Dockerfile.debug', 'RUN npm install nodemon -g');
         assert.fileContent('Dockerfile.debug', 'RUN npm install');
-        assert.fileContent('Dockerfile.debug', 'CMD ["nodemon"]');
+        assert.fileContent('Dockerfile.debug', 'ENTRYPOINT ["/bin/bash", "-c", "if [ -z \\"$REMOTE_DEBUGGING\\" ]; then nodemon --debug; else nodemon --debug-brk; fi"]');
         done();
     });
 
@@ -84,7 +84,7 @@ describe('Node.js project file creation', function () {
         assert.noFileContent('docker-compose.yml', '.:/src');
         assert.fileContent('docker-compose.yml', 'com.testimagename.environment: "release"');
         assert.fileContent('docker-compose.yml', '"3000:3000"');
-        assert.fileContent('docker-compose.yml', '- REMOTE_DEBUGGING');
+        assert.noFileContent('docker-compose.yml', '- REMOTE_DEBUGGING');
         done();
     });
 });
