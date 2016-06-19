@@ -6,7 +6,7 @@ WORKDIR /clrdbg
 RUN chmod 700 GetClrDbg.sh
 RUN ./GetClrDbg.sh $CLRDBG_VERSION<% } %>
 WORKDIR /app
-COPY . /app
 EXPOSE <%= portNumber %><% if (environment === 'debug') { %>
 ENTRYPOINT ["/bin/bash", "-c", "if [ -z \"$REMOTE_DEBUGGING\" ]; then dotnet <%= outputName %>; else sleep infinity; fi"]<% } else { %>
 ENTRYPOINT ["dotnet", "<%= outputName %>"]<% } %>
+COPY . /app
