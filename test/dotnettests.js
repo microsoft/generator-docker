@@ -297,8 +297,8 @@ describe('.NET RC2 project file creation', function () {
     it('Update project.json to add portable pdbs and publishing dockerfiles', function (done) {
         assert.file('project.json');
         assert.fileContent('project.json', '"debugType": "portable"');
-        assert.fileContent('project.json', '"dockerfile.debug"');
-        assert.fileContent('project.json', '"dockerfile.release"');
+        assert.fileContent('project.json', '"Dockerfile.debug"');
+        assert.fileContent('project.json', '"Dockerfile"');
         done();
     });
 

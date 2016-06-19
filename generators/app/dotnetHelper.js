@@ -168,12 +168,12 @@ DotNetHelper.prototype.updateProjectJson = function (cb) {
                 data.publishOptions.include = [ ];
                 changed = true;
             }
-            if (data.publishOptions.include.indexOf('dockerfile.debug') < 0) {
-                data.publishOptions.include.push('dockerfile.debug');
+            if (data.publishOptions.include.indexOf('Dockerfile.debug') < 0) {
+                data.publishOptions.include.push('Dockerfile.debug');
                 changed = true;
             }
-            if (data.publishOptions.include.indexOf('dockerfile.release') < 0) {
-                data.publishOptions.include.push('dockerfile.release');
+            if (data.publishOptions.include.indexOf('Dockerfile') < 0) {
+                data.publishOptions.include.push('Dockerfile');
                 changed = true;
             }
 
