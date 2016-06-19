@@ -11,5 +11,3 @@ services:
       - <%= volumeMap %><% } %><% if (projectType === 'nodejs' || (projectType === 'dotnet' && dotnetVersion === 'RC2')) { %>
     environment:
       - REMOTE_DEBUGGING<% } %><% } %>
-    labels:
-      com.<%= imageName %>.environment: "<%= environment %>"
