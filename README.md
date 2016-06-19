@@ -53,6 +53,14 @@ opt-in or opt-out first time you run the tool. If you opt-in and decide to opt-o
 
 ## Changelog
 ```
+v0.0.32
+=======
++ Changed to always generate bash and PowerShell scripts to enable cross-platform development.
++ Added tasks.json to enable calling the scripts from VS Code.
++ Changed compose file to use the image created by build (introduced a tag to disambiguate debug and release image).
++ Added scaffolding  of a launch.json to support debugging .NET Core and Node apps in a container in VS Code.
++ Removed usage of docker-machine in favor of defautls for Docker for Windows and Docker for Mac
+
 v0.0.31
 =======
 + Added support for ASP.Net Core 5 RC2
