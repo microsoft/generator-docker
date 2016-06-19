@@ -66,7 +66,7 @@ describe('Node.js project file creation', function () {
 
     it('correct dockerfile contents (release)', function (done) {
         assert.noFileContent('Dockerfile', 'nodemon');
-        assert.fileContent('Dockerfile', 'CMD ["node", "./bin/www"]');
+        assert.fileContent('Dockerfile', 'ENTRYPOINT ["npm", "start"]');
         done();
     });
 
