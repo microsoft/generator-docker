@@ -284,6 +284,11 @@ function handleCommmonTemplates(yo, helper, templateData) {
         yo.templatePath('tasks.json'),
         yo.destinationPath('.vscode/tasks.json'),
         templateData);
+
+    yo.fs.copyTpl(
+        yo.templatePath('settings.json'),
+        yo.destinationPath('.vscode/settings.json'),
+        templateData);
 }
 
 /**
