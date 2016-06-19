@@ -1,11 +1,10 @@
-FROM node<% if (environment === 'debug') { %>
-RUN npm install nodemon -g<% } %>
-RUN mkdir /src
-COPY package.json /src
-RUN npm install
-COPY . /src
+FROM node
 WORKDIR /src
-EXPOSE <%= portNumber %><% if (environment === 'debug') { %>
+COPY package.json .
+RUN npm install
+EXPOSE 3000<% if (environment === 'debug') { %>
+RUN npm install nodemon -g
 EXPOSE 5858
 ENTRYPOINT ["/bin/bash", "-c", "if [ -z \"$REMOTE_DEBUGGING\" ]; then nodemon -L --debug; else nodemon -L --debug-brk; fi"]<% } else { %>
-CMD ["node", "./bin/www"]<% } %>
+ENTRYPOINT ["node", "server.js"]<% } %>
+COPY . .

@@ -172,10 +172,6 @@ DotNetHelper.prototype.updateProjectJson = function (cb) {
                 data.publishOptions.include.push('dockerfile.debug');
                 changed = true;
             }
-            if (data.publishOptions.include.indexOf('dockerfile.release') < 0) {
-                data.publishOptions.include.push('dockerfile.release');
-                changed = true;
-            }
 
             if (changed) {
                 self._backupFile(fileName, backupFile, function (err) {
