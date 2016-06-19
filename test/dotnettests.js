@@ -170,7 +170,6 @@ describe('.NET RC1 project file creation', function () {
 
     it('correct compose file contents (debug)', function (done) {
         assert.fileContent('docker-compose.debug.yml', 'image: testimagename:debug');
-        assert.fileContent('docker-compose.debug.yml', 'com.testimagename.environment: "debug"');
         assert.fileContent('docker-compose.debug.yml', '"80:80"');
         assert.noFileContent('docker-compose.debug.yml', '- REMOTE_DEBUGGING');
         done();
@@ -178,7 +177,6 @@ describe('.NET RC1 project file creation', function () {
 
     it('correct compose file contents (release)', function (done) {
         assert.fileContent('docker-compose.yml', 'image: testimagename');
-        assert.fileContent('docker-compose.yml', 'com.testimagename.environment: "release"');
         assert.fileContent('docker-compose.yml', '"80:80"');
         assert.noFileContent('docker-compose.yml', '- REMOTE_DEBUGGING');
         done();
@@ -269,7 +267,6 @@ describe('.NET RC2 project file creation', function () {
 
     it('correct compose file contents (debug)', function (done) {
         assert.fileContent('docker-compose.debug.yml', 'image: testimagename:debug');
-        assert.fileContent('docker-compose.debug.yml', 'com.testimagename.environment: "debug"');
         assert.fileContent('docker-compose.debug.yml', '"80:80"');
         assert.fileContent('docker-compose.debug.yml', '- REMOTE_DEBUGGING');
         done();
@@ -277,7 +274,6 @@ describe('.NET RC2 project file creation', function () {
 
     it('correct compose file contents (release)', function (done) {
         assert.fileContent('docker-compose.yml', 'image: testimagename');
-        assert.fileContent('docker-compose.yml', 'com.testimagename.environment: "release"');
         assert.fileContent('docker-compose.yml', '"80:80"');
         assert.noFileContent('docker-compose.yml', '- REMOTE_DEBUGGING');
         done();
