@@ -7,6 +7,7 @@ var util = require('./utils.js');
 var path = require('path');
 var process = require('process');
 var fs = require('fs');
+var BaseHelper = require('./baseHelper.js');
 
 /**
  * Represents a helper for .NET projects.
@@ -35,6 +36,11 @@ var DotNetHelper = function (baseImageName, portNumber) {
 }
 
 /**
+ * Inherit from BaseHelper
+ */
+DotNetHelper.prototype = Object.create(BaseHelper.prototype);
+
+/**
  * Creates dockerIgnore contents.
  * @returns {string}
  */
@@ -60,28 +66,6 @@ DotNetHelper.prototype.getDockerImageName = function (isDebug) {
  */
 DotNetHelper.prototype.getDotnetVersion = function (isDebug) {
     return this._dotnetVersion;
-}
-
-/**
- * Creates a backup of a file.
- * @param {string} sourceFile - Source file.
- * @param {string} targetFile - Target file.
- */
-DotNetHelper.prototype._backupFile = function (sourceFile, targetFile, cb) {
-    fs.readFile(sourceFile, 'utf8', function (err, data) {
-        if (err) {
-            cb('Error reading file: ' + err);
-            return;
-        }
-        fs.writeFile(targetFile, data, function (err) {
-            if (err) {
-                cb('Error writing file: ' + err);
-                return;
-            }
-            cb(null);
-            return;
-        });
-    });
 }
 
 /**

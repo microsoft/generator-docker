@@ -136,6 +136,11 @@ describe('.NET RC1 project file creation', function () {
         done();
     });
 
+    it('generates settings.json file', function (done) {
+        assert.file('.vscode/settings.json');
+        done();
+    });
+
     it('Correct script file contents (powershell)', function (done) {
         assert.fileContent('dockerTask.ps1', '$isWebProject=$true');
         assert.noFileContent('dockerTask.ps1', 'dotnet publish');
@@ -192,6 +197,11 @@ describe('.NET RC1 project file creation', function () {
         assert.fileContent('project.json', 'Microsoft.AspNet.Server.Kestrel --server.urls http://*:80');
         done();
     });
+
+    it('correct settings.json file contents', function (done) {
+        assert.fileContent('.vscode/settings.json', '"dockerfile.*": "dockerfile"');
+        done();
+    });
 });
 
 describe('.NET RC2 project file creation', function () {
@@ -226,6 +236,11 @@ describe('.NET RC2 project file creation', function () {
 
     it('generates tasks.json file', function (done) {
         assert.file('.vscode/tasks.json');
+        done();
+    });
+
+    it('generates settings.json file', function (done) {
+        assert.file('.vscode/settings.json');
         done();
     });
 
@@ -306,6 +321,11 @@ describe('.NET RC2 project file creation', function () {
     it('update Program.cs and adds UseUrls if it doesn\'t exist', function (done) {
         assert.file('Program.cs');
         assert.fileContent('Program.cs', '.UseUrls("http://*:80")');
+        done();
+    });
+
+    it('correct settings.json file contents', function (done) {
+        assert.fileContent('.vscode/settings.json', '"dockerfile.*": "dockerfile"');
         done();
     });
 });

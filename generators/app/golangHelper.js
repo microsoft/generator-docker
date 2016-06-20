@@ -6,6 +6,7 @@
 var util = require('./utils.js');
 var path = require('path');
 var process = require('process');
+var BaseHelper = require('./baseHelper.js');
 
 /**
  * Represents a helper for Golang projects.
@@ -13,6 +14,11 @@ var process = require('process');
  */
 var GolangHelper = function () {
 }
+
+/**
+ * Inherit from BaseHelper
+ */
+GolangHelper.prototype = Object.create(BaseHelper.prototype);
 
 /**
  * Gets the Docker image name.

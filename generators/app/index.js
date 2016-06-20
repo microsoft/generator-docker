@@ -21,6 +21,7 @@ var uuid = require('node-uuid');
 // General
 var projectType = '';
 var error = false;
+var updateSettingsJsonNoteForUser = null;
 
 // Docker variables
 var portNumber = 3000;
@@ -135,6 +136,9 @@ function showPrompts() {
 function handleNodeJs(yo) {
     var nodeJs = new NodejsHelper();
 
+    var done = yo.async();
+    var updateFiles = function() { done(); }
+
     if (!nodeJs.canShareVolume()) {
         yo.log(chalk.yellow('Warning: Your project has to be under %HOMEDRIVE%\Users folder in order to use Nodemon on Windows in the Debug environment.'));
     }
@@ -154,7 +158,7 @@ function handleNodeJs(yo) {
         yo.destinationPath('.vscode/launch.json'),
         templateData);
 
-    handleCommmonTemplates(yo, nodeJs, templateData);
+    handleCommmonTemplates(yo, nodeJs, templateData, updateFiles.bind(yo));
 }
 
 /**
@@ -162,6 +166,9 @@ function handleNodeJs(yo) {
  */
 function handleGolang(yo) {
     var golang = new GolangHelper();
+
+    var done = yo.async();
+    var updateFiles = function() { done(); }
 
     var templateData = {
             projectType: projectType,
@@ -174,7 +181,7 @@ function handleGolang(yo) {
             volumeMap: null
         };
 
-    handleCommmonTemplates(yo, golang, templateData);
+    handleCommmonTemplates(yo, golang, templateData, updateFiles.bind(yo));
 }
 
 /**
@@ -184,32 +191,34 @@ function handleDotNet(yo) {
     var dotNet = new DotNetHelper(baseImageName, portNumber);
 
     var done = yo.async();
-    dotNet.updateProjectJson(function (err, projectJsonNote) {
-        if (err) {
-            error = true;
-            yo.log.error(err);
-            done();
-            return;
-        }
-        updateProjectJsonNoteForUser = projectJsonNote;
-
-        if (dotNet.getDotnetVersion() == 'RC2') {
-            dotNet.updateProgramCS(function (err, programCSNode) {
-                if (err) {
-                    error = true;
-                    yo.log.error(err);
-                    done();
-                    return;
-                }
-                updateProgramCSNoteForUser = programCSNode;
+    var updateFiles = function() {
+        dotNet.updateProjectJson(function (err, projectJsonNote) {
+            if (err) {
+                error = true;
+                yo.log.error(err);
                 done();
                 return;
-            });
-        } else {
-            done();
-        }
-        return;
-    }.bind(yo));
+            }
+            updateProjectJsonNoteForUser = projectJsonNote;
+
+            if (dotNet.getDotnetVersion() == 'RC2') {
+                dotNet.updateProgramCS(function (err, programCSNode) {
+                    if (err) {
+                        error = true;
+                        yo.log.error(err);
+                        done();
+                        return;
+                    }
+                    updateProgramCSNoteForUser = programCSNode;
+                    done();
+                    return;
+                });
+            } else {
+                done();
+            }
+            return;
+        });
+    };
 
     var templateData = {
             projectType: projectType,
@@ -235,14 +244,13 @@ function handleDotNet(yo) {
         yo.destinationPath('.vscode/launch.json'),
         templateData);
 
-    handleCommmonTemplates(yo, dotNet, templateData);
+    handleCommmonTemplates(yo, dotNet, templateData, updateFiles.bind(yo));
 }
-
 
 /**
  * Handles the common template files
  */
-function handleCommmonTemplates(yo, helper, templateData) {
+function handleCommmonTemplates(yo, helper, templateData, cb) {
     var debugTemplateData = Object.create(templateData, {
             environment: {value: 'debug'}
         });
@@ -285,10 +293,18 @@ function handleCommmonTemplates(yo, helper, templateData) {
         yo.destinationPath('.vscode/tasks.json'),
         templateData);
 
-    yo.fs.copyTpl(
-        yo.templatePath('settings.json'),
-        yo.destinationPath('.vscode/settings.json'),
-        templateData);
+    helper.updateSettingsJson(function (err, updateSettingsJsonNote) {
+        if (err) {
+            error = true;
+            yo.log.error(err);
+            cb();
+            return;
+        }
+
+        updateSettingsJsonNoteForUser = updateSettingsJsonNote;
+        cb();
+        return;
+    });
 }
 
 /**

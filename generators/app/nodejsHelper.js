@@ -6,6 +6,7 @@
 var util = require('./utils.js');
 var path = require('path');
 var process = require('process');
+var BaseHelper = require('./baseHelper.js');
 
 /**
  * Represents a helper for Node.js projects.
@@ -13,6 +14,11 @@ var process = require('process');
  */
 var NodejsHelper = function () {
 }
+
+/**
+ * Inherit from BaseHelper
+ */
+NodejsHelper.prototype = Object.create(BaseHelper.prototype);
 
 /**
  * Gets the template docker-compose file name.
