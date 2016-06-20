@@ -41,6 +41,11 @@ describe('Golang project file creation (non Web project)', function () {
         done();
     });
 
+    it('generates settings.json file', function (done) {
+        assert.file('.vscode/settings.json');
+        done();
+    });
+
     it('Correct script file contents (powershell)', function (done) {
         assert.fileContent('dockerTask.ps1', '$isWebProject=$false');
         assert.noFileContent('dockerTask.ps1', 'dotnet publish');
@@ -86,6 +91,11 @@ describe('Golang project file creation (non Web project)', function () {
         assert.noFileContent('docker-compose.yml', '- REMOTE_DEBUGGING');
         done();
     });
+
+    it('correct settings.json file contents', function (done) {
+        assert.fileContent('.vscode/settings.json', '"dockerfile.*": "dockerfile"');
+        done();
+    });
 });
 
 describe('Golang project file creation (Web project)', function () {
@@ -117,6 +127,11 @@ describe('Golang project file creation (Web project)', function () {
 
     it('generates tasks.json file', function (done) {
         assert.file('.vscode/tasks.json');
+        done();
+    });
+
+    it('generates settings.json file', function (done) {
+        assert.file('.vscode/settings.json');
         done();
     });
 
@@ -163,6 +178,11 @@ describe('Golang project file creation (Web project)', function () {
         assert.fileContent('docker-compose.yml', 'image: testimagename');
         assert.fileContent('docker-compose.yml', '"3000:3000"');
         assert.noFileContent('docker-compose.yml', '- REMOTE_DEBUGGING');
+        done();
+    });
+
+    it('correct settings.json file contents', function (done) {
+        assert.fileContent('.vscode/settings.json', '"dockerfile.*": "dockerfile"');
         done();
     });
 });

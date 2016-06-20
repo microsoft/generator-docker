@@ -41,6 +41,11 @@ describe('Node.js project file creation', function () {
         done();
     });
 
+    it('generates settings.json file', function (done) {
+        assert.file('.vscode/settings.json');
+        done();
+    });
+
     it('Correct script file contents (powershell)', function (done) {
         assert.fileContent('dockerTask.ps1', '$isWebProject=$true');
         assert.noFileContent('dockerTask.ps1', 'dotnet publish');
@@ -83,6 +88,11 @@ describe('Node.js project file creation', function () {
         assert.noFileContent('docker-compose.yml', '.:/src');
         assert.fileContent('docker-compose.yml', '"3000:3000"');
         assert.noFileContent('docker-compose.yml', '- REMOTE_DEBUGGING');
+        done();
+    });
+
+    it('correct settings.json file contents', function (done) {
+        assert.fileContent('.vscode/settings.json', '"dockerfile.*": "dockerfile"');
         done();
     });
 });
