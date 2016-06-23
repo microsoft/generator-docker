@@ -1,5 +1,5 @@
 imageName="<%= imageName %>"
-projectName="<%= composeProjectName %>"<% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
+projectName="<%= composeProjectName %>"<% if (includeStartDebugging) { %>
 serviceName="<%= serviceName %>"
 containerName="<%= '${projectName}_${serviceName}' %>_1"<% } %>
 publicPort=<%= portNumber %>
@@ -60,7 +60,7 @@ compose () {
     docker-compose -f $composeFileName -p $projectName kill
     docker-compose -f $composeFileName -p $projectName up -d
   fi
-}<% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
+}<% if (includeStartDebugging) { %>
 
 startDebugging () {
     echo "Running on $url"
@@ -93,8 +93,8 @@ showUsage () {
     echo "Commands:"
     echo "    build: Builds a Docker image ('$imageName')."
     echo "    compose: Runs docker-compose."
-    echo "    clean: Removes the image '$imageName' and kills all containers based on that image."<% if (projectType === 'nodejs' || (projectType === 'dotnet' && dotnetVersion === 'RC2')) { %>
-    echo "    composeForDebug: Builds the image and runs docker-compose."<% } %><% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
+    echo "    clean: Removes the image '$imageName' and kills all containers based on that image."<% if (includeComposeForDebug) { %>
+    echo "    composeForDebug: Builds the image and runs docker-compose."<% } %><% if (includeStartDebugging) { %>
     echo "    startDebugging: Finds the running container and starts the debugger inside of it."<% } %>
     echo ""
     echo "Environments:"
@@ -118,13 +118,13 @@ else
              if [[ $isWebProject = true ]]; then
                openSite
              fi
-             ;;<% if (projectType === 'nodejs' || (projectType === 'dotnet' && dotnetVersion === 'RC2')) { %>
+             ;;<% if (includeComposeForDebug) { %>
       "composeForDebug")
              ENVIRONMENT=$2
              export REMOTE_DEBUGGING=1
              buildImage
              compose
-             ;;<% } %><% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
+             ;;<% } %><% if (includeStartDebugging) { %>
       "startDebugging")
              startDebugging
              ;;<% } %>

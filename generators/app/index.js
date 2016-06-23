@@ -131,6 +131,24 @@ function showPrompts() {
 }
 
 /**
+ * Create a default template data object
+ */
+function getDefaultTemplateData() {
+    return {
+        projectType: projectType,
+        composeProjectName: composeProjectName,
+        imageName: imageName,
+        serviceName: serviceName,
+        portNumber: portNumber,
+        debugPortNumber: null,
+        isWebProject: true,
+        volumeMap: null,
+        includeComposeForDebug: false,
+        includeStartDebugging: false
+    }
+}
+
+/**
  * Handles Node.js option.
  */
 function handleNodeJs(yo) {
@@ -143,15 +161,10 @@ function handleNodeJs(yo) {
         yo.log(chalk.yellow('Warning: Your project has to be under %HOMEDRIVE%\Users folder in order to use Nodemon on Windows in the Debug environment.'));
     }
 
-    var templateData = {
-            projectType: projectType,
-            composeProjectName: composeProjectName,
-            imageName: imageName,
-            serviceName: serviceName,
-            portNumber: portNumber,
-            isWebProject: true,
-            volumeMap: '.:/src'
-        };
+    var templateData = getDefaultTemplateData();
+    templateData.volumeMap = '.:/src';
+    templateData.includeComposeForDebug = true;
+    templateData.debugPortNumber = "5858";
 
     yo.fs.copyTpl(
         yo.templatePath('node/launch.json'),
@@ -170,16 +183,9 @@ function handleGolang(yo) {
     var done = yo.async();
     var updateFiles = function() { done(); }
 
-    var templateData = {
-            projectType: projectType,
-            composeProjectName: composeProjectName,
-            imageName: imageName,
-            serviceName: serviceName,
-            projectName: golang.getProjectName(),
-            portNumber: portNumber,
-            isWebProject: isGoWeb,
-            volumeMap: null
-        };
+    var templateData = getDefaultTemplateData();
+    templateData.isWebProject = isGoWeb;
+    templateData.projectName = golang.getProjectName();
 
     handleCommmonTemplates(yo, golang, templateData, updateFiles.bind(yo));
 }
@@ -191,6 +197,7 @@ function handleDotNet(yo) {
     var dotNet = new DotNetHelper(baseImageName, portNumber);
 
     var done = yo.async();
+    var dotnetVersion = dotNet.getDotnetVersion();
     var updateFiles = function() {
         dotNet.updateProjectJson(function (err, projectJsonNote) {
             if (err) {
@@ -220,24 +227,18 @@ function handleDotNet(yo) {
         });
     };
 
-    var templateData = {
-            projectType: projectType,
-            composeProjectName: composeProjectName,
-            outputName: process.cwd().split(path.sep).pop() + '.dll',
-            dotnetVersion: dotNet.getDotnetVersion(),
-            debugBaseImageName: dotNet.getDockerImageName(true),
-            releaseBaseImageName: dotNet.getDockerImageName(false),
-            imageName: imageName,
-            serviceName: serviceName,
-            portNumber: portNumber,
-            isWebProject: true,
-            volumeMap: null
-        };
+    var templateData = getDefaultTemplateData();
+    templateData.outputName = process.cwd().split(path.sep).pop() + '.dll';
+    templateData.dotnetVersion = dotnetVersion;
+    templateData.debugBaseImageName = dotNet.getDockerImageName(true);
+    templateData.releaseBaseImageName = dotNet.getDockerImageName(false);
+    templateData.includeComposeForDebug = dotnetVersion == 'RC2';
+    templateData.includeStartDebugging = dotnetVersion == 'RC2';
 
-        if (dotNet.getDotnetVersion() == 'RC2') {
-            var dockerignoreFileContents = dotNet.createDockerignoreFile();
-            yo.fs.write(yo.destinationPath(DOCKERIGNORE_NAME), new Buffer(dockerignoreFileContents));
-        }
+    if (dotnetVersion == 'RC2') {
+        var dockerignoreFileContents = dotNet.createDockerignoreFile();
+        yo.fs.write(yo.destinationPath(DOCKERIGNORE_NAME), new Buffer(dockerignoreFileContents));
+    }
 
     yo.fs.copyTpl(
         yo.templatePath('dotnet/launch.json'),
