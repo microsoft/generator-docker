@@ -33,9 +33,9 @@ Once yo docker and VS Code are installed, here's the few steps to debug your fir
 ```bash
 $ yo docker
 ```
-- Answer the prompts, inclulding your image name
+- Answer the prompts, including your image name
 - Open the file you wish to debug and set a breakpoint
-- From VS Code, **[Command]** + **[P]** for the command palete
+- From VS Code, **[Command]** + **[P]** for the command palate
 - Enter: `task composeForDebug` This will compose your containers using the dockerTask.sh script
 - **[F5]** to start the node debugger within the container
 - As we use `nodemon -L --debug-brk`, you'll see the first line of server.js hit a breakpoint, so that you can debug the starting process of your app
@@ -45,7 +45,7 @@ $ yo docker
 ```bash
 $ yo docker
 ```
-- Answer the prompts, inclulding your image name
+- Answer the prompts, including your image name
 - Open the file you wish to debug and set a breakpoint
 - **[F5]** to start the .NET Core debugger within the container
 
@@ -67,7 +67,7 @@ However, we really need your feedback, so please help us help you by opting in.
 + Added integrated debugging using **[F5]** for both Node.js and .NET Core. 
 + Changed to always generate bash and PowerShell scripts to enable cross-platform development.
 + Changed compose file to use the image created by build (introduced a tag to disambiguate debug and release image).
-+ Removed usage of docker-machine in favor of defautls for Docker for Windows and Docker for Mac
++ Removed usage of docker-machine in favor of defaults for Docker for Windows and Docker for Mac
 
 ###v0.0.31
 + Added support for ASP.Net Core 5 RC2
