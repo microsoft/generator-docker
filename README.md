@@ -6,8 +6,8 @@
 
 This generator creates a Dockerfile and scripts (`dockerTask.sh` and `dockerTask.ps1`) that helps you build and run your project inside of a Docker container. The following project types are currently supported:
 - .NET Core
-- Go
 - Node.js
+- Go
 
 ### Quick demo
 ![nodejs-demo](images/nodejsdemo.gif)
