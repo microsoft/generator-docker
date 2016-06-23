@@ -26,20 +26,31 @@ Install the Docker generator:
 npm install -g generator-docker
 ```
 
-Run the generator in the same folder that your project is in:
+## Getting Started
+Once yo docker and VS Code are installed, here's the few steps to debug your first app
+### Node.js
+- From the root of your project, where your server.js file existts, open a terminal window
 ```bash
-yo docker
+$ yo docker
 ```
+- Answer the prompts, inclulding your image name
+- Open the file you wish to debug and set a breakpoint
+- From VS Code, **[Command]** + **[P]** for the command palete
+- Enter: `task composeForDebug` This will compose your containers using the dockerTask.sh script
+- **[F5]** to start the node debugger within the container
+- As we use `nodemon -L --debug-brk`, you'll see the first line of server.js hit a breakpoint, so that you can debug the starting process of your app
+
+### DotNet Core
+- From the root of your project, where your server.js file existts, open a terminal window
+```bash
+$ yo docker
+```
+- Answer the prompts, inclulding your image name
+- Open the file you wish to debug and set a breakpoint
+- **[F5]** to start the .NET Core debugger within the container
 
 ## Contributing
 See [Contributing][contributingLink] for guidelines.
-
-## Multi-Environment and Multi-Container Compose Support - Prototype
-We are working on adding docker-compose support that will support multiple containers and multiple environments.
-`dockerTask compose dev` will issue a docker-compose up with the merged docker-compose files
-`dockerTask compose staging` will remove the volume mapping and other debug settings
-
-To see and provide feedback, please take a look at: [yo docker compose prototype][yodockerprototype]
 
 ## Q&A
 - **Q: Are you building an abstraction layer over docker apis?**
@@ -48,17 +59,16 @@ To see and provide feedback, please take a look at: [yo docker compose prototype
   - **A:** Of course. Please open an issue at [yodockerissues] or choose to [contribute][contributingLink]
 
 ## Collecting usage data
-Generator-docker collects anonymized data on the options you selected in the tool to understand and improve the experience. You are given a choice to
-opt-in or opt-out first time you run the tool. If you opt-in and decide to opt-out later, simply delete the `~/.config/configstore/generator-docker.json` file from your machine.
+Generator-docker collects anonymized data on the options you selected in the tool to understand and improve the experience. You are given a choice to opt-in or opt-out first time you run the tool. If you opt-in and decide to opt-out later, simply delete the `~/.config/configstore/generator-docker.json` file from your machine.
+However, we really need your feedback, so please help us help you by opting in.
 
 ## Changelog
 ```
 v0.0.32
 =======
++ Added integrated debugging using **[F5]** for both Node.js and .NET Core. 
 + Changed to always generate bash and PowerShell scripts to enable cross-platform development.
-+ Added tasks.json to enable calling the scripts from VS Code.
 + Changed compose file to use the image created by build (introduced a tag to disambiguate debug and release image).
-+ Added scaffolding  of a launch.json to support debugging .NET Core and Node apps in a container in VS Code.
 + Removed usage of docker-machine in favor of defautls for Docker for Windows and Docker for Mac
 
 v0.0.31
