@@ -29,13 +29,13 @@ npm install -g generator-docker
 ## Getting Started
 Once yo docker and VS Code are installed, here's the few steps to debug your first app
 ### Node.js
-- From the root of your project, where your server.js file existts, open a terminal window
+- From the root of your project, where your server.js file exists, open a bash or powershell window
 ```bash
-$ yo docker
+yo docker
 ```
 - Answer the prompts, including your image name
 - Open the file you wish to debug and set a breakpoint
-- From VS Code, **[Command]** + **[P]** for the command palate
+- From VS Code, **[Command]** + **[P]** for the command palette
 - Enter: `task composeForDebug` This will compose your containers using the dockerTask.sh script
 - **[F5]** to start the node debugger within the container
 - As we use `nodemon -L --debug-brk`, you'll see the first line of server.js hit a breakpoint, so that you can debug the starting process of your app
@@ -43,7 +43,7 @@ $ yo docker
 ### DotNet Core
 - From the root of your project, where your server.js file existts, open a terminal window
 ```bash
-$ yo docker
+yo docker
 ```
 - Answer the prompts, including your image name
 - Open the file you wish to debug and set a breakpoint
