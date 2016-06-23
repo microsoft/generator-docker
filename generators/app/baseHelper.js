@@ -82,7 +82,11 @@ BaseHelper.prototype.updateSettingsJson = function (cb) {
                 return;
             } else {
                 writeFile(data, cb);
+                return;
             }
+        } else {
+            cb(null);
+            return;
         }
     };
 
