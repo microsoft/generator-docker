@@ -228,8 +228,6 @@ function handleDotNet(yo) {
     };
 
     var templateData = getDefaultTemplateData();
-    templateData.volumeMap = '.:/src';
-    templateData.includeComposeForDebug = true;
     templateData.outputName = process.cwd().split(path.sep).pop() + '.dll';
     templateData.dotnetVersion = dotnetVersion;
     templateData.debugBaseImageName = dotNet.getDockerImageName(true);
