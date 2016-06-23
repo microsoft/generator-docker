@@ -38,10 +38,10 @@ yo docker
 - From VS Code, open the command palette (Mac: **[⌘]** + **[P]**, Windows: **[CTRL]** + **[P]**)
 - Enter: `task composeForDebug` This will compose your containers using the dockerTask.sh script
 - **[F5]** to start the node debugger within the container
-- As we use `nodemon -L --debug-brk`, you'll see the first line of server.js hit a breakpoint, so that you can debug the starting process of your app
+- As we use `nodemon -L --debug-brk`, the debugger will break on the first line of your main file, so that you can debug the initialization of your app
 
 ### DotNet Core
-- From the root of your project, where your server.js file existts, open a terminal window
+- From the root of your project open a bash or powershell window
 ```bash
 yo docker
 ```
