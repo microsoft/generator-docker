@@ -35,7 +35,7 @@ yo docker
 ```
 - Answer the prompts, including your image name
 - Open the file you wish to debug and set a breakpoint
-- From VS Code, **[Command]** + **[P]** for the command palette
+- From VS Code, open the command palette (Mac: **[⌘]** + **[P]**, Windows: **[CTRL]** + **[P]**)
 - Enter: `task composeForDebug` This will compose your containers using the dockerTask.sh script
 - **[F5]** to start the node debugger within the container
 - As we use `nodemon -L --debug-brk`, you'll see the first line of server.js hit a breakpoint, so that you can debug the starting process of your app
@@ -50,7 +50,7 @@ yo docker
 - **[F5]** to start the .NET Core debugger within the container
 
 ## Contributing
-See [Contributing][contributingLink] for guidelines.
+See [Contributing][contributingLink] for guidelines
 
 ## Q&A
 - **Q: Are you building an abstraction layer over docker apis?**
@@ -67,14 +67,14 @@ However, we really need your feedback, so please help us help you by opting in.
 + Added integrated debugging using **[F5]** for both Node.js and .NET Core. 
 + Changed to always generate bash and PowerShell scripts to enable cross-platform development.
 + Changed compose file to use the image created by build (introduced a tag to disambiguate debug and release image).
-+ Removed usage of docker-machine in favor of defaults for Docker for Windows and Docker for Mac
++ Removed usage of docker-machine in favor of defaults for Docker for Windows and Docker for Mac.
 
 ###v0.0.31
-+ Added support for ASP.Net Core 5 RC2
-+ BigFix: Optimized the creation of the node image to take advantage of caching
++ Added support for ASP.Net Core 5 RC2.
++ BigFix: Optimized the creation of the node image to take advantage of caching.
 
 ###v0.0.29
-+ Fix for issue #34 (Update ASP.NET dockerfile and add support for RC)
++ Fix for issue #34 (Update ASP.NET dockerfile and add support for RC).
 
 ###v0.0.27
 + Replaced .CMD file with PowerShell script.
