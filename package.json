@@ -1,6 +1,6 @@
 {
   "name": "generator-docker",
-  "version": "0.0.32",
+  "version": "0.0.33",
   "description": "Docker generator",
   "files": [
     "generators/app"

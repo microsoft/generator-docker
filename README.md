@@ -54,15 +54,18 @@ See [Contributing][contributingLink] for guidelines
 
 ## Q&A
 - **Q: Are you building an abstraction layer over docker apis?**
-  - **A:** No. These are your scripts. We're simply providing a starting point that docker developers would write themselves. These scripts are based on customers we've been working with
+  - **A:** No. These are your scripts. We're simply providing a starting point that docker developers would write themselves. These scripts are based on customers we've been working with.
 - **Q: Are you taking feedback?**
-  - **A:** Of course. Please open an issue at [yodockerissues] or choose to [contribute][contributingLink]
+  - **A:** Of course. Please open an issue at [yodockerissues] or choose to [contribute][contributingLink].
 
 ## Collecting usage data
 Generator-docker collects anonymized data on the options you selected in the tool to understand and improve the experience. You are given a choice to opt-in or opt-out first time you run the tool. If you opt-in and decide to opt-out later, simply delete the `~/.config/configstore/generator-docker.json` file from your machine.
 However, we really need your feedback, so please help us help you by opting in.
 
 ## Version History
+###v0.0.33
++ Added support for .Net Core RTM.
+
 ###v0.0.32
 + Added integrated debugging using **[F5]** for both Node.js and .NET Core. 
 + Changed to always generate bash and PowerShell scripts to enable cross-platform development.
