@@ -326,7 +326,6 @@ describe('.NET RTM project file creation', function () {
     });
 });
 
-
 describe('.NET RC2 project file creation', function () {
     before(function (done) {
         helpers.run(path.join( __dirname, '../generators/app'))
