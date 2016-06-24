@@ -320,12 +320,6 @@ describe('.NET RTM project file creation', function () {
         done();
     });
 
-    it('update Program.cs and adds UseUrls if it doesn\'t exist', function (done) {
-        assert.file('Program.cs');
-        assert.fileContent('Program.cs', '.UseUrls("http://*:80")');
-        done();
-    });
-
     it('correct settings.json file contents', function (done) {
         assert.fileContent('.vscode/settings.json', '"dockerfile.*": "dockerfile"');
         done();
@@ -490,31 +484,6 @@ describe('.NET RC2 project file creation when UseUrls exists', function () {
         .withLocalConfig(function() {
             return { "appInsightsOptIn": false, "runningTests": true }; })
         .withPrompts({ projectType: 'dotnet', baseImageName: 'dotnet:1.0.0-preview1' })
-        .on('end', done);
-    });
-
-    it('Program.cs.backup is not created', function (done) {
-        assert.noFile('Program.cs.backup');
-        done();
-    });
-
-    it('Program.cs not modified', function (done) {
-        assert.noFileContent('Program.cs', '.UseUrls("http://*:80")');
-        done();
-    });
-});
-
-describe('.NET RTM project file creation when UseUrls exists', function () {
-    before(function (done) {
-        helpers.run(path.join(__dirname, '../generators/app'))
-        .inTmpDir(function (dir) {
-            createTestProjectJson(dir);
-            createTestProgramCSWithUseUrls(dir);
-        })
-        .withLocalConfig(function () {
-            return { "appInsightsOptIn": false, "runningTests": true };
-        })
-        .withPrompts({ projectType: 'dotnet', baseImageName: 'dotnet:1.0.0-preview2-sdk' })
         .on('end', done);
     });
 
