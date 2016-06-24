@@ -28,9 +28,13 @@ var DotNetHelper = function (baseImageName, portNumber) {
             this._templateFolder = 'dotnet';
             this._dotnetVersion = 'RC2';
             break;
+        case 'dotnet:1.0.0-preview2-sdk':
+            this._templateFolder = 'dotnet';
+            this._dotnetVersion = 'RTM';
+            break;
         default:
             this._templateFolder = 'dotnet';
-            this._dotnetVersion = 'RC2';
+            this._dotnetVersion = 'RTM';
             break;
     }
 }
@@ -55,13 +59,16 @@ DotNetHelper.prototype.createDockerignoreFile = function () {
 DotNetHelper.prototype.getDockerImageName = function (isDebug) {
     if (this._dotnetVersion === 'RC2' && !isDebug ) {
         return 'microsoft/dotnet:1.0.0-rc2-core';
+    }
+    if (this._dotnetVersion === 'RTM' && !isDebug) {
+        return 'microsoft/dotnet:1.0.0-core';
     } else {
         return 'microsoft/' + this._baseImageName;
     }
 }
 
 /**
- * Gets the Dotnet version (RC1 or RC2).
+ * Gets the Dotnet version (RC1, RC2 or RTM).
  * @returns {string}
  */
 DotNetHelper.prototype.getDotnetVersion = function (isDebug) {
@@ -111,7 +118,7 @@ DotNetHelper.prototype.updateProgramCS = function (cb) {
 
 /**
  * RC1: Checks if  'web' command is in the  project.json and adds it if command is not there yet.
- * RC2: Ensures buildOptions is using debugType portable and publishOptions includes the dockerfiles
+ * RC2 or RTM: Ensures buildOptions is using debugType portable and publishOptions includes the dockerfiles
  * @returns {string}
  */
 DotNetHelper.prototype.updateProjectJson = function (cb) {
@@ -134,7 +141,7 @@ DotNetHelper.prototype.updateProjectJson = function (cb) {
 
         data = JSON.parse(data);
 
-        if (dotnetVersion === 'RC2' ) {
+        if (dotnetVersion === 'RC2' || dotnetVersion === 'RTM') {
             var changed = false;
             if (!data.buildOptions) {
                 data.buildOptions = { };

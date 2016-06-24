@@ -204,6 +204,135 @@ describe('.NET RC1 project file creation', function () {
     });
 });
 
+describe('.NET RTM project file creation', function () {
+    before(function (done) {
+        helpers.run(path.join(__dirname, '../generators/app'))
+        .inTmpDir(function (dir) {
+            createTestProjectJson(dir);
+            createTestProgramCS(dir);
+        })
+        .withLocalConfig(function () {
+            return { "appInsightsOptIn": false, "runningTests": true };
+        })
+        .withPrompts({ projectType: 'dotnet', baseImageName: 'dotnet:1.0.0-preview2-sdk', imageName: 'testimagename' })
+        .on('end', done);
+    });
+
+    it('generates dockerfiles', function (done) {
+        assert.file('Dockerfile.debug');
+        assert.file('Dockerfile');
+        done();
+    });
+
+    it('generates compose files', function (done) {
+        assert.file('docker-compose.debug.yml');
+        assert.file('docker-compose.yml');
+        done();
+    });
+
+    it('generates dockertask file', function (done) {
+        assert.file('dockerTask.ps1');
+        assert.file('dockerTask.sh');
+        done();
+    });
+
+    it('generates tasks.json file', function (done) {
+        assert.file('.vscode/tasks.json');
+        done();
+    });
+
+    it('generates settings.json file', function (done) {
+        assert.file('.vscode/settings.json');
+        done();
+    });
+
+    it('Correct script file contents (powershell)', function (done) {
+        assert.fileContent('dockerTask.ps1', '$isWebProject=$true');
+        assert.fileContent('dockerTask.ps1', 'dotnet publish');
+        assert.fileContent('dockerTask.ps1', 'ComposeForDebug');
+        assert.fileContent('dockerTask.ps1', 'StartDebugging');
+        done();
+    });
+
+    it('Correct script file contents (bash)', function (done) {
+        assert.fileContent('dockerTask.sh', 'isWebProject=true');
+        assert.fileContent('dockerTask.sh', 'dotnet publish');
+        assert.fileContent('dockerTask.sh', 'composeForDebug');
+        assert.fileContent('dockerTask.sh', 'startDebugging');
+        done();
+    });
+
+    it('correct dockerfile contents (debug)', function (done) {
+        assert.fileContent('Dockerfile.debug', 'FROM microsoft/dotnet:1.0.0-preview2-sdk');
+        assert.fileContent('Dockerfile.debug', 'COPY . /app');
+        assert.noFileContent('Dockerfile.debug', 'RUN ["dotnet", "restore"]');
+        assert.noFileContent('Dockerfile.debug', 'RUN ["dotnet", "build", "-c", "debug"]');
+        assert.fileContent('Dockerfile.debug', 'EXPOSE 80');
+        assert.fileContent('Dockerfile.debug', 'ENTRYPOINT ["/bin/bash", "-c", "if [ -z \\"$REMOTE_DEBUGGING\\" ]; then dotnet ' + process.cwd().split(path.sep).pop() + '.dll; else sleep infinity; fi"]');
+        done();
+    });
+
+    it('correct dockerfile contents (release)', function (done) {
+        assert.fileContent('Dockerfile', 'FROM microsoft/dotnet:1.0.0-core');
+        assert.fileContent('Dockerfile', 'COPY . /app');
+        assert.noFileContent('Dockerfile', 'RUN ["dotnet", "restore"]');
+        assert.noFileContent('Dockerfile', 'RUN ["dotnet", "build", "-c", "release"]');
+        assert.fileContent('Dockerfile', 'EXPOSE 80');
+        assert.fileContent('Dockerfile', 'ENTRYPOINT ["dotnet", "' + process.cwd().split(path.sep).pop() + '.dll"]');
+        done();
+    });
+
+    it('correct compose file contents (debug)', function (done) {
+        assert.fileContent('docker-compose.debug.yml', 'image: testimagename:debug');
+        assert.fileContent('docker-compose.debug.yml', '"80:80"');
+        assert.fileContent('docker-compose.debug.yml', '- REMOTE_DEBUGGING');
+        done();
+    });
+
+    it('correct compose file contents (release)', function (done) {
+        assert.fileContent('docker-compose.yml', 'image: testimagename');
+        assert.fileContent('docker-compose.yml', '"80:80"');
+        assert.noFileContent('docker-compose.yml', '- REMOTE_DEBUGGING');
+        done();
+    });
+
+    it('generates project.json.backup file', function (done) {
+        assert.file('project.json.backup');
+        done();
+    });
+
+    it('doesn\'t update project.json to add the web command if it doesn\'t exist', function (done) {
+        assert.file('project.json');
+        assert.noFileContent('project.json', 'Microsoft.AspNet.Server.Kestrel --server.urls http://*:80');
+        done();
+    });
+
+    it('Update project.json to add portable pdbs and publishing dockerfiles', function (done) {
+        assert.file('project.json');
+        assert.fileContent('project.json', '"debugType": "portable"');
+        assert.fileContent('project.json', '"Dockerfile.debug"');
+        assert.fileContent('project.json', '"Dockerfile"');
+        done();
+    });
+
+    it('generates Program.cs.backup file', function (done) {
+        assert.file('Program.cs.backup');
+        done();
+    });
+
+    it('update Program.cs and adds UseUrls if it doesn\'t exist', function (done) {
+        assert.file('Program.cs');
+        assert.fileContent('Program.cs', '.UseUrls("http://*:80")');
+        done();
+    });
+
+    it('correct settings.json file contents', function (done) {
+        assert.fileContent('.vscode/settings.json', '"dockerfile.*": "dockerfile"');
+        done();
+    });
+});
+
+
 describe('.NET RC2 project file creation', function () {
     before(function (done) {
         helpers.run(path.join( __dirname, '../generators/app'))
@@ -361,6 +490,31 @@ describe('.NET RC2 project file creation when UseUrls exists', function () {
         .withLocalConfig(function() {
             return { "appInsightsOptIn": false, "runningTests": true }; })
         .withPrompts({ projectType: 'dotnet', baseImageName: 'dotnet:1.0.0-preview1' })
+        .on('end', done);
+    });
+
+    it('Program.cs.backup is not created', function (done) {
+        assert.noFile('Program.cs.backup');
+        done();
+    });
+
+    it('Program.cs not modified', function (done) {
+        assert.noFileContent('Program.cs', '.UseUrls("http://*:80")');
+        done();
+    });
+});
+
+describe('.NET RTM project file creation when UseUrls exists', function () {
+    before(function (done) {
+        helpers.run(path.join(__dirname, '../generators/app'))
+        .inTmpDir(function (dir) {
+            createTestProjectJson(dir);
+            createTestProgramCSWithUseUrls(dir);
+        })
+        .withLocalConfig(function () {
+            return { "appInsightsOptIn": false, "runningTests": true };
+        })
+        .withPrompts({ projectType: 'dotnet', baseImageName: 'dotnet:1.0.0-preview2-sdk' })
         .on('end', done);
     });
 

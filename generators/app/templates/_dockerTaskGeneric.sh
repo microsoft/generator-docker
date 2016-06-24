@@ -4,7 +4,7 @@ serviceName="<%= serviceName %>"
 containerName="<%= '${projectName}_${serviceName}' %>_1"<% } %>
 publicPort=<%= portNumber %>
 isWebProject=<%= isWebProject %>
-url="http://localhost:$publicPort"<% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
+url="http://localhost:$publicPort"<% if (projectType === 'dotnet' && (dotnetVersion === 'RC2' || dotnetVersion === 'RTM')) { %>
 runtimeID="debian.8-x64"
 framework="netcoreapp1.0"<% } %>
 
@@ -30,7 +30,7 @@ buildImage () {
 
     if [[ ! -f $dockerFileName ]]; then
       echo "$ENVIRONMENT is not a valid parameter. File '$dockerFileName' does not exist."
-    else<% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
+    else<% if (projectType === 'dotnet' && (dotnetVersion === 'RC2' || dotnetVersion === 'RTM')) { %>
       echo "Building the project ($ENVIRONMENT)."
       pubFolder="bin/$ENVIRONMENT/$framework/publish"
       dotnet publish -f $framework -r $runtimeID -c $ENVIRONMENT -o $pubFolder

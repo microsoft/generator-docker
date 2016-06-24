@@ -74,6 +74,9 @@ function showPrompts() {
             name: 'baseImageName',
             message: 'Which version of .NET Core is your project using?',
             choices: [{
+                name: 'rtm',
+                value: 'dotnet:1.0.0-preview2-sdk'
+            }, {
                 name: 'rc2',
                 value: 'dotnet:1.0.0-preview1'
             }, {
@@ -208,7 +211,7 @@ function handleDotNet(yo) {
             }
             updateProjectJsonNoteForUser = projectJsonNote;
 
-            if (dotNet.getDotnetVersion() == 'RC2') {
+            if (dotNet.getDotnetVersion() == 'RC2' || dotNet.getDotnetVersion() == 'RTM') {
                 dotNet.updateProgramCS(function (err, programCSNode) {
                     if (err) {
                         error = true;
@@ -232,10 +235,10 @@ function handleDotNet(yo) {
     templateData.dotnetVersion = dotnetVersion;
     templateData.debugBaseImageName = dotNet.getDockerImageName(true);
     templateData.releaseBaseImageName = dotNet.getDockerImageName(false);
-    templateData.includeComposeForDebug = dotnetVersion == 'RC2';
-    templateData.includeStartDebugging = dotnetVersion == 'RC2';
+    templateData.includeComposeForDebug = (dotnetVersion == 'RC2' || dotnetVersion == 'RTM');
+    templateData.includeStartDebugging = (dotnetVersion == 'RC2' || dotnetVersion == 'RTM');
 
-    if (dotnetVersion == 'RC2') {
+    if (dotnetVersion == 'RC2' || dotnetVersion == 'RTM') {
         var dockerignoreFileContents = dotNet.createDockerignoreFile();
         yo.fs.write(yo.destinationPath(DOCKERIGNORE_NAME), new Buffer(dockerignoreFileContents));
     }
