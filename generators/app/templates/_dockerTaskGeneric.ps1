@@ -42,7 +42,7 @@ $serviceName="<%= serviceName %>"
 $containerName="<%= '${projectName}_${serviceName}' %>_1"<% } %>
 $publicPort=<%= portNumber %>
 $isWebProject=$<%= isWebProject %>
-$url="http://docker:$publicPort"<% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
+$url="http://docker:$publicPort"<% if (projectType === 'dotnet' && (dotnetVersion === 'RC2' || dotnetVersion === 'RTM')) { %>
 $runtimeID = "debian.8-x64"
 $framework = "netcoreapp1.0"<% } %>
 
@@ -61,7 +61,7 @@ function BuildImage () {
         $taggedImageName = "<%- '${imageName}:$Environment' %>".ToLowerInvariant()
     }
 
-    if (Test-Path $dockerFileName) {<% if (projectType === 'dotnet' && dotnetVersion === 'RC2') { %>
+    if (Test-Path $dockerFileName) {<% if (projectType === 'dotnet' && (dotnetVersion === 'RC2' || dotnetVersion === 'RTM')) { %>
         Write-Host "Building the project ($ENVIRONMENT)."
         $pubFolder = "bin\$Environment\$framework\publish"
         dotnet publish -f $framework -r $runtimeID -c $Environment -o $pubFolder
