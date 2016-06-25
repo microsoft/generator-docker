@@ -59,8 +59,7 @@ DotNetHelper.prototype.createDockerignoreFile = function () {
 DotNetHelper.prototype.getDockerImageName = function (isDebug) {
     if (this._dotnetVersion === 'RC2' && !isDebug ) {
         return 'microsoft/dotnet:1.0.0-rc2-core';
-    }
-    if (this._dotnetVersion === 'RTM' && !isDebug) {
+    } else if (this._dotnetVersion === 'RTM' && !isDebug) {
         return 'microsoft/dotnet:1.0.0-core';
     } else {
         return 'microsoft/' + this._baseImageName;
