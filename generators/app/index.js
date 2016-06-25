@@ -211,7 +211,7 @@ function handleDotNet(yo) {
             }
             updateProjectJsonNoteForUser = projectJsonNote;
 
-            if (dotNet.getDotnetVersion() == 'RC2' || dotNet.getDotnetVersion() == 'RTM') {
+            if (dotNet.getDotnetVersion() == 'RC2') {
                 dotNet.updateProgramCS(function (err, programCSNode) {
                     if (err) {
                         error = true;
