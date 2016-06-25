@@ -315,11 +315,6 @@ describe('.NET RTM project file creation', function () {
         done();
     });
 
-    it('generates Program.cs.backup file', function (done) {
-        assert.file('Program.cs.backup');
-        done();
-    });
-
     it('correct settings.json file contents', function (done) {
         assert.fileContent('.vscode/settings.json', '"dockerfile.*": "dockerfile"');
         done();
