@@ -7,6 +7,7 @@ RUN curl -SL https://raw.githubusercontent.com/Microsoft/MIEngine/getclrdbg-rele
     && ./GetClrDbg.sh $CLRDBG_VERSION \
     && rm GetClrDbg.sh<% } %>
 WORKDIR /app
+ENV ASPNETCORE_URLS http://*:<%= portNumber %>
 EXPOSE <%= portNumber %><% if (environment === 'debug') { %>
 ENTRYPOINT ["/bin/bash", "-c", "if [ -z \"$REMOTE_DEBUGGING\" ]; then dotnet <%= outputName %>; else sleep infinity; fi"]<% } else { %>
 ENTRYPOINT ["dotnet", "<%= outputName %>"]<% } %>
