@@ -63,11 +63,15 @@ Generator-docker collects anonymized data on the options you selected in the too
 However, we really need your feedback, so please help us help you by opting in.
 
 ## Version History
+###v0.0.34
++ Switch to using docker-compose for build.
++ BugFix: Add usage of ASPNETCORE_URLS Environment variable to support urls other than localhost for .NET Core.
+
 ###v0.0.33
 + Added support for .Net Core RTM.
 
 ###v0.0.32
-+ Added integrated debugging using **[F5]** for both Node.js and .NET Core. 
++ Added integrated debugging using **[F5]** for both Node.js and .NET Core.
 + Changed to always generate bash and PowerShell scripts to enable cross-platform development.
 + Changed compose file to use the image created by build (introduced a tag to disambiguate debug and release image).
 + Removed usage of docker-machine in favor of defaults for Docker for Windows and Docker for Mac.
