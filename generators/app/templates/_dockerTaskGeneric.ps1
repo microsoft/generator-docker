@@ -140,6 +140,8 @@ function OpenSite () {
     Start-Process $url
 }
 
+$Environment = $Environment.ToLowerInvariant()
+
 # Call the correct function for the parameter that was used
 if($Compose) {
     Compose

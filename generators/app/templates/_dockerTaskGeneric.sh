@@ -128,14 +128,14 @@ if [ $# -eq 0 ]; then
 else
   case "$1" in
     "compose")
-            ENVIRONMENT=$2
+            ENVIRONMENT=$(echo $2 | tr "[:upper:]" "[:lower:]")
             compose
             if [[ $isWebProject = true ]]; then
               openSite
             fi
             ;;<% if (includeComposeForDebug) { %>
     "composeForDebug")
-            ENVIRONMENT=$2
+            ENVIRONMENT=$(echo $2 | tr "[:upper:]" "[:lower:]")
             export REMOTE_DEBUGGING=1
             buildImage
             compose
@@ -144,11 +144,11 @@ else
             startDebugging
             ;;<% } %>
     "build")
-            ENVIRONMENT=$2
+            ENVIRONMENT=$(echo $2 | tr "[:upper:]" "[:lower:]")
             buildImage
             ;;
     "clean")
-            ENVIRONMENT=$2
+            ENVIRONMENT=$(echo $2 | tr "[:upper:]" "[:lower:]")
             cleanAll
             ;;
     *)
