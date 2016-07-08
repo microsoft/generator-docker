@@ -166,6 +166,14 @@ DotNetHelper.prototype.updateProjectJson = function (cb) {
                 data.publishOptions.include.push('Dockerfile');
                 changed = true;
             }
+            if (data.publishOptions.include.indexOf('docker-compose.debug.yml') < 0) {
+                data.publishOptions.include.push('docker-compose.debug.yml');
+                changed = true;
+            }
+            if (data.publishOptions.include.indexOf('docker-compose.yml') < 0) {
+                data.publishOptions.include.push('docker-compose.yml');
+                changed = true;
+            }
 
             if (changed) {
                 self._backupFile(fileName, backupFile, function (err) {

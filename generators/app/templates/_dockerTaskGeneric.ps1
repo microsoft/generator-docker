@@ -32,6 +32,7 @@ Param(
     [parameter(ParameterSetName="Compose")]<% if (includeComposeForDebug) { %>
     [Parameter(ParameterSetName="ComposeForDebug")]<% } %>
     [parameter(ParameterSetName="Build")]
+    [parameter(ParameterSetName="Clean")]
     [ValidateNotNullOrEmpty()]
     [String]$Environment = "Debug"
 )
@@ -48,31 +49,43 @@ $framework = "netcoreapp1.0"<% } %>
 
 # Kills all running containers of an image and then removes them.
 function CleanAll () {
-    # List all running containers that use $imageName, kill them and then remove them.
-    docker ps -a | select-string -pattern $imageName | foreach { $containerId =  $_.ToString().split()[0]; docker kill $containerId *>&1 | Out-Null; docker rm $containerId *>&1 | Out-Null }
+    $composeFileName = "docker-compose.yml"
+    if ($Environment -ne "Release") {
+        $composeFileName = "docker-compose.$Environment.yml"
+    }
+
+    if (Test-Path $composeFileName) {
+        docker-compose -f "$composeFileName" -p $projectName down --rmi all
+
+        $danglingImages = $(docker images -q --filter 'dangling=true')
+        if (-not [String]::IsNullOrWhiteSpace($danglingImages)) {
+            docker rmi -f $danglingImages
+        }
+    }
+    else {
+        Write-Error -Message "$Environment is not a valid parameter. File '$composeFileName' does not exist." -Category InvalidArgument
+    }
 }
 
 # Builds the Docker image.
 function BuildImage () {
-    $dockerFileName = "Dockerfile"
-    $taggedImageName = $imageName
+    $composeFileName = "docker-compose.yml"
     if ($Environment -ne "Release") {
-        $dockerFileName = "Dockerfile.$Environment"
-        $taggedImageName = "<%- '${imageName}:$Environment' %>".ToLowerInvariant()
+        $composeFileName = "docker-compose.$Environment.yml"
     }
 
-    if (Test-Path $dockerFileName) {<% if (projectType === 'dotnet' && (dotnetVersion === 'RC2' || dotnetVersion === 'RTM')) { %>
+    if (Test-Path $composeFileName) {<% if (projectType === 'dotnet' && (dotnetVersion === 'RC2' || dotnetVersion === 'RTM')) { %>
         Write-Host "Building the project ($ENVIRONMENT)."
         $pubFolder = "bin\$Environment\$framework\publish"
         dotnet publish -f $framework -r $runtimeID -c $Environment -o $pubFolder
 
         Write-Host "Building the image $imageName ($Environment)."
-        docker build -f "$pubFolder\$dockerFileName" -t $taggedImageName $pubFolder<% } else { %>
+        docker-compose -f "$pubFolder\$composeFileName" -p $projectName build<% } else { %>
         Write-Host "Building the image $imageName ($Environment)."
-        docker build -f $dockerFileName -t $taggedImageName .<% } %>
+        docker-compose -f $composeFileName -p $projectName build<% } %>
     }
     else {
-        Write-Error -Message "$Environment is not a valid parameter. File '$dockerFileName' does not exist." -Category InvalidArgument
+        Write-Error -Message "$Environment is not a valid parameter. File '$composeFileName' does not exist." -Category InvalidArgument
     }
 }
 
@@ -126,6 +139,8 @@ function OpenSite () {
     # Open the site.
     Start-Process $url
 }
+
+$Environment = $Environment.ToLowerInvariant()
 
 # Call the correct function for the parameter that was used
 if($Compose) {

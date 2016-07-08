@@ -1,9 +1,11 @@
 version: '2'
 
 services:
-  <%= serviceName %>:<% if (environment === 'debug') { %>
-    image: <%= imageName %>:debug<% } else { %>
-    image: <%= imageName %><% } %><% if (isWebProject && portNumber) { %>
+  <%= serviceName %>:
+    image: <%= imageName %><% if (environment === 'debug') { %>:debug<% } %>
+    build:
+      context: .
+      dockerfile: Dockerfile<% if (environment === 'debug') { %>.debug<% } %><% if (isWebProject && portNumber) { %>
     ports:
       - "<%= portNumber %>:<%= portNumber %>"<% } %><% if (environment === 'debug') { %><% if (debugPortNumber) { %>
       - "<%= debugPortNumber %>:<%= debugPortNumber %>"<% } %><% if (volumeMap) { %>
