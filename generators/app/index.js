@@ -95,7 +95,7 @@ function showPrompts() {
                 return true;
             },
             when: function (answers) {
-                return answers.projectType === 'dotnet' && answers.baseImageName === 'rtm';
+                return answers.projectType === 'dotnet' && answers.baseImageName === 'dotnet:1.0.0-preview2-sdk';
             }
         },{
             type: 'confirm',
@@ -113,7 +113,7 @@ function showPrompts() {
             },
             when: function (answers) {
                 // Show this answer if user picked .NET, Node.js or Golang that's using a web server.
-                return answers.projectType === 'dotnet' || answers.projectType === 'nodejs' || (answers.projectType === 'golang' && answers.isGoWeb);
+                return (answers.projectType === 'dotnet' && answers.isDotNetWeb) || answers.projectType === 'nodejs' || (answers.projectType === 'golang' && answers.isGoWeb);
             }
         }, {
             type: 'input',
