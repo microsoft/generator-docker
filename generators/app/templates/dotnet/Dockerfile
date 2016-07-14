@@ -6,7 +6,7 @@ RUN curl -SL https://raw.githubusercontent.com/Microsoft/MIEngine/getclrdbg-rele
     && chmod 700 GetClrDbg.sh \
     && ./GetClrDbg.sh $CLRDBG_VERSION \
     && rm GetClrDbg.sh<% } %>
-WORKDIR /app<% if (dotnetVersion === 'RTM') { %><% if (isWebProject) { %>
+WORKDIR /app<% if (isWebProject) { %><% if (dotnetVersion === 'RTM') { %>
 ENV ASPNETCORE_URLS http://*:<%= portNumber %><% } %>
 EXPOSE <%= portNumber %><% } %><% if (environment === 'debug') { %>
 ENTRYPOINT ["/bin/bash", "-c", "if [ -z \"$REMOTE_DEBUGGING\" ]; then dotnet <%= outputName %>; else sleep infinity; fi"]<% } else { %>
