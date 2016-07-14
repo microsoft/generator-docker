@@ -78,7 +78,9 @@ compose () {
 }<% if (includeStartDebugging) { %>
 
 startDebugging () {
-  echo "Running on $url"
+  if [[ $isWebProject = true ]]; then
+    echo "Running on $url"
+  fi
 
   containerId=$(docker ps -f "name=$containerName" -q -n=1)
   if [[ -z $containerId ]]; then

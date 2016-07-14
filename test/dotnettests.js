@@ -262,6 +262,22 @@ describe('.NET RTM project file creation', function () {
         done();
     });
 
+    it('Correct script file contents (powershell)', function (done) {
+        assert.fileContent('dockerTask.ps1', '$isWebProject=$false');
+        assert.fileContent('dockerTask.ps1', 'dotnet publish');
+        assert.fileContent('dockerTask.ps1', 'ComposeForDebug');
+        assert.fileContent('dockerTask.ps1', 'StartDebugging');
+        done();
+    });
+
+    it('Correct script file contents (bash)', function (done) {
+        assert.fileContent('dockerTask.sh', 'isWebProject=false');
+        assert.fileContent('dockerTask.sh', 'dotnet publish');
+        assert.fileContent('dockerTask.sh', 'composeForDebug');
+        assert.fileContent('dockerTask.sh', 'startDebugging');
+        done();
+    });
+
     it('correct dockerfile contents (debug)', function (done) {
         assert.fileContent('Dockerfile.debug', 'FROM microsoft/dotnet:1.0.0-preview2-sdk');
         assert.fileContent('Dockerfile.debug', 'COPY . /app');

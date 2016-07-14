@@ -107,7 +107,9 @@ function Compose () {
 }<% if (includeStartDebugging) { %>
 
 function StartDebugging () {
-    Write-Host "Running on $url"
+    if ($isWebProject) {
+        Write-Host "Running on $url"
+    }
 
     $containerId = (docker ps -f "name=$containerName" -q -n=1)
     if ([System.String]::IsNullOrWhiteSpace($containerId)) {

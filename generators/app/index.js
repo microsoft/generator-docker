@@ -41,6 +41,7 @@ var isGoWeb = false;
 var baseImageName = '';
 var updateProjectJsonNoteForUser = null;
 var updateProgramCSNoteForUser = null;
+var isDotNetWeb = false;
 
 // Application insights variables.
 var pkg = require(__dirname + '/../../package.json');
@@ -88,6 +89,16 @@ function showPrompts() {
             }
         }, {
             type: 'confirm',
+            name: 'isDotNetWeb',
+            message: 'Does your .Net Core project use a web server?',
+            default: function (answers) {
+                return true;
+            },
+            when: function (answers) {
+                return answers.projectType === 'dotnet' && answers.baseImageName === 'rtm';
+            }
+        },{
+            type: 'confirm',
             name: 'isGoWeb',
             message: 'Does your Go project use a web server?',
             when: function (answers) {
@@ -126,6 +137,7 @@ function showPrompts() {
         portNumber = props.portNumber;
         imageName = props.imageName;
         serviceName = props.serviceName;
+        isDotNetWeb = props.isDotNetWeb;
         isGoWeb = props.isGoWeb;
         baseImageName = props.baseImageName;
         composeProjectName = props.composeProjectName;
@@ -233,6 +245,7 @@ function handleDotNet(yo) {
     var templateData = getDefaultTemplateData();
     templateData.outputName = process.cwd().split(path.sep).pop() + '.dll';
     templateData.dotnetVersion = dotnetVersion;
+    templateData.isWebProject = isDotNetWeb;
     templateData.debugBaseImageName = dotNet.getDockerImageName(true);
     templateData.releaseBaseImageName = dotNet.getDockerImageName(false);
     templateData.includeComposeForDebug = (dotnetVersion == 'RC2' || dotnetVersion == 'RTM');
@@ -368,6 +381,7 @@ function logData() {
         'projectType': projectType,
         'portNumber': portNumber,
         'imageName': imageName,
+        'isDotNetCoreWebProject': isDotNetWeb === undefined ? 'undefined' : isDotNetWeb,
         'isGoWebProject': isGoWeb === undefined ? 'undefined' : isGoWeb,
         'baseImageName': imageName === undefined ? 'undefined' : baseImageName
     });
