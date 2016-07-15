@@ -41,7 +41,7 @@ var isGoWeb = false;
 var baseImageName = '';
 var updateProjectJsonNoteForUser = null;
 var updateProgramCSNoteForUser = null;
-var isDotNetWeb = false;
+var isDotNetWeb = true;
 
 // Application insights variables.
 var pkg = require(__dirname + '/../../package.json');
@@ -113,7 +113,7 @@ function showPrompts() {
             },
             when: function (answers) {
                 // Show this answer if user picked .NET, Node.js or Golang that's using a web server.
-                return (answers.projectType === 'dotnet' && answers.isDotNetWeb) || answers.projectType === 'nodejs' || (answers.projectType === 'golang' && answers.isGoWeb);
+                return (answers.projectType === 'dotnet' && (answers.baseImageName !== 'dotnet:1.0.0-preview2-sdk' || answers.isDotNetWeb)) || answers.projectType === 'nodejs' || (answers.projectType === 'golang' && answers.isGoWeb);
             }
         }, {
             type: 'input',
@@ -245,7 +245,6 @@ function handleDotNet(yo) {
     var templateData = getDefaultTemplateData();
     templateData.outputName = process.cwd().split(path.sep).pop() + '.dll';
     templateData.dotnetVersion = dotnetVersion;
-    templateData.isWebProject = isDotNetWeb;
     templateData.debugBaseImageName = dotNet.getDockerImageName(true);
     templateData.releaseBaseImageName = dotNet.getDockerImageName(false);
     templateData.includeComposeForDebug = (dotnetVersion == 'RC2' || dotnetVersion == 'RTM');
@@ -254,6 +253,10 @@ function handleDotNet(yo) {
     if (dotnetVersion == 'RC2' || dotnetVersion == 'RTM') {
         var dockerignoreFileContents = dotNet.createDockerignoreFile();
         yo.fs.write(yo.destinationPath(DOCKERIGNORE_NAME), new Buffer(dockerignoreFileContents));
+    }
+
+    if (dotnetVersion == 'RTM') {
+        templateData.isWebProject = isDotNetWeb;
     }
 
     yo.fs.copyTpl(
