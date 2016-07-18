@@ -2,9 +2,9 @@ imageName="<%= imageName %>"
 projectName="<%= composeProjectName %>"<% if (includeStartDebugging) { %>
 serviceName="<%= serviceName %>"
 containerName="<%= '${projectName}_${serviceName}' %>_1"<% } %>
+isWebProject=<%= isWebProject %><% if (isWebProject) { %>
 publicPort=<%= portNumber %>
-isWebProject=<%= isWebProject %>
-url="http://localhost:$publicPort"<% if (projectType === 'dotnet' && (dotnetVersion === 'RC2' || dotnetVersion === 'RTM')) { %>
+url="http://localhost:$publicPort"<% } %><% if (projectType === 'dotnet' && (dotnetVersion === 'RC2' || dotnetVersion === 'RTM')) { %>
 runtimeID="debian.8-x64"
 framework="netcoreapp1.0"<% } %>
 
