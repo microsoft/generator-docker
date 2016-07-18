@@ -65,12 +65,16 @@ describe('Node.js project file creation (Non Web project)', function () {
     it('correct dockerfile contents (debug)', function (done) {
         assert.fileContent('Dockerfile.debug', 'RUN npm install nodemon -g');
         assert.fileContent('Dockerfile.debug', 'RUN npm install');
+        assert.noFileContent('Dockerfile', 'EXPOSE 3000');
+        assert.fileContent('Dockerfile', 'EXPOSE 5858');
         assert.fileContent('Dockerfile.debug', 'ENTRYPOINT ["/bin/bash", "-c", "if [ -z \\"$REMOTE_DEBUGGING\\" ]; then nodemon -L --debug; else nodemon -L --debug-brk; fi"]');
         done();
     });
 
     it('correct dockerfile contents (release)', function (done) {
         assert.noFileContent('Dockerfile', 'nodemon');
+        assert.noFileContent('Dockerfile', 'EXPOSE 3000');
+        assert.noFileContent('Dockerfile', 'EXPOSE 5858');
         assert.fileContent('Dockerfile', 'ENTRYPOINT ["npm", "start"]');
         done();
     });
@@ -79,6 +83,8 @@ describe('Node.js project file creation (Non Web project)', function () {
         assert.fileContent('docker-compose.debug.yml', 'image: testimagename:debug');
         assert.fileContent('docker-compose.debug.yml', '.:/src');
         assert.noFileContent('docker-compose.debug.yml', '"3000:3000"');
+        assert.fileContent('docker-compose.debug.yml', '"5858:5858"');
+        assert.fileContent('docker-compose.debug.yml', 'ports:');
         assert.fileContent('docker-compose.debug.yml', '- REMOTE_DEBUGGING');
         done();
     });
@@ -87,6 +93,8 @@ describe('Node.js project file creation (Non Web project)', function () {
         assert.fileContent('docker-compose.yml', 'image: testimagename');
         assert.noFileContent('docker-compose.yml', '.:/src');
         assert.noFileContent('docker-compose.yml', '"3000:3000"');
+        assert.noFileContent('docker-compose.debug.yml', '"5858:5858"');
+        assert.noFileContent('docker-compose.debug.yml', 'ports:');
         assert.noFileContent('docker-compose.yml', '- REMOTE_DEBUGGING');
         done();
     });
@@ -153,12 +161,16 @@ describe('Node.js project file creation (Web project)', function () {
     it('correct dockerfile contents (debug)', function (done) {
         assert.fileContent('Dockerfile.debug', 'RUN npm install nodemon -g');
         assert.fileContent('Dockerfile.debug', 'RUN npm install');
+        assert.fileContent('Dockerfile', 'EXPOSE 3000');
+        assert.fileContent('Dockerfile', 'EXPOSE 5858');
         assert.fileContent('Dockerfile.debug', 'ENTRYPOINT ["/bin/bash", "-c", "if [ -z \\"$REMOTE_DEBUGGING\\" ]; then nodemon -L --debug; else nodemon -L --debug-brk; fi"]');
         done();
     });
 
     it('correct dockerfile contents (release)', function (done) {
         assert.noFileContent('Dockerfile', 'nodemon');
+        assert.fileContent('Dockerfile', 'EXPOSE 3000');
+        assert.noFileContent('Dockerfile', 'EXPOSE 5858');
         assert.fileContent('Dockerfile', 'ENTRYPOINT ["npm", "start"]');
         done();
     });
@@ -167,6 +179,8 @@ describe('Node.js project file creation (Web project)', function () {
         assert.fileContent('docker-compose.debug.yml', 'image: testimagename:debug');
         assert.fileContent('docker-compose.debug.yml', '.:/src');
         assert.fileContent('docker-compose.debug.yml', '"3000:3000"');
+        assert.fileContent('docker-compose.debug.yml', '"5858:5858"');
+        assert.fileContent('docker-compose.debug.yml', 'ports:');
         assert.fileContent('docker-compose.debug.yml', '- REMOTE_DEBUGGING');
         done();
     });
@@ -175,6 +189,8 @@ describe('Node.js project file creation (Web project)', function () {
         assert.fileContent('docker-compose.yml', 'image: testimagename');
         assert.noFileContent('docker-compose.yml', '.:/src');
         assert.fileContent('docker-compose.yml', '"3000:3000"');
+        assert.noFileContent('docker-compose.debug.yml', '"5858:5858"');
+        assert.fileContent('docker-compose.debug.yml', 'ports:');
         assert.noFileContent('docker-compose.yml', '- REMOTE_DEBUGGING');
         done();
     });

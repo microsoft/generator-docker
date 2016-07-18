@@ -5,8 +5,8 @@ services:
     image: <%= imageName %><% if (environment === 'debug') { %>:debug<% } %>
     build:
       context: .
-      dockerfile: Dockerfile<% if (environment === 'debug') { %>.debug<% } %><% if (isWebProject && portNumber) { %>
-    ports:
+      dockerfile: Dockerfile<% if (environment === 'debug') { %>.debug<% } %><% if ((isWebProject && portNumber) || (environment === 'debug' && debugPortNumber)) { %>
+    ports:<% } %><% if (isWebProject && portNumber) { %>
       - "<%= portNumber %>:<%= portNumber %>"<% } %><% if (environment === 'debug') { %><% if (debugPortNumber) { %>
       - "<%= debugPortNumber %>:<%= debugPortNumber %>"<% } %><% if (volumeMap) { %>
     volumes:

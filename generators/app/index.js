@@ -100,7 +100,7 @@ function showPrompts() {
             },
             when: function (answers) {
                 // Show this answer if user picked .NET, Node.js or Golang that's using a web server.
-                return (answers.projectType === 'dotnet' || answers.projectType === 'nodejs' || answers.projectType === 'golang') && answers.isWebProject;
+                return answers.isWebProject;
             }
         }, {
             type: 'input',
@@ -121,10 +121,10 @@ function showPrompts() {
 
     this.prompt(prompts, function (props) {
         projectType = props.projectType;
+        isWebProject = props.isWebProject;
         portNumber = props.portNumber;
         imageName = props.imageName;
         serviceName = props.serviceName;
-        isWebProject = props.isWebProject;
         baseImageName = props.baseImageName;
         composeProjectName = props.composeProjectName;
         done();
@@ -142,7 +142,7 @@ function getDefaultTemplateData() {
         serviceName: serviceName,
         portNumber: portNumber,
         debugPortNumber: null,
-        isWebProject: true,
+        isWebProject: isWebProject,
         volumeMap: null,
         includeComposeForDebug: false,
         includeStartDebugging: false
@@ -166,7 +166,6 @@ function handleNodeJs(yo) {
     templateData.volumeMap = '.:/src';
     templateData.includeComposeForDebug = true;
     templateData.debugPortNumber = "5858";
-    templateData.isWebProject = isWebProject;
 
     yo.fs.copyTpl(
         yo.templatePath('node/launch.json'),
@@ -232,21 +231,21 @@ function handleDotNet(yo) {
     var templateData = getDefaultTemplateData();
     templateData.outputName = process.cwd().split(path.sep).pop() + '.dll';
     templateData.dotnetVersion = dotnetVersion;
-    templateData.isWebProject = isWebProject;
     templateData.debugBaseImageName = dotNet.getDockerImageName(true);
     templateData.releaseBaseImageName = dotNet.getDockerImageName(false);
     templateData.includeComposeForDebug = (dotnetVersion == 'RC2' || dotnetVersion == 'RTM');
     templateData.includeStartDebugging = (dotnetVersion == 'RC2' || dotnetVersion == 'RTM');
 
     if (dotnetVersion == 'RC2' || dotnetVersion == 'RTM') {
+        yo.fs.copyTpl(
+            yo.templatePath('dotnet/launch.json'),
+            yo.destinationPath('.vscode/launch.json'),
+            templateData);
+    }
+    else {
         var dockerignoreFileContents = dotNet.createDockerignoreFile();
         yo.fs.write(yo.destinationPath(DOCKERIGNORE_NAME), new Buffer(dockerignoreFileContents));
     }
-
-    yo.fs.copyTpl(
-        yo.templatePath('dotnet/launch.json'),
-        yo.destinationPath('.vscode/launch.json'),
-        templateData);
 
     handleCommmonTemplates(yo, dotNet, templateData, updateFiles.bind(yo));
 }
