@@ -9,12 +9,12 @@ var path = require('path');
 var assert = require('yeoman-assert');
 var helpers = require('yeoman-test');
 
-describe('Golang project file creation (non Web project)', function () {
+describe('Golang project file creation (Non Web project)', function () {
     before(function (done) {
         helpers.run(path.join( __dirname, '../generators/app'))
         .withLocalConfig(function() {
             return { "appInsightsOptIn": false, "runningTests": true }; })
-        .withPrompts({ projectType: 'golang', isGoWeb: false, imageName: 'testimagename' })
+        .withPrompts({ projectType: 'golang', isWebProject: false, imageName: 'testimagename' })
         .on('end', done);
     });
 
@@ -103,7 +103,7 @@ describe('Golang project file creation (Web project)', function () {
         helpers.run(path.join( __dirname, '../generators/app'))
         .withLocalConfig(function() {
             return { "appInsightsOptIn": false, "runningTests": true }; })
-        .withPrompts({ projectType: 'golang', imageName: 'testimagename' })
+        .withPrompts({ projectType: 'golang', isWebProject: true, imageName: 'testimagename' })
         .on('end', done);
     });
 

@@ -22,6 +22,7 @@ var uuid = require('node-uuid');
 var projectType = '';
 var error = false;
 var updateSettingsJsonNoteForUser = null;
+var isWebProject = false;
 
 // Docker variables
 var portNumber = 3000;
@@ -34,14 +35,10 @@ var DEBUG_DOCKERCOMPOSE_NAME = 'docker-compose.debug.yml';
 var RELEASE_DOCKERFILE_NAME = 'Dockerfile';
 var RELEASE_DOCKERCOMPOSE_NAME = 'docker-compose.yml';
 
-// Golang variables
-var isGoWeb = false;
-
 // .NET variables
 var baseImageName = '';
 var updateProjectJsonNoteForUser = null;
 var updateProgramCSNoteForUser = null;
-var isDotNetWeb = true;
 
 // Application insights variables.
 var pkg = require(__dirname + '/../../package.json');
@@ -89,20 +86,10 @@ function showPrompts() {
             }
         }, {
             type: 'confirm',
-            name: 'isDotNetWeb',
-            message: 'Does your .Net Core project use a web server?',
+            name: 'isWebProject',
+            message: 'Does your project use a web server?',
             default: function (answers) {
                 return true;
-            },
-            when: function (answers) {
-                return answers.projectType === 'dotnet' && answers.baseImageName === 'dotnet:1.0.0-preview2-sdk';
-            }
-        },{
-            type: 'confirm',
-            name: 'isGoWeb',
-            message: 'Does your Go project use a web server?',
-            when: function (answers) {
-                return answers.projectType === 'golang';
             }
         }, {
             type: 'input',
@@ -113,7 +100,7 @@ function showPrompts() {
             },
             when: function (answers) {
                 // Show this answer if user picked .NET, Node.js or Golang that's using a web server.
-                return (answers.projectType === 'dotnet' && (answers.baseImageName !== 'dotnet:1.0.0-preview2-sdk' || answers.isDotNetWeb)) || answers.projectType === 'nodejs' || (answers.projectType === 'golang' && answers.isGoWeb);
+                return (answers.projectType === 'dotnet' || answers.projectType === 'nodejs' || answers.projectType === 'golang') && answers.isWebProject;
             }
         }, {
             type: 'input',
@@ -137,8 +124,7 @@ function showPrompts() {
         portNumber = props.portNumber;
         imageName = props.imageName;
         serviceName = props.serviceName;
-        isDotNetWeb = props.isDotNetWeb;
-        isGoWeb = props.isGoWeb;
+        isWebProject = props.isWebProject;
         baseImageName = props.baseImageName;
         composeProjectName = props.composeProjectName;
         done();
@@ -180,6 +166,7 @@ function handleNodeJs(yo) {
     templateData.volumeMap = '.:/src';
     templateData.includeComposeForDebug = true;
     templateData.debugPortNumber = "5858";
+    templateData.isWebProject = isWebProject;
 
     yo.fs.copyTpl(
         yo.templatePath('node/launch.json'),
@@ -199,7 +186,7 @@ function handleGolang(yo) {
     var updateFiles = function() { done(); }
 
     var templateData = getDefaultTemplateData();
-    templateData.isWebProject = isGoWeb;
+    templateData.isWebProject = isWebProject;
     templateData.projectName = golang.getProjectName();
 
     handleCommmonTemplates(yo, golang, templateData, updateFiles.bind(yo));
@@ -209,7 +196,7 @@ function handleGolang(yo) {
  * Handles .NET option.
  */
 function handleDotNet(yo) {
-    var dotNet = new DotNetHelper(baseImageName, portNumber);
+    var dotNet = new DotNetHelper(baseImageName, portNumber, isWebProject);
 
     var done = yo.async();
     var dotnetVersion = dotNet.getDotnetVersion();
@@ -223,7 +210,7 @@ function handleDotNet(yo) {
             }
             updateProjectJsonNoteForUser = projectJsonNote;
 
-            if (dotNet.getDotnetVersion() == 'RC2') {
+            if (dotNet.getDotnetVersion() == 'RC2' && isWebProject) {
                 dotNet.updateProgramCS(function (err, programCSNode) {
                     if (err) {
                         error = true;
@@ -245,6 +232,7 @@ function handleDotNet(yo) {
     var templateData = getDefaultTemplateData();
     templateData.outputName = process.cwd().split(path.sep).pop() + '.dll';
     templateData.dotnetVersion = dotnetVersion;
+    templateData.isWebProject = isWebProject;
     templateData.debugBaseImageName = dotNet.getDockerImageName(true);
     templateData.releaseBaseImageName = dotNet.getDockerImageName(false);
     templateData.includeComposeForDebug = (dotnetVersion == 'RC2' || dotnetVersion == 'RTM');
@@ -253,10 +241,6 @@ function handleDotNet(yo) {
     if (dotnetVersion == 'RC2' || dotnetVersion == 'RTM') {
         var dockerignoreFileContents = dotNet.createDockerignoreFile();
         yo.fs.write(yo.destinationPath(DOCKERIGNORE_NAME), new Buffer(dockerignoreFileContents));
-    }
-
-    if (dotnetVersion == 'RTM') {
-        templateData.isWebProject = isDotNetWeb;
     }
 
     yo.fs.copyTpl(
@@ -384,8 +368,7 @@ function logData() {
         'projectType': projectType,
         'portNumber': portNumber,
         'imageName': imageName,
-        'isDotNetCoreWebProject': isDotNetWeb === undefined ? 'undefined' : isDotNetWeb,
-        'isGoWebProject': isGoWeb === undefined ? 'undefined' : isGoWeb,
+        'isWebProject': isWebProject === undefined ? 'undefined' : isWebProject,
         'baseImageName': imageName === undefined ? 'undefined' : baseImageName
     });
 
