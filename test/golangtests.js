@@ -9,12 +9,12 @@ var path = require('path');
 var assert = require('yeoman-assert');
 var helpers = require('yeoman-test');
 
-describe('Golang project file creation (non Web project)', function () {
+describe('Golang project file creation (Non Web project)', function () {
     before(function (done) {
         helpers.run(path.join( __dirname, '../generators/app'))
         .withLocalConfig(function() {
             return { "appInsightsOptIn": false, "runningTests": true }; })
-        .withPrompts({ projectType: 'golang', isGoWeb: false, imageName: 'testimagename' })
+        .withPrompts({ projectType: 'golang', isWebProject: false, imageName: 'testimagename' })
         .on('end', done);
     });
 
@@ -47,7 +47,7 @@ describe('Golang project file creation (non Web project)', function () {
     });
 
     it('Correct script file contents (powershell)', function (done) {
-        assert.fileContent('dockerTask.ps1', '$isWebProject=$false');
+        assert.noFileContent('dockerTask.ps1', 'OpenSite');
         assert.noFileContent('dockerTask.ps1', 'dotnet publish');
         assert.noFileContent('dockerTask.ps1', 'ComposeForDebug');
         assert.noFileContent('dockerTask.ps1', 'startDebugging');
@@ -55,7 +55,7 @@ describe('Golang project file creation (non Web project)', function () {
     });
 
     it('Correct script file contents (bash)', function (done) {
-        assert.fileContent('dockerTask.sh', 'isWebProject=false');
+        assert.noFileContent('dockerTask.sh', 'openSite');
         assert.noFileContent('dockerTask.sh', 'dotnet publish');
         assert.noFileContent('dockerTask.sh', 'composeForDebug');
         assert.noFileContent('dockerTask.sh', 'startDebugging');
@@ -103,7 +103,7 @@ describe('Golang project file creation (Web project)', function () {
         helpers.run(path.join( __dirname, '../generators/app'))
         .withLocalConfig(function() {
             return { "appInsightsOptIn": false, "runningTests": true }; })
-        .withPrompts({ projectType: 'golang', imageName: 'testimagename' })
+        .withPrompts({ projectType: 'golang', isWebProject: true, imageName: 'testimagename' })
         .on('end', done);
     });
 
@@ -136,7 +136,7 @@ describe('Golang project file creation (Web project)', function () {
     });
 
     it('Correct script file contents (powershell)', function (done) {
-        assert.fileContent('dockerTask.ps1', '$isWebProject=$true');
+        assert.fileContent('dockerTask.ps1', 'OpenSite');
         assert.noFileContent('dockerTask.ps1', 'dotnet publish');
         assert.noFileContent('dockerTask.ps1', 'ComposeForDebug');
         assert.noFileContent('dockerTask.ps1', 'startDebugging');
@@ -144,7 +144,7 @@ describe('Golang project file creation (Web project)', function () {
     });
 
     it('Correct script file contents (bash)', function (done) {
-        assert.fileContent('dockerTask.sh', 'isWebProject=true');
+        assert.fileContent('dockerTask.sh', 'openSite');
         assert.noFileContent('dockerTask.sh', 'dotnet publish');
         assert.noFileContent('dockerTask.sh', 'composeForDebug');
         assert.noFileContent('dockerTask.sh', 'startDebugging');

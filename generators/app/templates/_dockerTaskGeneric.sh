@@ -1,10 +1,9 @@
 imageName="<%= imageName %>"
 projectName="<%= composeProjectName %>"<% if (includeStartDebugging) { %>
 serviceName="<%= serviceName %>"
-containerName="<%= '${projectName}_${serviceName}' %>_1"<% } %>
+containerName="<%= '${projectName}_${serviceName}' %>_1"<% } %><% if (isWebProject) { %>
 publicPort=<%= portNumber %>
-isWebProject=<%= isWebProject %>
-url="http://localhost:$publicPort"<% if (projectType === 'dotnet' && (dotnetVersion === 'RC2' || dotnetVersion === 'RTM')) { %>
+url="http://localhost:$publicPort"<% } %><% if (projectType === 'dotnet' && (dotnetVersion === 'RC2' || dotnetVersion === 'RTM')) { %>
 runtimeID="debian.8-x64"
 framework="netcoreapp1.0"<% } %>
 
@@ -77,9 +76,9 @@ compose () {
   fi
 }<% if (includeStartDebugging) { %>
 
-startDebugging () {
+startDebugging () {<% if (isWebProject) { %>
   echo "Running on $url"
-
+<% } %>
   containerId=$(docker ps -f "name=$containerName" -q -n=1)
   if [[ -z $containerId ]]; then
     echo "Could not find a container named $containerName"
@@ -87,7 +86,7 @@ startDebugging () {
     docker exec -i $containerId /clrdbg/clrdbg --interpreter=mi
   fi
 
-}<% } %>
+}<% } %><% if (isWebProject) { %>
 
 openSite () {
   printf 'Opening site'
@@ -98,7 +97,7 @@ openSite () {
 
   # Open the site.
   open $url
-}
+}<% } %>
 
 # Shows the usage for the script.
 showUsage () {
@@ -129,10 +128,8 @@ else
   case "$1" in
     "compose")
             ENVIRONMENT=$(echo $2 | tr "[:upper:]" "[:lower:]")
-            compose
-            if [[ $isWebProject = true ]]; then
-              openSite
-            fi
+            compose<% if (isWebProject) { %>
+            openSite<% } %>
             ;;<% if (includeComposeForDebug) { %>
     "composeForDebug")
             ENVIRONMENT=$(echo $2 | tr "[:upper:]" "[:lower:]")

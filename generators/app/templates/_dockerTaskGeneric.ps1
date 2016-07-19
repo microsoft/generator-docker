@@ -40,10 +40,9 @@ Param(
 $imageName="<%= imageName %>"
 $projectName="<%= composeProjectName %>"<% if (includeStartDebugging) { %>
 $serviceName="<%= serviceName %>"
-$containerName="<%= '${projectName}_${serviceName}' %>_1"<% } %>
+$containerName="<%= '${projectName}_${serviceName}' %>_1"<% } %><% if (isWebProject) { %>
 $publicPort=<%= portNumber %>
-$isWebProject=$<%= isWebProject %>
-$url="http://docker:$publicPort"<% if (projectType === 'dotnet' && (dotnetVersion === 'RC2' || dotnetVersion === 'RTM')) { %>
+$url="http://docker:$publicPort"<% } %><% if (projectType === 'dotnet' && (dotnetVersion === 'RC2' || dotnetVersion === 'RTM')) { %>
 $runtimeID = "debian.8-x64"
 $framework = "netcoreapp1.0"<% } %>
 
@@ -106,16 +105,16 @@ function Compose () {
     }
 }<% if (includeStartDebugging) { %>
 
-function StartDebugging () {
+function StartDebugging () {<% if (isWebProject) { %>
     Write-Host "Running on $url"
-
+<% } %>
     $containerId = (docker ps -f "name=$containerName" -q -n=1)
     if ([System.String]::IsNullOrWhiteSpace($containerId)) {
         Write-Error "Could not find a container named $containerName"
     }
 
     docker exec -i $containerId /clrdbg/clrdbg --interpreter=mi
-}<% } %>
+}<% } %><% if (isWebProject) { %>
 
 # Opens the remote site
 function OpenSite () {
@@ -138,16 +137,14 @@ function OpenSite () {
     Write-Host
     # Open the site.
     Start-Process $url
-}
+}<% } %>
 
 $Environment = $Environment.ToLowerInvariant()
 
 # Call the correct function for the parameter that was used
 if($Compose) {
-    Compose
-    if ($isWebProject) {
-        OpenSite
-    }
+    Compose<% if (isWebProject) { %>
+    OpenSite<% } %>
 }<% if (includeComposeForDebug) { %>
 elseif($ComposeForDebug) {
     $env:REMOTE_DEBUGGING = 1

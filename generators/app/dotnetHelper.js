@@ -15,9 +15,10 @@ var BaseHelper = require('./baseHelper.js');
  * @param {string} baseImageName - .NET base image to use.
  * @param {int} portNumber - Port number.
  */
-var DotNetHelper = function (baseImageName, portNumber) {
+var DotNetHelper = function (baseImageName, portNumber, isWebProject) {
     this._baseImageName = baseImageName;
-    this._portNumber = portNumber
+    this._portNumber = portNumber;
+    this._isWebProject = isWebProject;
 
     switch (baseImageName) {
         case 'aspnet:1.0.0-rc1-update1':
@@ -126,6 +127,7 @@ DotNetHelper.prototype.updateProjectJson = function (cb) {
     var backupFile = rootFolder + 'project.json.backup';
     var port = this._portNumber;
     var dotnetVersion = this._dotnetVersion;
+    var isWebProject = this._isWebProject;
     var self = this;
     fs.readFile(fileName, 'utf8', function (err, data) {
         if (err) {
@@ -194,7 +196,7 @@ DotNetHelper.prototype.updateProjectJson = function (cb) {
                 return;
             }
         } else {
-            if (data.commands.web === undefined) {
+            if (isWebProject && data.commands.web === undefined) {
                 self._backupFile(fileName, backupFile, function (err) {
                     if (err) {
                         cb(new Error('Can\'t backup project.json file.'));

@@ -22,6 +22,7 @@ var uuid = require('node-uuid');
 var projectType = '';
 var error = false;
 var updateSettingsJsonNoteForUser = null;
+var isWebProject = false;
 
 // Docker variables
 var portNumber = 3000;
@@ -33,9 +34,6 @@ var DEBUG_DOCKERFILE_NAME = 'Dockerfile.debug';
 var DEBUG_DOCKERCOMPOSE_NAME = 'docker-compose.debug.yml';
 var RELEASE_DOCKERFILE_NAME = 'Dockerfile';
 var RELEASE_DOCKERCOMPOSE_NAME = 'docker-compose.yml';
-
-// Golang variables
-var isGoWeb = false;
 
 // .NET variables
 var baseImageName = '';
@@ -88,10 +86,10 @@ function showPrompts() {
             }
         }, {
             type: 'confirm',
-            name: 'isGoWeb',
-            message: 'Does your Go project use a web server?',
-            when: function (answers) {
-                return answers.projectType === 'golang';
+            name: 'isWebProject',
+            message: 'Does your project use a web server?',
+            default: function (answers) {
+                return true;
             }
         }, {
             type: 'input',
@@ -102,7 +100,7 @@ function showPrompts() {
             },
             when: function (answers) {
                 // Show this answer if user picked .NET, Node.js or Golang that's using a web server.
-                return answers.projectType === 'dotnet' || answers.projectType === 'nodejs' || (answers.projectType === 'golang' && answers.isGoWeb);
+                return answers.isWebProject;
             }
         }, {
             type: 'input',
@@ -123,10 +121,10 @@ function showPrompts() {
 
     this.prompt(prompts, function (props) {
         projectType = props.projectType;
+        isWebProject = props.isWebProject;
         portNumber = props.portNumber;
         imageName = props.imageName;
         serviceName = props.serviceName;
-        isGoWeb = props.isGoWeb;
         baseImageName = props.baseImageName;
         composeProjectName = props.composeProjectName;
         done();
@@ -144,7 +142,7 @@ function getDefaultTemplateData() {
         serviceName: serviceName,
         portNumber: portNumber,
         debugPortNumber: null,
-        isWebProject: true,
+        isWebProject: isWebProject,
         volumeMap: null,
         includeComposeForDebug: false,
         includeStartDebugging: false
@@ -187,7 +185,7 @@ function handleGolang(yo) {
     var updateFiles = function() { done(); }
 
     var templateData = getDefaultTemplateData();
-    templateData.isWebProject = isGoWeb;
+    templateData.isWebProject = isWebProject;
     templateData.projectName = golang.getProjectName();
 
     handleCommmonTemplates(yo, golang, templateData, updateFiles.bind(yo));
@@ -197,7 +195,7 @@ function handleGolang(yo) {
  * Handles .NET option.
  */
 function handleDotNet(yo) {
-    var dotNet = new DotNetHelper(baseImageName, portNumber);
+    var dotNet = new DotNetHelper(baseImageName, portNumber, isWebProject);
 
     var done = yo.async();
     var dotnetVersion = dotNet.getDotnetVersion();
@@ -211,7 +209,7 @@ function handleDotNet(yo) {
             }
             updateProjectJsonNoteForUser = projectJsonNote;
 
-            if (dotNet.getDotnetVersion() == 'RC2') {
+            if (dotNet.getDotnetVersion() == 'RC2' && isWebProject) {
                 dotNet.updateProgramCS(function (err, programCSNode) {
                     if (err) {
                         error = true;
@@ -239,14 +237,15 @@ function handleDotNet(yo) {
     templateData.includeStartDebugging = (dotnetVersion == 'RC2' || dotnetVersion == 'RTM');
 
     if (dotnetVersion == 'RC2' || dotnetVersion == 'RTM') {
+        yo.fs.copyTpl(
+            yo.templatePath('dotnet/launch.json'),
+            yo.destinationPath('.vscode/launch.json'),
+            templateData);
+    }
+    else {
         var dockerignoreFileContents = dotNet.createDockerignoreFile();
         yo.fs.write(yo.destinationPath(DOCKERIGNORE_NAME), new Buffer(dockerignoreFileContents));
     }
-
-    yo.fs.copyTpl(
-        yo.templatePath('dotnet/launch.json'),
-        yo.destinationPath('.vscode/launch.json'),
-        templateData);
 
     handleCommmonTemplates(yo, dotNet, templateData, updateFiles.bind(yo));
 }
@@ -368,7 +367,7 @@ function logData() {
         'projectType': projectType,
         'portNumber': portNumber,
         'imageName': imageName,
-        'isGoWebProject': isGoWeb === undefined ? 'undefined' : isGoWeb,
+        'isWebProject': isWebProject === undefined ? 'undefined' : isWebProject,
         'baseImageName': imageName === undefined ? 'undefined' : baseImageName
     });
 
