@@ -47,7 +47,6 @@ describe('Golang project file creation (Non Web project)', function () {
     });
 
     it('Correct script file contents (powershell)', function (done) {
-        assert.fileContent('dockerTask.ps1', '$isWebProject=$false');
         assert.noFileContent('dockerTask.ps1', 'dotnet publish');
         assert.noFileContent('dockerTask.ps1', 'ComposeForDebug');
         assert.noFileContent('dockerTask.ps1', 'startDebugging');
@@ -55,7 +54,6 @@ describe('Golang project file creation (Non Web project)', function () {
     });
 
     it('Correct script file contents (bash)', function (done) {
-        assert.fileContent('dockerTask.sh', 'isWebProject=false');
         assert.noFileContent('dockerTask.sh', 'dotnet publish');
         assert.noFileContent('dockerTask.sh', 'composeForDebug');
         assert.noFileContent('dockerTask.sh', 'startDebugging');
@@ -136,7 +134,6 @@ describe('Golang project file creation (Web project)', function () {
     });
 
     it('Correct script file contents (powershell)', function (done) {
-        assert.fileContent('dockerTask.ps1', '$isWebProject=$true');
         assert.noFileContent('dockerTask.ps1', 'dotnet publish');
         assert.noFileContent('dockerTask.ps1', 'ComposeForDebug');
         assert.noFileContent('dockerTask.ps1', 'startDebugging');
@@ -144,7 +141,6 @@ describe('Golang project file creation (Web project)', function () {
     });
 
     it('Correct script file contents (bash)', function (done) {
-        assert.fileContent('dockerTask.sh', 'isWebProject=true');
         assert.noFileContent('dockerTask.sh', 'dotnet publish');
         assert.noFileContent('dockerTask.sh', 'composeForDebug');
         assert.noFileContent('dockerTask.sh', 'startDebugging');
