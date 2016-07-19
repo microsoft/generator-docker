@@ -142,6 +142,7 @@ describe('.NET RC1 project file creation (Web project)', function () {
     });
 
     it('Correct script file contents (powershell)', function (done) {
+        assert.fileContent('dockerTask.ps1', 'OpenSite');
         assert.noFileContent('dockerTask.ps1', 'dotnet publish');
         assert.noFileContent('dockerTask.ps1', 'ComposeForDebug');
         assert.noFileContent('dockerTask.ps1', 'startDebugging');
@@ -149,6 +150,7 @@ describe('.NET RC1 project file creation (Web project)', function () {
     });
 
     it('Correct script file contents (bash)', function (done) {
+        assert.fileContent('dockerTask.sh', 'openSite');
         assert.noFileContent('dockerTask.sh', 'dotnet publish');
         assert.noFileContent('dockerTask.sh', 'composeForDebug');
         assert.noFileContent('dockerTask.sh', 'startDebugging');
@@ -244,6 +246,7 @@ describe('.NET RC1 project file creation (Non Web project)', function () {
     });
 
     it('Correct script file contents (powershell)', function (done) {
+        assert.noFileContent('dockerTask.ps1', 'OpenSite');
         assert.noFileContent('dockerTask.ps1', 'dotnet publish');
         assert.noFileContent('dockerTask.ps1', 'ComposeForDebug');
         assert.noFileContent('dockerTask.ps1', 'startDebugging');
@@ -251,6 +254,7 @@ describe('.NET RC1 project file creation (Non Web project)', function () {
     });
 
     it('Correct script file contents (bash)', function (done) {
+        assert.noFileContent('dockerTask.sh', 'openSite');
         assert.noFileContent('dockerTask.sh', 'dotnet publish');
         assert.noFileContent('dockerTask.sh', 'composeForDebug');
         assert.noFileContent('dockerTask.sh', 'startDebugging');
@@ -345,6 +349,7 @@ describe('.NET RC2 project file creation (Web project)', function () {
     });
 
     it('Correct script file contents (powershell)', function (done) {
+        assert.fileContent('dockerTask.ps1', 'OpenSite');
         assert.fileContent('dockerTask.ps1', 'dotnet publish');
         assert.fileContent('dockerTask.ps1', 'ComposeForDebug');
         assert.fileContent('dockerTask.ps1', 'StartDebugging');
@@ -352,6 +357,7 @@ describe('.NET RC2 project file creation (Web project)', function () {
     });
 
     it('Correct script file contents (bash)', function (done) {
+        assert.fileContent('dockerTask.sh', 'openSite');
         assert.fileContent('dockerTask.sh', 'dotnet publish');
         assert.fileContent('dockerTask.sh', 'composeForDebug');
         assert.fileContent('dockerTask.sh', 'startDebugging');
@@ -469,6 +475,7 @@ describe('.NET RC2 project file creation (Non Web project)', function () {
     });
 
     it('Correct script file contents (powershell)', function (done) {
+        assert.noFileContent('dockerTask.ps1', 'OpenSite');
         assert.fileContent('dockerTask.ps1', 'dotnet publish');
         assert.fileContent('dockerTask.ps1', 'ComposeForDebug');
         assert.fileContent('dockerTask.ps1', 'StartDebugging');
@@ -476,6 +483,7 @@ describe('.NET RC2 project file creation (Non Web project)', function () {
     });
 
     it('Correct script file contents (bash)', function (done) {
+        assert.noFileContent('dockerTask.sh', 'openSite');
         assert.fileContent('dockerTask.sh', 'dotnet publish');
         assert.fileContent('dockerTask.sh', 'composeForDebug');
         assert.fileContent('dockerTask.sh', 'startDebugging');
@@ -595,6 +603,7 @@ describe('.NET RTM project file creation (Web project)', function () {
     });
 
     it('Correct script file contents (powershell)', function (done) {
+        assert.fileContent('dockerTask.ps1', 'OpenSite');
         assert.fileContent('dockerTask.ps1', 'dotnet publish');
         assert.fileContent('dockerTask.ps1', 'ComposeForDebug');
         assert.fileContent('dockerTask.ps1', 'StartDebugging');
@@ -602,6 +611,7 @@ describe('.NET RTM project file creation (Web project)', function () {
     });
 
     it('Correct script file contents (bash)', function (done) {
+        assert.fileContent('dockerTask.sh', 'openSite');
         assert.fileContent('dockerTask.sh', 'dotnet publish');
         assert.fileContent('dockerTask.sh', 'composeForDebug');
         assert.fileContent('dockerTask.sh', 'startDebugging');
@@ -716,6 +726,7 @@ describe('.NET RTM project file creation (Non Web project)', function () {
     });
 
     it('Correct script file contents (powershell)', function (done) {
+        assert.noFileContent('dockerTask.ps1', 'OpenSite');
         assert.fileContent('dockerTask.ps1', 'dotnet publish');
         assert.fileContent('dockerTask.ps1', 'ComposeForDebug');
         assert.fileContent('dockerTask.ps1', 'StartDebugging');
@@ -723,6 +734,7 @@ describe('.NET RTM project file creation (Non Web project)', function () {
     });
 
     it('Correct script file contents (bash)', function (done) {
+        assert.noFileContent('dockerTask.sh', 'openSite');
         assert.fileContent('dockerTask.sh', 'dotnet publish');
         assert.fileContent('dockerTask.sh', 'composeForDebug');
         assert.fileContent('dockerTask.sh', 'startDebugging');

@@ -78,7 +78,7 @@ compose () {
 
 startDebugging () {<% if (isWebProject) { %>
   echo "Running on $url"
-  <% } %>
+<% } %>
   containerId=$(docker ps -f "name=$containerName" -q -n=1)
   if [[ -z $containerId ]]; then
     echo "Could not find a container named $containerName"

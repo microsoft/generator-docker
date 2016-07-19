@@ -107,7 +107,7 @@ function Compose () {
 
 function StartDebugging () {<% if (isWebProject) { %>
     Write-Host "Running on $url"
-    <% } %>
+<% } %>
     $containerId = (docker ps -f "name=$containerName" -q -n=1)
     if ([System.String]::IsNullOrWhiteSpace($containerId)) {
         Write-Error "Could not find a container named $containerName"
