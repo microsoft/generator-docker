@@ -42,7 +42,7 @@ $projectName="<%= composeProjectName %>"<% if (includeStartDebugging) { %>
 $serviceName="<%= serviceName %>"
 $containerName="<%= '${projectName}_${serviceName}' %>_1"<% } %><% if (isWebProject) { %>
 $publicPort=<%= portNumber %>
-$url="http://docker:$publicPort"<% } %><% if (projectType === 'dotnet' && (dotnetVersion === 'RC2' || dotnetVersion === 'RTM')) { %>
+$url="http://localhost:$publicPort"<% } %><% if (projectType === 'dotnet' && (dotnetVersion === 'RC2' || dotnetVersion === 'RTM')) { %>
 $runtimeID = "debian.8-x64"
 $framework = "netcoreapp1.0"<% } %>
 
