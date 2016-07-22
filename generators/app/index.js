@@ -126,7 +126,7 @@ function showPrompts() {
         imageName = props.imageName;
         serviceName = props.serviceName;
         baseImageName = props.baseImageName;
-        composeProjectName = props.composeProjectName;
+        composeProjectName = props.composeProjectName.replace(/[^a-zA-Z0-9]/g, '');
         done();
     }.bind(this));
 }
