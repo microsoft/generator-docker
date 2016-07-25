@@ -63,6 +63,11 @@ Generator-docker collects anonymized data on the options you selected in the too
 However, we really need your feedback, so please help us help you by opting in.
 
 ## Version History
+###v0.0.35
++ Added support for .Net Core Console Apps.
++ Updated Docker for Windows beta address to http://localhost
++ BugFix: Special characters in project names are now ignored.
+
 ###v0.0.34
 + Switch to using docker-compose for build.
 + BugFix: Add usage of ASPNETCORE_URLS Environment variable to support urls other than localhost for .NET Core.
