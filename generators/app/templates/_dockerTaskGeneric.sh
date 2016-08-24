@@ -90,7 +90,7 @@ startDebugging () {<% if (isWebProject) { %>
 
 openSite () {
   printf 'Opening site'
-  until $(curl --output /dev/null --silent --head --fail $url); do
+  until $(curl --output /dev/null --silent --fail $url); do
     printf '.'
     sleep 1
   done
