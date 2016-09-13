@@ -61,63 +61,65 @@ function showPrompts() {
             name: '.NET Core',
             value: 'dotnet'
         }, {
-                name: 'Golang',
-                value: 'golang'
-            }, {
-                name: 'Node.js',
-                value: 'nodejs'
-            }]
+            name: 'Golang',
+            value: 'golang'
+        }, {
+            name: 'Node.js',
+            value: 'nodejs'
+        }]
     }, {
-            type: 'list',
-            name: 'baseImageName',
-            message: 'Which version of .NET Core is your project using?',
-            choices: [{
-                name: 'rtm',
-                value: 'dotnet:1.0.0-preview2-sdk'
-            }, {
-                name: 'rc2',
-                value: 'dotnet:1.0.0-preview1'
-            }, {
-                    name: 'rc1',
-                    value: 'aspnet:1.0.0-rc1-update1'
-                }],
-            when: function (answers) {
-                return answers.projectType === 'dotnet';
-            }
+        type: 'list',
+        name: 'baseImageName',
+        message: 'Which version of .NET Core is your project using?',
+        choices: [{
+            name: 'rtm',
+            value: 'dotnet:1.0.0-preview2-sdk'
         }, {
-            type: 'confirm',
-            name: 'isWebProject',
-            message: 'Does your project use a web server?',
-            default: function (answers) {
-                return true;
-            }
+            name: 'rc2',
+            value: 'dotnet:1.0.0-preview1'
         }, {
-            type: 'input',
-            name: 'portNumber',
-            message: 'Which port is your app listening to?',
-            default: function (answers) {
-                return answers.projectType === 'dotnet' ? 80 : 3000;
-            },
-            when: function (answers) {
-                // Show this answer if user picked .NET, Node.js or Golang that's using a web server.
-                return answers.isWebProject;
-            }
-        }, {
-            type: 'input',
-            name: 'imageName',
-            message: 'What do you want to name your image?',
-            default: process.cwd().split(path.sep).pop().toLowerCase()
-        }, {
-            type: 'input',
-            name: 'serviceName',
-            message: 'What do you want to name your service?',
-            default: process.cwd().split(path.sep).pop().toLowerCase()
-        }, {
-            type: 'input',
-            name: 'composeProjectName',
-            message: 'What do you want to name your compose project?',
-            default: process.cwd().split(path.sep).pop().toLowerCase().replace(/[^a-zA-Z0-9]/g, '')
-        }];
+            name: 'rc1',
+            value: 'aspnet:1.0.0-rc1-update1'
+        }],
+        when: function (answers) {
+            return answers.projectType === 'dotnet';
+        }
+    }, {
+        type: 'confirm',
+        name: 'isWebProject',
+        message: 'Does your project use a web server?',
+        default: function (answers) {
+            return true;
+        }
+    }, {
+        type: 'input',
+        name: 'portNumber',
+        message: 'Which port is your app listening to?',
+        default: function (answers) {
+            // work around https://github.com/SamVerschueren/vscode-yo/issues/41 when running under yo extension in VS Code
+            //return answers.projectType === 'dotnet' ? 80 : 3000;
+            return 3000;
+        },
+        when: function (answers) {
+            // Show this answer if user picked .NET, Node.js or Golang that's using a web server.
+            return answers.isWebProject;
+        }
+    }, {
+        type: 'input',
+        name: 'imageName',
+        message: 'What do you want to name your image?',
+        default: process.cwd().split(path.sep).pop().toLowerCase()
+    }, {
+        type: 'input',
+        name: 'serviceName',
+        message: 'What do you want to name your service?',
+        default: process.cwd().split(path.sep).pop().toLowerCase()
+    }, {
+        type: 'input',
+        name: 'composeProjectName',
+        message: 'What do you want to name your compose project?',
+        default: process.cwd().split(path.sep).pop().toLowerCase().replace(/[^a-zA-Z0-9]/g, '')
+    }];
 
     this.prompt(prompts, function (props) {
         projectType = props.projectType;
@@ -156,7 +158,7 @@ function handleNodeJs(yo) {
     var nodeJs = new NodejsHelper();
 
     var done = yo.async();
-    var updateFiles = function() { done(); }
+    var updateFiles = function () { done(); }
 
     if (!nodeJs.canShareVolume()) {
         yo.log(chalk.yellow('Warning: Your project has to be under %HOMEDRIVE%\Users folder in order to use Nodemon on Windows in the Debug environment.'));
@@ -182,7 +184,7 @@ function handleGolang(yo) {
     var golang = new GolangHelper();
 
     var done = yo.async();
-    var updateFiles = function() { done(); }
+    var updateFiles = function () { done(); }
 
     var templateData = getDefaultTemplateData();
     templateData.isWebProject = isWebProject;
@@ -199,7 +201,7 @@ function handleDotNet(yo) {
 
     var done = yo.async();
     var dotnetVersion = dotNet.getDotnetVersion();
-    var updateFiles = function() {
+    var updateFiles = function () {
         dotNet.updateProjectJson(function (err, projectJsonNote) {
             if (err) {
                 error = true;
@@ -255,11 +257,11 @@ function handleDotNet(yo) {
  */
 function handleCommmonTemplates(yo, helper, templateData, cb) {
     var debugTemplateData = Object.create(templateData, {
-            environment: {value: 'debug'}
-        });
+        environment: { value: 'debug' }
+    });
     var releaseTemplateData = Object.create(templateData, {
-            environment: {value: 'release'}
-        });
+        environment: { value: 'release' }
+    });
 
     yo.fs.copyTpl(
         yo.templatePath(helper.getTemplateDockerFileName()),
@@ -392,9 +394,9 @@ function handleAppInsights(yo) {
             type: 'confirm',
             name: 'optIn',
             message: 'Generator-docker would like to collect anonymized data\n' +
-                'on the options you selected to understand and improve your experience.\n' +
-                'To opt out later, you can delete ' + chalk.red('~/.config/configstore/' + pkg.name + '.json.\n') +
-                'Will you help us help you and your fellow developers?',
+            'on the options you selected to understand and improve your experience.\n' +
+            'To opt out later, you can delete ' + chalk.red('~/.config/configstore/' + pkg.name + '.json.\n') +
+            'Will you help us help you and your fellow developers?',
             default: true
         };
 
