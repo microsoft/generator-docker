@@ -96,7 +96,11 @@ openSite () {
   done
 
   # Open the site.
-  open $url
+  case "$OSTYPE" in
+    darwin*) open $url ;;
+    linux*) xdg-open $url ;;
+    *) printf "\nUnable to open site on $OSTYPE" ;;
+  esac
 }<% } %>
 
 # Shows the usage for the script.

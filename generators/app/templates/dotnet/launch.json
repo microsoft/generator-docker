@@ -21,6 +21,9 @@
                 },
                 "osx": {
                     "command": "open"
+                },
+                "linux": {
+                    "command": "xdg-open"
                 }
             },
 

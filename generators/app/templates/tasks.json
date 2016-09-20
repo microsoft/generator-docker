@@ -62,5 +62,34 @@
                 "showOutput": "always"
             }<% } %>
         ]
+    },
+    "linux": {
+        "command": "/bin/bash",
+        "options": {
+            "cwd": "<%- '${workspaceRoot}' %>"
+        },
+        "tasks": [
+            {
+                "taskName": "build",
+                "suppressTaskName": true,
+                "args": [ "-c", "./dockerTask.sh build debug" ],
+                "isBuildCommand": true,
+                "showOutput": "always"
+            },
+            {
+                "taskName": "compose",
+                "suppressTaskName": true,
+                "args": [ "-c", "./dockerTask.sh compose debug" ],
+                "isBuildCommand": false,
+                "showOutput": "always"
+            }<% if (includeComposeForDebug) { %>,
+            {
+                "taskName": "composeForDebug",
+                "suppressTaskName": true,
+                "args": [ "-c", "./dockerTask.sh composeForDebug debug" ],
+                "isBuildCommand": false,
+                "showOutput": "always"
+            }<% } %>
+        ]
     }
 }
