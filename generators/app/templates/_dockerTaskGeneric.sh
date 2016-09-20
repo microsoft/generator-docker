@@ -99,7 +99,7 @@ openSite () {
   case "$OSTYPE" in
     darwin*) open $url ;;
     linux*) xdg-open $url ;;
-    *) echo "Unable to open site on $OSTYPE" ;;
+    *) printf "\nUnable to open site on $OSTYPE" ;;
   esac
 }<% } %>
 
