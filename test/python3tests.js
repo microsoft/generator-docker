@@ -1,0 +1,101 @@
+'use strict';
+
+var os = require('os');
+var path = require('path');
+var assert = require('yeoman-assert');
+var helpers = require('yeoman-test');
+
+describe('Python3 project file creation (Non Web project)', function () {
+    before(function (done) {
+        helpers.run(path.join( __dirname, '../generators/app'))
+        .withLocalConfig(function() {
+            return { "appInsightsOptIn": false, "runningTests": true }; })
+        .withPrompts({ projectType: 'python3', isWebProject: false, imageName: 'testimagename' })
+        .on('end', done);
+    });
+
+    it('generates dockerfiles', function (done) {
+        assert.file('Dockerfile.debug');
+        assert.file('Dockerfile');
+        done();
+    });
+
+    it('generates compose files', function (done) {
+        assert.file('docker-compose.debug.yml');
+        assert.file('docker-compose.yml');
+        done();
+    });
+
+    it('generates dockertask file', function (done) {
+        assert.file('dockerTask.ps1');
+        assert.file('dockerTask.sh');
+        done();
+    });
+
+    it('generates tasks.json file', function (done) {
+        assert.file('.vscode/tasks.json');
+        done();
+    });
+
+    it('generates settings.json file', function (done) {
+        assert.file('.vscode/settings.json');
+        done();
+    });
+
+    it('generates requirements.txt file', function (done) {
+        assert.file('requirements.txt');
+        done();
+    });
+
+    it('generates main.py file', function (done) {
+        assert.file('main.py');
+        done();
+    });
+
+    it('Correct script file contents (powershell)', function (done) {
+        assert.noFileContent('dockerTask.ps1', 'OpenSite');
+        assert.noFileContent('dockerTask.ps1', 'dotnet publish');
+        assert.noFileContent('dockerTask.ps1', 'ComposeForDebug');
+        assert.noFileContent('dockerTask.ps1', 'startDebugging');
+        done();
+    });
+
+    it('Correct script file contents (bash)', function (done) {
+        assert.noFileContent('dockerTask.sh', 'openSite');
+        assert.noFileContent('dockerTask.sh', 'dotnet publish');
+        assert.noFileContent('dockerTask.sh', 'composeForDebug');
+        assert.noFileContent('dockerTask.sh', 'startDebugging');
+        done();
+    });
+
+    it('correct dockerfile contents (debug)', function (done) {
+        var currentFolder = process.cwd().split(path.sep).pop();
+        assert.fileContent('Dockerfile.debug', 'CMD [ "python", "./main.py" ]');
+        done();
+    });
+
+    it('correct dockerfile contents (release)', function (done) {
+        var currentFolder = process.cwd().split(path.sep).pop();
+        assert.fileContent('Dockerfile', 'CMD [ "python", "./main.py" ]');
+        done();
+    });
+
+    it('correct compose file contents (debug)', function (done) {
+        assert.fileContent('docker-compose.debug.yml', 'image: testimagename:debug');
+        assert.noFileContent('docker-compose.debug.yml', '"3000:3000"');
+        assert.noFileContent('docker-compose.debug.yml', '- REMOTE_DEBUGGING');
+        done();
+    });
+
+    it('correct compose file contents (release)', function (done) {
+        assert.fileContent('docker-compose.yml', 'image: testimagename');
+        assert.noFileContent('docker-compose.yml', '"3000:3000"');
+        assert.noFileContent('docker-compose.yml', '- REMOTE_DEBUGGING');
+        done();
+    });
+
+    it('correct settings.json file contents', function (done) {
+        assert.fileContent('.vscode/settings.json', '"dockerfile.*": "dockerfile"');
+        done();
+    });
+});

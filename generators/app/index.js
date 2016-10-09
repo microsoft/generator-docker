@@ -13,10 +13,12 @@ var util = require('./utils.js');
 var NodejsHelper = require('./nodejsHelper.js');
 var GolangHelper = require('./golangHelper.js');
 var DotNetHelper = require('./dotnetHelper.js');
+var Python3Helper = require('./python3Helper.js');
 var Configstore = require('configstore');
 var appInsights = require('applicationinsights');
 var os = require('os');
 var uuid = require('node-uuid');
+var fs = require('fs');
 
 // General
 var projectType = '';
@@ -48,6 +50,9 @@ var AppInsightsKey = '21098969-0721-47bc-87cb-e346d186a9f5';
 var trackData = false;
 var userId = '';
 
+// Python3 variables
+var mainFile = 'main.py';
+
 /**
  * Show prompts to the user.
  */
@@ -66,7 +71,9 @@ function showPrompts() {
             }, {
                 name: 'Node.js',
                 value: 'nodejs'
-            }]
+            }, {
+                name: 'Python3',
+                value: 'python3'}]
     }, {
             type: 'list',
             name: 'baseImageName',
@@ -248,6 +255,25 @@ function handleDotNet(yo) {
     }
 
     handleCommmonTemplates(yo, dotNet, templateData, updateFiles.bind(yo));
+}
+
+/**
+ * Handles Python3 option.
+ */
+function handlePython3(yo) {
+    var python3 = new Python3Helper();
+
+    var done = yo.async();
+    var updateFiles = function() { done(); }
+
+    var templateData = getDefaultTemplateData();
+    templateData.isWebProject = isWebProject;
+    templateData.projectName = python3.getProjectName();
+
+    fs.closeSync(fs.openSync('requirements.txt', 'w'));
+    fs.closeSync(fs.openSync('main.py', 'w'));
+
+    handleCommmonTemplates(yo, python3, templateData, updateFiles.bind(yo));
 }
 
 /**
@@ -461,6 +487,11 @@ var DockerGenerator = yeoman.generators.Base.extend({
             case 'dotnet':
                 {
                     handleDotNet(this);
+                    break;
+                }
+            case 'python3':
+                {
+                    handlePython3(this);
                     break;
                 }
             default:
