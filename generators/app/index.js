@@ -62,67 +62,74 @@ function showPrompts() {
             name: '.NET Core',
             value: 'dotnet'
         }, {
-                name: 'Golang',
-                value: 'golang'
-            }, {
-                name: 'Node.js',
-                value: 'nodejs'
-            }]
+            name: 'Golang',
+            value: 'golang'
+        }, {
+            name: 'Node.js',
+            value: 'nodejs'
+        }]
     }, {
-            type: 'list',
-            name: 'baseImageName',
-            message: 'Which version of .NET Core is your project using?',
-            choices: [{
-                name: 'rtm',
-                value: 'dotnet:1.0.0-preview2-sdk'
-            }, {
-                name: 'rc2',
-                value: 'dotnet:1.0.0-preview1'
-            }, {
-                    name: 'rc1',
-                    value: 'aspnet:1.0.0-rc1-update1'
-                }],
-            when: function (answers) {
-                return answers.projectType === 'dotnet';
-            }
+        type: 'list',
+        name: 'baseImageName',
+        message: 'Which version of .NET Core is your project using?',
+        choices: [{
+            name: 'rtm',
+            value: 'dotnet:1.0.0-preview2-sdk'
         }, {
-            type: 'confirm',
-            name: 'isWebProject',
-            message: 'Does your project use a web server?',
-            default: function (answers) {
-                return true;
-            }
+            name: 'rc2',
+            value: 'dotnet:1.0.0-preview1'
         }, {
-            type: 'input',
-            name: 'portNumber',
-            message: 'Which port is your app listening to?',
-            default: function (answers) {
-                return answers.projectType === 'dotnet' ? 80 : 3000;
-            },
-            when: function (answers) {
-                // Show this answer if user picked .NET, Node.js or Golang that's using a web server.
-                return answers.isWebProject;
-            }
-        }, {
-            type: 'input',
-            name: 'imageName',
-            message: 'What do you want to name your image?',
-            default: process.cwd().split(path.sep).pop().toLowerCase()
-        }, {
-            type: 'input',
-            name: 'serviceName',
-            message: 'What do you want to name your service?',
-            default: process.cwd().split(path.sep).pop().toLowerCase()
-        }, {
-            type: 'input',
-            name: 'composeProjectName',
-            message: 'What do you want to name your compose project?',
-            default: process.cwd().split(path.sep).pop().toLowerCase().replace(/[^a-zA-Z0-9]/g, '')
-        }];
+            name: 'rc1',
+            value: 'aspnet:1.0.0-rc1-update1'
+        }],
+        when: function (answers) {
+            return answers.projectType === 'dotnet';
+        }
+    }, {
+        type: 'confirm',
+        name: 'isWebProject',
+        message: 'Does your project use a web server?',
+        default: function (answers) {
+            return true;
+        },
+        when: this.options.isWebProject === undefined
+    }, {
+        type: 'input',
+        name: 'portNumber',
+        message: 'Which port is your app listening to?',
+        default: function (answers) {
+            return answers.projectType === 'dotnet' ? 80 : 3000;
+        },
+        when: function (answers) {
+            // Show this answer if user picked .NET, Node.js or Golang that's using a web server.
+            return answers.isWebProject || this.options.isWebProject;
+        }.bind(this)
+    }, {
+        type: 'input',
+        name: 'imageName',
+        message: 'What do you want to name your image?',
+        default: process.cwd().split(path.sep).pop().toLowerCase()
+    }, {
+        type: 'input',
+        name: 'serviceName',
+        message: 'What do you want to name your service?',
+        default: process.cwd().split(path.sep).pop().toLowerCase()
+    }, {
+        type: 'input',
+        name: 'composeProjectName',
+        message: 'What do you want to name your compose project?',
+        default: process.cwd().split(path.sep).pop().toLowerCase().replace(/[^a-zA-Z0-9]/g, '')
+    }];
 
     this.prompt(prompts, function (props) {
-        projectType = props.projectType;
-        isWebProject = props.isWebProject;
+        if(props.projectType !== undefined) {
+            projectType = props.projectType
+        }
+
+        if(props.isWebProject !== undefined) {
+          isWebProject = props.isWebProject;
+        }
+
         portNumber = props.portNumber;
         imageName = props.imageName;
         serviceName = props.serviceName;
@@ -445,12 +452,19 @@ var DockerGenerator = yeoman.generators.Base.extend({
             required: false,
             desc: 'Project Type'
         });
+
+        this.option('isWebProject', {
+            type: Boolean,
+            required: false,
+            desc: 'Add Web Project Configuration'
+        });
     },
 
     init: function () {
         this.log(yosay('Welcome to the ' + chalk.red('Docker') + ' generator!' + chalk.green('\nLet\'s add Docker container magic to your app!')));
 
         projectType = this.options.projectType;
+        isWebProject = Boolean(this.options.isWebProject);
 
         handleAppInsights(this);
     },
