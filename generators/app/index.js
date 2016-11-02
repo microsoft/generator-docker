@@ -57,6 +57,7 @@ function showPrompts() {
         type: 'list',
         name: 'projectType',
         message: 'What language is your project using?',
+        when: !projectType,
         choices: [{
             name: '.NET Core',
             value: 'dotnet'
@@ -438,10 +439,19 @@ function handleAppInsights(yo) {
 var DockerGenerator = yeoman.generators.Base.extend({
     constructor: function () {
         yeoman.generators.Base.apply(this, arguments);
+
+        this.option('projectType', {
+            type: String,
+            required: false,
+            desc: 'Project Type'
+        });
     },
 
     init: function () {
         this.log(yosay('Welcome to the ' + chalk.red('Docker') + ' generator!' + chalk.green('\nLet\'s add Docker container magic to your app!')));
+
+        projectType = this.options.projectType;
+
         handleAppInsights(this);
     },
     askFor: showPrompts,
@@ -464,7 +474,7 @@ var DockerGenerator = yeoman.generators.Base.extend({
                     break;
                 }
             default:
-                this.log.error(':( not implemented.');
+                this.log.error(projectType + ' generator not implemented.');
                 break;
         }
     },
