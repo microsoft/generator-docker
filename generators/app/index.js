@@ -102,7 +102,8 @@ function showPrompts() {
         },
         when: function (answers) {
             // Show this answer if user picked .NET, Node.js or Golang that's using a web server.
-            return answers.isWebProject || this.options.isWebProject;
+            if (this.options.portNumber) return false;
+            return (answers.isWebProject || this.options.isWebProject);
         }.bind(this)
     }, {
         type: 'input',
@@ -130,7 +131,10 @@ function showPrompts() {
           isWebProject = props.isWebProject;
         }
 
-        portNumber = props.portNumber;
+        if(props.portNumber !== undefined) {
+          portNumber = props.portNumber;
+        }
+
         imageName = props.imageName;
         serviceName = props.serviceName;
         baseImageName = props.baseImageName;
@@ -458,6 +462,12 @@ var DockerGenerator = yeoman.generators.Base.extend({
             required: false,
             desc: 'Add Web Project Configuration'
         });
+
+        this.option('portNumber', {
+            type: Number,
+            required: false,
+            desc: 'Port Number'
+        });
     },
 
     init: function () {
@@ -465,6 +475,7 @@ var DockerGenerator = yeoman.generators.Base.extend({
 
         projectType = this.options.projectType;
         isWebProject = Boolean(this.options.isWebProject);
+        portNumber = this.options.portNumber;
 
         handleAppInsights(this);
     },
