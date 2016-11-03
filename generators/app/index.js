@@ -57,7 +57,7 @@ function showPrompts() {
         type: 'list',
         name: 'projectType',
         message: 'What language is your project using?',
-        when: !projectType,
+        when: !this.options.projectType,
         choices: [{
             name: '.NET Core',
             value: 'dotnet'
@@ -83,8 +83,10 @@ function showPrompts() {
             value: 'aspnet:1.0.0-rc1-update1'
         }],
         when: function (answers) {
-            return answers.projectType === 'dotnet';
-        }
+            if (this.options.baseImageName) return false;
+            var projectType = answers.projectType || this.options.projectType;
+            return projectType === 'dotnet';
+        }.bind(this)
     }, {
         type: 'confirm',
         name: 'isWebProject',
@@ -92,53 +94,65 @@ function showPrompts() {
         default: function (answers) {
             return true;
         },
-        when: this.options.isWebProject === undefined
+        when: function (answers) {
+            return this.options.isWebProject === undefined;
+        }.bind(this)
     }, {
         type: 'input',
         name: 'portNumber',
         message: 'Which port is your app listening to?',
         default: function (answers) {
-            return answers.projectType === 'dotnet' ? 80 : 3000;
-        },
+            var projectType = answers.projectType || this.options.projectType;
+            return projectType === 'dotnet' ? 80 : 3000;
+        }.bind(this),
         when: function (answers) {
             // Show this answer if user picked .NET, Node.js or Golang that's using a web server.
             if (this.options.portNumber) return false;
-            return (answers.isWebProject || this.options.isWebProject);
+            var isWebProject = (answers.isWebProject || this.options.isWebProject);
+            return isWebProject;
         }.bind(this)
     }, {
         type: 'input',
         name: 'imageName',
         message: 'What do you want to name your image?',
-        default: process.cwd().split(path.sep).pop().toLowerCase()
+        default: process.cwd().split(path.sep).pop().toLowerCase(),
+        when: function (answers) {
+            return this.options.imageName === undefined;
+        }.bind(this)
     }, {
         type: 'input',
         name: 'serviceName',
         message: 'What do you want to name your service?',
-        default: process.cwd().split(path.sep).pop().toLowerCase()
+        default: process.cwd().split(path.sep).pop().toLowerCase(),
+        when: function (answers) {
+            return this.options.serviceName === undefined;
+        }.bind(this)
     }, {
         type: 'input',
         name: 'composeProjectName',
         message: 'What do you want to name your compose project?',
-        default: process.cwd().split(path.sep).pop().toLowerCase().replace(/[^a-zA-Z0-9]/g, '')
+        default: process.cwd().split(path.sep).pop().toLowerCase().replace(/[^a-zA-Z0-9]/g, ''),
+        when: function (answers) {
+            return this.options.composeProjectName === undefined;
+        }.bind(this)
     }];
 
     this.prompt(prompts, function (props) {
-        if(props.projectType !== undefined) {
-            projectType = props.projectType
+        function choose(x, y) {
+          if (x === undefined) {
+              return y;
+          } else {
+              return x;
+          }
         }
 
-        if(props.isWebProject !== undefined) {
-          isWebProject = props.isWebProject;
-        }
-
-        if(props.portNumber !== undefined) {
-          portNumber = props.portNumber;
-        }
-
-        imageName = props.imageName;
-        serviceName = props.serviceName;
-        baseImageName = props.baseImageName;
-        composeProjectName = props.composeProjectName.replace(/[^a-zA-Z0-9]/g, '');
+        projectType = choose(props.projectType, this.options.projectType);
+        isWebProject = Boolean(choose(props.isWebProject, this.options.isWebProject));
+        portNumber = choose(props.portNumber, this.options.portNumber);
+        baseImageName = choose(props.baseImageName, this.options.baseImageName);
+        imageName = choose(props.imageName, this.options.imageName);
+        serviceName = choose(props.serviceName, this.options.serviceName);
+        composeProjectName = choose(props.composeProjectName, this.options.composeProjectName).replace(/[^a-zA-Z0-9]/g, '');
         done();
     }.bind(this));
 }
@@ -468,15 +482,34 @@ var DockerGenerator = yeoman.generators.Base.extend({
             required: false,
             desc: 'Port Number'
         });
+
+        this.option('baseImageName', {
+            type: String,
+            required: false,
+            desc: '.Net Core version'
+        });
+
+        this.option('imageName', {
+            type: String,
+            required: false,
+            desc: 'Image Name'
+        });
+
+        this.option('serviceName', {
+            type: String,
+            required: false,
+            desc: 'serviceName'
+        });
+
+        this.option('composeProjectName', {
+            type: String,
+            required: false,
+            desc: 'composeProjectName'
+        });
     },
 
     init: function () {
         this.log(yosay('Welcome to the ' + chalk.red('Docker') + ' generator!' + chalk.green('\nLet\'s add Docker container magic to your app!')));
-
-        projectType = this.options.projectType;
-        isWebProject = Boolean(this.options.isWebProject);
-        portNumber = this.options.portNumber;
-
         handleAppInsights(this);
     },
     askFor: showPrompts,
