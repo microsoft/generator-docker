@@ -57,76 +57,102 @@ function showPrompts() {
         type: 'list',
         name: 'projectType',
         message: 'What language is your project using?',
+        when: !this.options.projectType,
         choices: [{
             name: '.NET Core',
             value: 'dotnet'
         }, {
-                name: 'Golang',
-                value: 'golang'
-            }, {
-                name: 'Node.js',
-                value: 'nodejs'
-            }]
+            name: 'Golang',
+            value: 'golang'
+        }, {
+            name: 'Node.js',
+            value: 'nodejs'
+        }]
     }, {
-            type: 'list',
-            name: 'baseImageName',
-            message: 'Which version of .NET Core is your project using?',
-            choices: [{
-                name: 'rtm',
-                value: 'dotnet:1.0.0-preview2-sdk'
-            }, {
-                name: 'rc2',
-                value: 'dotnet:1.0.0-preview1'
-            }, {
-                    name: 'rc1',
-                    value: 'aspnet:1.0.0-rc1-update1'
-                }],
-            when: function (answers) {
-                return answers.projectType === 'dotnet';
-            }
+        type: 'list',
+        name: 'baseImageName',
+        message: 'Which version of .NET Core is your project using?',
+        choices: [{
+            name: 'rtm',
+            value: 'dotnet:1.0.0-preview2-sdk'
         }, {
-            type: 'confirm',
-            name: 'isWebProject',
-            message: 'Does your project use a web server?',
-            default: function (answers) {
-                return true;
-            }
+            name: 'rc2',
+            value: 'dotnet:1.0.0-preview1'
         }, {
-            type: 'input',
-            name: 'portNumber',
-            message: 'Which port is your app listening to?',
-            default: function (answers) {
-                return answers.projectType === 'dotnet' ? 80 : 3000;
-            },
-            when: function (answers) {
-                // Show this answer if user picked .NET, Node.js or Golang that's using a web server.
-                return answers.isWebProject;
-            }
-        }, {
-            type: 'input',
-            name: 'imageName',
-            message: 'What do you want to name your image?',
-            default: process.cwd().split(path.sep).pop().toLowerCase()
-        }, {
-            type: 'input',
-            name: 'serviceName',
-            message: 'What do you want to name your service?',
-            default: process.cwd().split(path.sep).pop().toLowerCase()
-        }, {
-            type: 'input',
-            name: 'composeProjectName',
-            message: 'What do you want to name your compose project?',
-            default: process.cwd().split(path.sep).pop().toLowerCase().replace(/[^a-zA-Z0-9]/g, '')
-        }];
+            name: 'rc1',
+            value: 'aspnet:1.0.0-rc1-update1'
+        }],
+        when: function (answers) {
+            if (this.options.baseImageName) return false;
+            var projectType = answers.projectType || this.options.projectType;
+            return projectType === 'dotnet';
+        }.bind(this)
+    }, {
+        type: 'confirm',
+        name: 'isWebProject',
+        message: 'Does your project use a web server?',
+        default: function (answers) {
+            return true;
+        },
+        when: function (answers) {
+            return this.options.isWebProject === undefined;
+        }.bind(this)
+    }, {
+        type: 'input',
+        name: 'portNumber',
+        message: 'Which port is your app listening to?',
+        default: function (answers) {
+            var projectType = answers.projectType || this.options.projectType;
+            return projectType === 'dotnet' ? 80 : 3000;
+        }.bind(this),
+        when: function (answers) {
+            // Show this answer if user picked .NET, Node.js or Golang that's using a web server.
+            if (this.options.portNumber) return false;
+            var isWebProject = (answers.isWebProject || this.options.isWebProject);
+            return isWebProject;
+        }.bind(this)
+    }, {
+        type: 'input',
+        name: 'imageName',
+        message: 'What do you want to name your image?',
+        default: process.cwd().split(path.sep).pop().toLowerCase(),
+        when: function (answers) {
+            return this.options.imageName === undefined;
+        }.bind(this)
+    }, {
+        type: 'input',
+        name: 'serviceName',
+        message: 'What do you want to name your service?',
+        default: process.cwd().split(path.sep).pop().toLowerCase(),
+        when: function (answers) {
+            return this.options.serviceName === undefined;
+        }.bind(this)
+    }, {
+        type: 'input',
+        name: 'composeProjectName',
+        message: 'What do you want to name your compose project?',
+        default: process.cwd().split(path.sep).pop().toLowerCase().replace(/[^a-zA-Z0-9]/g, ''),
+        when: function (answers) {
+            return this.options.composeProjectName === undefined;
+        }.bind(this)
+    }];
 
     this.prompt(prompts, function (props) {
-        projectType = props.projectType;
-        isWebProject = props.isWebProject;
-        portNumber = props.portNumber;
-        imageName = props.imageName;
-        serviceName = props.serviceName;
-        baseImageName = props.baseImageName;
-        composeProjectName = props.composeProjectName.replace(/[^a-zA-Z0-9]/g, '');
+        function choose(x, y) {
+          if (x === undefined) {
+              return y;
+          } else {
+              return x;
+          }
+        }
+
+        projectType = choose(props.projectType, this.options.projectType);
+        isWebProject = Boolean(choose(props.isWebProject, this.options.isWebProject));
+        portNumber = choose(props.portNumber, this.options.portNumber);
+        baseImageName = choose(props.baseImageName, this.options.baseImageName);
+        imageName = choose(props.imageName, this.options.imageName);
+        serviceName = choose(props.serviceName, this.options.serviceName);
+        composeProjectName = choose(props.composeProjectName, this.options.composeProjectName).replace(/[^a-zA-Z0-9]/g, '');
         done();
     }.bind(this));
 }
@@ -438,13 +464,57 @@ function handleAppInsights(yo) {
 var DockerGenerator = yeoman.generators.Base.extend({
     constructor: function () {
         yeoman.generators.Base.apply(this, arguments);
+
+        this.option('projectType', {
+            type: String,
+            required: false,
+            desc: 'Project Type'
+        });
+
+        this.option('isWebProject', {
+            type: Boolean,
+            required: false,
+            desc: 'Add Web Project Configuration'
+        });
+
+        this.option('portNumber', {
+            type: Number,
+            required: false,
+            desc: 'Port Number'
+        });
+
+        this.option('baseImageName', {
+            type: String,
+            required: false,
+            desc: '.Net Core version'
+        });
+
+        this.option('imageName', {
+            type: String,
+            required: false,
+            desc: 'Image Name'
+        });
+
+        this.option('serviceName', {
+            type: String,
+            required: false,
+            desc: 'Service Name'
+        });
+
+        this.option('composeProjectName', {
+            type: String,
+            required: false,
+            desc: 'Compose Project Name'
+        });
     },
 
     init: function () {
         this.log(yosay('Welcome to the ' + chalk.red('Docker') + ' generator!' + chalk.green('\nLet\'s add Docker container magic to your app!')));
         handleAppInsights(this);
     },
+
     askFor: showPrompts,
+
     writing: function () {
         this.sourceRoot(path.join(__dirname, './templates'));
         switch (projectType) {
@@ -464,10 +534,11 @@ var DockerGenerator = yeoman.generators.Base.extend({
                     break;
                 }
             default:
-                this.log.error(':( not implemented.');
+                this.log.error(projectType + ' generator not implemented.');
                 break;
         }
     },
+
     end: end
 });
 
