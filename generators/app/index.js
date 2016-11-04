@@ -498,13 +498,13 @@ var DockerGenerator = yeoman.generators.Base.extend({
         this.option('serviceName', {
             type: String,
             required: false,
-            desc: 'serviceName'
+            desc: 'Service Name'
         });
 
         this.option('composeProjectName', {
             type: String,
             required: false,
-            desc: 'composeProjectName'
+            desc: 'Compose Project Name'
         });
     },
 
@@ -512,7 +512,9 @@ var DockerGenerator = yeoman.generators.Base.extend({
         this.log(yosay('Welcome to the ' + chalk.red('Docker') + ' generator!' + chalk.green('\nLet\'s add Docker container magic to your app!')));
         handleAppInsights(this);
     },
+
     askFor: showPrompts,
+
     writing: function () {
         this.sourceRoot(path.join(__dirname, './templates'));
         switch (projectType) {
@@ -536,6 +538,7 @@ var DockerGenerator = yeoman.generators.Base.extend({
                 break;
         }
     },
+
     end: end
 });
 
