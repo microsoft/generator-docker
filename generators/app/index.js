@@ -16,7 +16,7 @@ var DotNetHelper = require('./dotnetHelper.js');
 var Configstore = require('configstore');
 var appInsights = require('applicationinsights');
 var os = require('os');
-var uuid = require('node-uuid');
+var uuid = require('uuid');
 
 // General
 var projectType = '';
