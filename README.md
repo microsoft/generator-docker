@@ -68,39 +68,39 @@ However, we really need your feedback, so please help us help you by opting in.
 + Updated Docker for Windows beta address to http://localhost
 + BugFix: Special characters in project names are now ignored.
 
-###v0.0.34
+### v0.0.34
 + Switch to using docker-compose for build.
 + BugFix: Add usage of ASPNETCORE_URLS Environment variable to support urls other than localhost for .NET Core.
 
-###v0.0.33
+### v0.0.33
 + Added support for .Net Core RTM.
 
-###v0.0.32
+### v0.0.32
 + Added integrated debugging using **[F5]** for both Node.js and .NET Core.
 + Changed to always generate bash and PowerShell scripts to enable cross-platform development.
 + Changed compose file to use the image created by build (introduced a tag to disambiguate debug and release image).
 + Removed usage of docker-machine in favor of defaults for Docker for Windows and Docker for Mac.
 
-###v0.0.31
+### v0.0.31
 + Added support for ASP.Net Core 5 RC2.
 + BigFix: Optimized the creation of the node image to take advantage of caching.
 
-###v0.0.29
+### v0.0.29
 + Fix for issue #34 (Update ASP.NET dockerfile and add support for RC).
 
-###v0.0.27
+### v0.0.27
 + Replaced .CMD file with PowerShell script.
 + Adding .debug and .release compose files.
 + Replaced ADD command with COPY command in dockerfile.
 
-###v0.0.26
+### v0.0.26
 + BugFix: fixing issues with the path on Windows when using volume sharing in Node.js projects.
 
-###v0.0.25
+### v0.0.25
 + BugFix: making sure config is defined before reading a property.
 + BugFix: tracking if users opted-in or out for data collection.
 
-###v0.0.24
+### v0.0.24
 + Docker-compose.yml files are being created now for all project types.
 
 ## License
