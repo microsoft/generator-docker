@@ -14,7 +14,6 @@ var NodejsHelper = require('./nodejsHelper.js');
 var GolangHelper = require('./golangHelper.js');
 var DotNetHelper = require('./dotnetHelper.js');
 var Configstore = require('configstore');
-var appInsights = require('applicationinsights');
 var os = require('os');
 var uuid = require('node-uuid');
 
@@ -42,9 +41,6 @@ var updateProgramCSNoteForUser = null;
 
 // Application insights variables.
 var pkg = require(__dirname + '/../../package.json');
-var AppInsightsOptInName = 'appInsightsOptIn';
-var AppInsightsUserIdName = 'userId';
-var AppInsightsKey = '21098969-0721-47bc-87cb-e346d186a9f5';
 var trackData = false;
 var userId = '';
 
@@ -339,97 +335,8 @@ function end() {
         this.log(updateProjectJsonNoteForUser);
     }
 
-    logData();
     this.log('Your project is now ready to run in a Docker container!');
     this.log('Run ' + chalk.green(util.getDestinationScriptName()) + ' to build a Docker image and run your app in a container.');
-}
-
-/**
- * Sends the data to application insights.
- */
-function logData() {
-    if (!trackData) {
-        return;
-    }
-
-    if (DockerGenerator.config !== undefined && DockerGenerator.config.get('runningTests') !== undefined) {
-        return;
-    }
-
-    var client = appInsights.getClient(AppInsightsKey);
-    client.config.maxBatchIntervalMs = 1000;
-    appInsights.setup(AppInsightsKey).start();
-
-    client.trackEvent('YoDockerLaunch', {
-        'userId': userId,
-        'version': pkg.version,
-        'osPlatform': os.platform(),
-        'projectType': projectType,
-        'portNumber': portNumber,
-        'imageName': imageName,
-        'isWebProject': isWebProject === undefined ? 'undefined' : isWebProject,
-        'baseImageName': imageName === undefined ? 'undefined' : baseImageName
-    });
-
-    // Workaround for https://github.com/Microsoft/ApplicationInsights-node.js/issues/54
-    appInsights.setAutoCollectPerformance(false);
-}
-
-/**
- * Prompts for data tracking permission and sets up the global opt-in.
- */
-function handleAppInsights(yo) {
-    // Config is stored at: ~/.config/configstore/generator-docker.json
-    var config = new Configstore(pkg.name);
-
-    if (config.get('runningTests') !== undefined) {
-        return;
-    }
-
-    if (config.get(AppInsightsOptInName) === undefined) {
-        var done = yo.async();
-        var q = {
-            type: 'confirm',
-            name: 'optIn',
-            message: 'Generator-docker would like to collect anonymized data\n' +
-                'on the options you selected to understand and improve your experience.\n' +
-                'To opt out later, you can delete ' + chalk.red('~/.config/configstore/' + pkg.name + '.json.\n') +
-                'Will you help us help you and your fellow developers?',
-            default: true
-        };
-
-        yo.prompt(q, function (props) {
-            trackData = props.optIn;
-
-            // Set the userId only if user opted-in.
-            userId = trackData ? uuid.v1() : '';
-
-            config.set(AppInsightsOptInName, trackData);
-            config.set(AppInsightsUserIdName, userId);
-
-            var client = appInsights.getClient(AppInsightsKey);
-            client.config.maxBatchIntervalMs = 1000;
-            appInsights.setup(AppInsightsKey).start();
-
-            client.trackEvent('YoDockerCollectData', {
-                'opt-in': trackData.toString(),
-                'userId': userId
-            });
-
-            appInsights.setAutoCollectPerformance(false);
-
-            done();
-        }.bind(yo));
-    } else {
-        trackData = config.get(AppInsightsOptInName);
-        userId = config.get(AppInsightsUserIdName);
-
-        // Create a user Id for opted-in users.
-        if (trackData && userId === undefined) {
-            userId = uuid.v1();
-            config.set(AppInsightsUserIdName, userId);
-        }
-    }
 }
 
 /**
@@ -442,7 +349,6 @@ var DockerGenerator = yeoman.generators.Base.extend({
 
     init: function () {
         this.log(yosay('Welcome to the ' + chalk.red('Docker') + ' generator!' + chalk.green('\nLet\'s add Docker container magic to your app!')));
-        handleAppInsights(this);
     },
     askFor: showPrompts,
     writing: function () {
