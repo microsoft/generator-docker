@@ -13,7 +13,7 @@ describe('Node.js project file creation (Non Web project)', function () {
     before(function (done) {
         helpers.run(path.join( __dirname, '../generators/app'))
         .withLocalConfig(function() {
-            return { "appInsightsOptIn": false, "runningTests": true }; })
+            return {"runningTests": true }; })
         .withPrompts({ projectType: 'nodejs', isWebProject: false, imageName: 'testimagename' })
         .on('end', done);
     });
@@ -109,7 +109,7 @@ describe('Node.js project file creation (Web project)', function () {
     before(function (done) {
         helpers.run(path.join( __dirname, '../generators/app'))
         .withLocalConfig(function() {
-            return { "appInsightsOptIn": false, "runningTests": true }; })
+            return {"runningTests": true }; })
         .withPrompts({ projectType: 'nodejs', isWebProject: true, imageName: 'testimagename' })
         .on('end', done);
     });

@@ -108,7 +108,7 @@ describe('.NET RC1 project file creation (Web project)', function () {
         .inTmpDir(function (dir) {
             createTestProjectJson(dir); })
         .withLocalConfig(function() {
-            return { "appInsightsOptIn": false, "runningTests": true }; })
+            return {"runningTests": true }; })
         .withPrompts({ projectType: 'dotnet', isWebProject: true, baseImageName: 'aspnet:1.0.0-rc1-update1', imageName: 'testimagename' })
         .on('end', done);
     });
@@ -212,7 +212,7 @@ describe('.NET RC1 project file creation (Non Web project)', function () {
         .inTmpDir(function (dir) {
             createTestProjectJson(dir); })
         .withLocalConfig(function() {
-            return { "appInsightsOptIn": false, "runningTests": true }; })
+            return {"runningTests": true }; })
         .withPrompts({ projectType: 'dotnet', isWebProject: false, baseImageName: 'aspnet:1.0.0-rc1-update1', imageName: 'testimagename' })
         .on('end', done);
     });
@@ -315,7 +315,7 @@ describe('.NET RC2 project file creation (Web project)', function () {
             createTestProjectJson(dir);
             createTestProgramCS(dir); })
         .withLocalConfig(function() {
-            return { "appInsightsOptIn": false, "runningTests": true }; })
+            return {"runningTests": true }; })
         .withPrompts({ projectType: 'dotnet', isWebProject: true, baseImageName: 'dotnet:1.0.0-preview1', imageName: 'testimagename' })
         .on('end', done);
     });
@@ -441,7 +441,7 @@ describe('.NET RC2 project file creation (Non Web project)', function () {
             createTestProjectJson(dir);
             createTestProgramCS(dir); })
         .withLocalConfig(function() {
-            return { "appInsightsOptIn": false, "runningTests": true }; })
+            return { "runningTests": true }; })
         .withPrompts({ projectType: 'dotnet', isWebProject: false, baseImageName: 'dotnet:1.0.0-preview1', imageName: 'testimagename' })
         .on('end', done);
     });
@@ -568,7 +568,7 @@ describe('.NET RTM project file creation (Web project)', function () {
             createTestProgramCS(dir);
         })
         .withLocalConfig(function () {
-            return { "appInsightsOptIn": false, "runningTests": true };
+            return {"runningTests": true };
         })
         .withPrompts({ projectType: 'dotnet', isWebProject: true, baseImageName: 'dotnet:1.0.0-preview2-sdk', imageName: 'testimagename' })
         .on('end', done);
@@ -691,7 +691,7 @@ describe('.NET RTM project file creation (Non Web project)', function () {
             createTestProgramCS(dir);
         })
         .withLocalConfig(function () {
-            return { "appInsightsOptIn": false, "runningTests": true };
+            return {"runningTests": true };
         })
         .withPrompts({ projectType: 'dotnet', isWebProject: false, baseImageName: 'dotnet:1.0.0-preview2-sdk', imageName: 'testimagename' })
         .on('end', done);
@@ -812,7 +812,7 @@ describe('.NET RC1 project file creation when web command exists', function () {
         .inTmpDir(function(dir) {
             createTestProjectJson(dir, 'EXISTING_WEB_COMMAND'); })
         .withLocalConfig(function() {
-            return { "appInsightsOptIn": false, "runningTests": true }; })
+            return {"runningTests": true }; })
         .withPrompts({ projectType: 'dotnet', baseImageName: 'aspnet:1.0.0-rc1-update1' })
         .on('end', done);
     });
@@ -835,7 +835,7 @@ describe('.NET RC2 project file creation when UseUrls exists', function () {
             createTestProjectJson(dir);
             createTestProgramCSWithUseUrls(dir); })
         .withLocalConfig(function() {
-            return { "appInsightsOptIn": false, "runningTests": true }; })
+            return {"runningTests": true }; })
         .withPrompts({ projectType: 'dotnet', baseImageName: 'dotnet:1.0.0-preview1' })
         .on('end', done);
     });

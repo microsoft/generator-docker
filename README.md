@@ -58,11 +58,11 @@ See [Contributing][contributingLink] for guidelines
 - **Q: Are you taking feedback?**
   - **A:** Of course. Please open an issue at [yodockerissues] or choose to [contribute][contributingLink].
 
-## Collecting usage data
-Generator-docker collects anonymized data on the options you selected in the tool to understand and improve the experience. You are given a choice to opt-in or opt-out first time you run the tool. If you opt-in and decide to opt-out later, simply delete the `~/.config/configstore/generator-docker.json` file from your machine.
-However, we really need your feedback, so please help us help you by opting in.
-
 ## Version History
+
+###v0.0.36
++ Removed Application Insights telemetry
+
 ###v0.0.35
 + Added support for .Net Core Console Apps.
 + Updated Docker for Windows beta address to http://localhost
