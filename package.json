@@ -1,6 +1,6 @@
 {
   "name": "generator-docker",
-  "version": "0.0.35",
+  "version": "0.0.36",
   "description": "Docker generator",
   "files": [
     "generators/app"
@@ -23,7 +23,6 @@
     "url": "https://github.com/Microsoft/generator-docker"
   },
   "dependencies": {
-    "applicationinsights": "^0.15.8",
     "chalk": "^1.0.0",
     "configstore": "^1.3.0",
     "node-uuid": "^1.4.7",
