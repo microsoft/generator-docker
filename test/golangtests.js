@@ -66,7 +66,8 @@ describe('Golang project file creation (Non Web project)', function () {
         var currentFolder = process.cwd().split(path.sep).pop();
         assert.fileContent('Dockerfile.debug', 'COPY . /go/src/github.com/' + currentFolder);
         assert.fileContent('Dockerfile.debug', 'RUN go install github.com/' + currentFolder);
-        assert.fileContent('Dockerfile.debug', 'ENTRYPOINT /go/bin/' + currentFolder);
+        assert.fileContent('Dockerfile.debug', 'COPY --from=build-stage /go/bin/' + currentFolder + ' /app/')
+        assert.fileContent('Dockerfile.debug', 'ENTRYPOINT /app/' + currentFolder);
         done();
     });
 
@@ -74,7 +75,8 @@ describe('Golang project file creation (Non Web project)', function () {
         var currentFolder = process.cwd().split(path.sep).pop();
         assert.fileContent('Dockerfile', 'COPY . /go/src/github.com/' + currentFolder);
         assert.fileContent('Dockerfile', 'RUN go install github.com/' + currentFolder);
-        assert.fileContent('Dockerfile', 'ENTRYPOINT /go/bin/' + currentFolder);
+        assert.fileContent('Dockerfile', 'COPY --from=build-stage /go/bin/' + currentFolder + ' /app/')
+        assert.fileContent('Dockerfile', 'ENTRYPOINT /app/' + currentFolder);
         done();
     });
 
@@ -155,7 +157,8 @@ describe('Golang project file creation (Web project)', function () {
         var currentFolder = process.cwd().split(path.sep).pop();
         assert.fileContent('Dockerfile.debug', 'COPY . /go/src/github.com/' + currentFolder);
         assert.fileContent('Dockerfile.debug', 'RUN go install github.com/' + currentFolder);
-        assert.fileContent('Dockerfile.debug', 'ENTRYPOINT /go/bin/' + currentFolder);
+        assert.fileContent('Dockerfile.debug', 'COPY --from=build-stage /go/bin/' + currentFolder + ' /app/')
+        assert.fileContent('Dockerfile.debug', 'ENTRYPOINT /app/' + currentFolder);
         done();
     });
 
@@ -163,7 +166,8 @@ describe('Golang project file creation (Web project)', function () {
         var currentFolder = process.cwd().split(path.sep).pop();
         assert.fileContent('Dockerfile', 'COPY . /go/src/github.com/' + currentFolder);
         assert.fileContent('Dockerfile', 'RUN go install github.com/' + currentFolder);
-        assert.fileContent('Dockerfile', 'ENTRYPOINT /go/bin/' + currentFolder);
+        assert.fileContent('Dockerfile', 'COPY --from=build-stage /go/bin/' + currentFolder + ' /app/')
+        assert.fileContent('Dockerfile', 'ENTRYPOINT /app/' + currentFolder);
         done();
     });
 
