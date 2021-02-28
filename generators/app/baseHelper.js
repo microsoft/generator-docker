@@ -7,6 +7,7 @@ var util = require('./utils.js');
 var path = require('path');
 var process = require('process');
 var fs = require('fs');
+var decomment = require('decomment');
 
 /**
  * Represents a base helper for projects.
@@ -123,7 +124,7 @@ BaseHelper.prototype.updateSettingsJson = function (cb) {
                 data = data.replace(/^\uFEFF/, '');
             }
 
-            data = JSON.parse(data);
+            data = JSON.parse(decomment(data));
 
             updateSettingsCB(data, true, cb);
         });
